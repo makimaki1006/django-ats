@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}面接一覧 - Django ATS{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- ヘッダー -->
+    <div class="sm:flex sm:items-center sm:justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">面接一覧</h1>
+            <p class="mt-1 text-sm text-gray-500">
+                面接スケジュールを管理します
+                {% if today_count %}<span class="text-blue-600">（本日{{ today_count }}件）</span>{% endif %}
+            </p>
+        </div>
+        <div class="mt-4 sm:mt-0 flex space-x-3">
+            <a href="{% url 'interviews:interview_calendar' %}"
+               class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                カレンダー
+            </a>
+            <a href="{% url 'interviews:interview_create' %}"
+               class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                新規登録
+            </a>
+        </div>
+    </div>
+
+    <!-- フィルター -->
+    <div class="bg-white shadow rounded-lg p-4">
+        <form method="get" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+                <label for="q" class="sr-only">検索</label>
+                {{ filter_form.q }}
+            </div>
+            <div>
+                <label for="status" class="sr-only">ステータス</label>
+                {{ filter_form.status }}
+            </div>
+            <div>
+                <label for="date_filter" class="sr-only">日程</label>
+                {{ filter_form.date_filter }}
+            </div>
+            <div class="flex items-center">
+                <button type="submit"
+                        class="w-full inline-flex justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                    検索
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- 面接一覧 -->
+    <div class="bg-white shadow overflow-hidden rounded-lg">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        候補者
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        面接
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        日時
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        面接官
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        ステータス
+                    </th>
+                    <th scope="col" class="relative px-6 py-3">
+                        <span class="sr-only">操作</span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for interview in interviews %}
+                <tr class="hover:bg-gray-50 {% if interview.is_today %}bg-blue-50{% endif %}">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10">
+                                <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
+                                    <span class="text-sm font-medium text-blue-700">{{ interview.candidate.name|slice:":2" }}</span>
+                                </span>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">
+                                    <a href="{% url 'candidates:candidate_detail' pk=interview.candidate.pk %}" class="hover:text-blue-600">
+                                        {{ interview.candidate.name }}
+                                    </a>
+                                </div>
+                                <div class="text-sm text-gray-500">{{ interview.job.title }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">{{ interview.get_interview_round_display }}</div>
+                        <div class="text-xs text-gray-500">{{ interview.get_interview_type_display }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">{{ interview.scheduled_at|date:"Y/m/d" }}</div>
+                        <div class="text-sm text-gray-500">{{ interview.scheduled_at|time:"H:i" }} ({{ interview.duration_minutes }}分)</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ interview.interviewer.get_full_name|default:"-" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                            {% if interview.status == 'scheduled' %}bg-blue-100 text-blue-800
+                            {% elif interview.status == 'confirmed' %}bg-green-100 text-green-800
+                            {% elif interview.status == 'in_progress' %}bg-yellow-100 text-yellow-800
+                            {% elif interview.status == 'completed' %}bg-gray-100 text-gray-800
+                            {% elif interview.status == 'cancelled' %}bg-red-100 text-red-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ interview.get_status_display }}
+                        </span>
+                        {% if interview.result != 'pending' and interview.status == 'completed' %}
+                        <span class="ml-1 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                            {% if interview.result == 'passed' %}bg-green-100 text-green-800
+                            {% elif interview.result == 'failed' %}bg-red-100 text-red-800
+                            {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                            {{ interview.get_result_display }}
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <a href="{% url 'interviews:interview_detail' pk=interview.pk %}" class="text-blue-600 hover:text-blue-900">
+                            詳細
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-6 py-12 text-center">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900">面接がありません</h3>
+                        <p class="mt-1 text-sm text-gray-500">新しい面接を登録してください。</p>
+                        <div class="mt-6">
+                            <a href="{% url 'interviews:interview_create' %}"
+                               class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                                <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                面接を登録
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ページネーション -->
+    {% if page_obj.has_other_pages %}
+    <nav class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 rounded-lg shadow">
+        <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm text-gray-700">
+                    全 <span class="font-medium">{{ page_obj.paginator.count }}</span> 件中
+                    <span class="font-medium">{{ page_obj.start_index }}</span> -
+                    <span class="font-medium">{{ page_obj.end_index }}</span> 件を表示
+                </p>
+            </div>
+            <div>
+                <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm">
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                        <span class="sr-only">前へ</span>
+                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                    {% endif %}
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <span class="relative z-10 inline-flex items-center bg-blue-600 px-4 py-2 text-sm font-semibold text-white">{{ num }}</span>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?page={{ num }}" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                        <span class="sr-only">次へ</span>
+                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

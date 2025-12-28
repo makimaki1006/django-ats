@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}ログイン - Django ATS{% endblock %}
+
+{% block auth_content %}
+<div class="sm:mx-auto sm:w-full sm:max-w-md">
+    <div class="flex justify-center">
+        <img class="h-12 w-auto" src="{% static 'images/logo.svg' %}" alt="Django ATS">
+    </div>
+    <h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
+        ログイン
+    </h2>
+    <p class="mt-2 text-center text-sm text-gray-600">
+        アカウントをお持ちでない場合は
+        <a href="{% url 'account_signup' %}" class="font-medium text-blue-600 hover:text-blue-500">
+            新規登録
+        </a>
+    </p>
+</div>
+
+<div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+    <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        {% if messages %}
+        <div class="mb-4 space-y-2">
+            {% for message in messages %}
+            <div class="rounded-md {% if message.tags == 'error' %}bg-red-50{% else %}bg-blue-50{% endif %} p-4">
+                <p class="text-sm {% if message.tags == 'error' %}text-red-700{% else %}text-blue-700{% endif %}">{{ message }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form class="space-y-6" action="{% url 'account_login' %}" method="POST">
+            {% csrf_token %}
+
+            {% if redirect_field_value %}
+            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+            {% endif %}
+
+            <div>
+                <label for="id_login" class="block text-sm font-medium text-gray-700">
+                    メールアドレス
+                </label>
+                <div class="mt-1">
+                    <input id="id_login" name="login" type="email" autocomplete="email" required
+                           class="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+                           placeholder="your@email.com">
+                </div>
+                {% if form.login.errors %}
+                <p class="mt-2 text-sm text-red-600">{{ form.login.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="id_password" class="block text-sm font-medium text-gray-700">
+                    パスワード
+                </label>
+                <div class="mt-1">
+                    <input id="id_password" name="password" type="password" autocomplete="current-password" required
+                           class="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+                           placeholder="********">
+                </div>
+                {% if form.password.errors %}
+                <p class="mt-2 text-sm text-red-600">{{ form.password.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <input id="id_remember" name="remember" type="checkbox"
+                           class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                    <label for="id_remember" class="ml-2 block text-sm text-gray-900">
+                        ログイン状態を保持
+                    </label>
+                </div>
+
+                <div class="text-sm">
+                    <a href="{% url 'account_reset_password' %}" class="font-medium text-blue-600 hover:text-blue-500">
+                        パスワードを忘れた場合
+                    </a>
+                </div>
+            </div>
+
+            <div>
+                <button type="submit"
+                        class="flex w-full justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    ログイン
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,133 @@
+{% load static %}
+<!-- トップナビゲーションバー -->
+<div class="sticky top-0 z-10 flex-shrink-0 flex h-16 bg-white shadow">
+    <!-- モバイルメニューボタン -->
+    <button type="button"
+            class="md:hidden px-4 border-r border-gray-200 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500"
+            @click="$dispatch('toggle-sidebar')">
+        <span class="sr-only">サイドバーを開く</span>
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
+        </svg>
+    </button>
+
+    <div class="flex-1 px-4 flex justify-between">
+        <!-- 検索バー -->
+        <div class="flex-1 flex">
+            <form class="w-full flex md:ml-0" action="{% url 'core:search' %}" method="GET">
+                <label for="search-field" class="sr-only">検索</label>
+                <div class="relative w-full text-gray-400 focus-within:text-gray-600">
+                    <div class="absolute inset-y-0 left-0 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    <input id="search-field"
+                           class="block w-full h-full pl-8 pr-3 py-2 border-transparent text-gray-900 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-0 focus:border-transparent sm:text-sm"
+                           placeholder="候補者、求人、応募を検索..."
+                           type="search"
+                           name="q">
+                </div>
+            </form>
+        </div>
+
+        <!-- 右側メニュー -->
+        <div class="ml-4 flex items-center md:ml-6 space-x-4">
+            <!-- 通知ベル -->
+            <div x-data="{ open: false }" class="relative">
+                <button @click="open = !open"
+                        type="button"
+                        class="bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                    <span class="sr-only">通知を表示</span>
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                    <!-- 未読バッジ -->
+                    {% if unread_notifications_count %}
+                    <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-danger-400 ring-2 ring-white"></span>
+                    {% endif %}
+                </button>
+
+                <!-- 通知ドロップダウン -->
+                <div x-show="open"
+                     @click.away="open = false"
+                     x-transition:enter="transition ease-out duration-100"
+                     x-transition:enter-start="transform opacity-0 scale-95"
+                     x-transition:enter-end="transform opacity-100 scale-100"
+                     x-transition:leave="transition ease-in duration-75"
+                     x-transition:leave-start="transform opacity-100 scale-100"
+                     x-transition:leave-end="transform opacity-0 scale-95"
+                     class="origin-top-right absolute right-0 mt-2 w-80 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+                     role="menu">
+                    <div class="px-4 py-2 border-b border-gray-200">
+                        <p class="text-sm font-medium text-gray-900">通知</p>
+                    </div>
+                    <div class="max-h-96 overflow-y-auto">
+                        <!-- 通知リスト（htmxでロード） -->
+                        <div hx-get="{% url 'notifications:notification_list_partial' %}"
+                             hx-trigger="revealed"
+                             hx-swap="innerHTML">
+                            <div class="px-4 py-3 text-sm text-gray-500">読み込み中...</div>
+                        </div>
+                    </div>
+                    <div class="px-4 py-2 border-t border-gray-200">
+                        <a href="{% url 'notifications:notification_list' %}" class="text-sm text-primary-600 hover:text-primary-500">
+                            すべての通知を見る
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- プロファイルドロップダウン -->
+            <div x-data="{ open: false }" class="relative">
+                <button @click="open = !open"
+                        type="button"
+                        class="max-w-xs bg-white flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                        id="user-menu-button">
+                    <span class="sr-only">ユーザーメニューを開く</span>
+                    <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-primary-500">
+                        <span class="text-sm font-medium leading-none text-white">
+                            {{ user.get_short_name|default:user.email|slice:":1"|upper }}
+                        </span>
+                    </span>
+                    <span class="hidden md:flex md:items-center ml-2">
+                        <span class="text-sm font-medium text-gray-700">{{ user.get_full_name|default:user.email }}</span>
+                        <svg class="ml-1 h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </span>
+                </button>
+
+                <!-- ドロップダウンメニュー -->
+                <div x-show="open"
+                     @click.away="open = false"
+                     x-transition:enter="transition ease-out duration-100"
+                     x-transition:enter-start="transform opacity-0 scale-95"
+                     x-transition:enter-end="transform opacity-100 scale-100"
+                     x-transition:leave="transition ease-in duration-75"
+                     x-transition:leave-start="transform opacity-100 scale-100"
+                     x-transition:leave-end="transform opacity-0 scale-95"
+                     class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+                     role="menu">
+                    <div class="px-4 py-2 border-b border-gray-200">
+                        <p class="text-sm font-medium text-gray-900">{{ user.get_full_name|default:user.email }}</p>
+                        <p class="text-xs text-gray-500">{{ user.get_role_display }}</p>
+                    </div>
+                    <a href="{% url 'accounts:profile' %}"
+                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                       role="menuitem">プロフィール</a>
+                    <a href="{% url 'settings:index' %}"
+                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                       role="menuitem">設定</a>
+                    <div class="border-t border-gray-200"></div>
+                    <form method="POST" action="{% url 'account_logout' %}">
+                        {% csrf_token %}
+                        <button type="submit"
+                                class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                role="menuitem">ログアウト</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

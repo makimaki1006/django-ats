@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}プロファイル編集 - Django ATS{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <!-- ヘッダー -->
+    <div class="mb-8">
+        <nav class="flex mb-4" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                <li>
+                    <a href="{% url 'accounts:profile' %}" class="text-sm font-medium text-gray-500 hover:text-gray-700">
+                        プロファイル
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="ml-1 text-sm font-medium text-gray-700">編集</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+        <h1 class="text-2xl font-bold text-gray-900">プロファイル編集</h1>
+    </div>
+
+    <!-- フォーム -->
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+
+        <div class="bg-white shadow rounded-lg p-6">
+            <h2 class="text-lg font-medium text-gray-900 mb-4">基本情報</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="id_last_name" class="block text-sm font-medium text-gray-700">姓</label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.last_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    <label for="id_first_name" class="block text-sm font-medium text-gray-700">名前</label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.first_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <label for="id_phone" class="block text-sm font-medium text-gray-700">電話番号</label>
+                {{ form.phone }}
+                {% if form.phone.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.phone.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <div>
+                    <label for="id_department" class="block text-sm font-medium text-gray-700">部署</label>
+                    {{ form.department }}
+                    {% if form.department.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.department.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    <label for="id_position" class="block text-sm font-medium text-gray-700">役職</label>
+                    {{ form.position }}
+                    {% if form.position.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.position.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white shadow rounded-lg p-6">
+            <h2 class="text-lg font-medium text-gray-900 mb-4">プロファイル画像</h2>
+
+            <div class="flex items-center space-x-6">
+                {% if object.avatar %}
+                <img src="{{ object.avatar.url }}" alt="現在のアバター" class="h-20 w-20 rounded-full object-cover">
+                {% else %}
+                <div class="h-20 w-20 rounded-full bg-gray-200 flex items-center justify-center">
+                    <span class="text-2xl font-medium text-gray-500">{{ user.email|slice:":1"|upper }}</span>
+                </div>
+                {% endif %}
+                <div class="flex-1">
+                    {{ form.avatar }}
+                    {% if form.avatar.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.avatar.errors.0 }}</p>
+                    {% endif %}
+                    <p class="mt-1 text-xs text-gray-500">PNG、JPG、GIF形式。最大2MB。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ボタン -->
+        <div class="flex justify-end space-x-3">
+            <a href="{% url 'accounts:profile' %}"
+               class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                キャンセル
+            </a>
+            <button type="submit"
+                    class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                保存
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

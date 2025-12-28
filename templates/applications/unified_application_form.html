@@ -1,0 +1,348 @@
+{% extends "base.html" %}
+
+{% block title %}候補者登録 - {{ tenant.name }} - Django ATS{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <!-- ヘッダー -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">候補者登録</h1>
+        <p class="mt-1 text-sm text-gray-500">
+            {{ tenant.name }} への候補者登録フォームです。必要事項を入力してください。
+        </p>
+    </div>
+
+    <!-- 登録者情報 -->
+    <div class="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div class="flex items-center">
+            <svg class="h-5 w-5 text-blue-400 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd" />
+            </svg>
+            <span class="text-sm text-blue-700">
+                登録者: <strong>{{ request.user.email }}</strong>
+                {% if request.user.profile.agent_company %}
+                （{{ request.user.profile.agent_company.name }}）
+                {% endif %}
+            </span>
+        </div>
+    </div>
+
+    <!-- フォーム -->
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+
+        <!-- 候補者基本情報 -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">候補者情報</h3>
+                <p class="mt-1 text-sm text-gray-500">候補者の基本情報を入力してください。</p>
+            </div>
+            <div class="px-4 py-5 sm:p-6 space-y-6">
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <label for="id_name" class="block text-sm font-medium text-gray-700">
+                            氏名 <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="id_name_kana" class="block text-sm font-medium text-gray-700">
+                            氏名（カナ）
+                        </label>
+                        {{ form.name_kana }}
+                        {% if form.name_kana.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.name_kana.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="id_email" class="block text-sm font-medium text-gray-700">
+                            メールアドレス <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+                        {% endif %}
+                        <p class="mt-1 text-xs text-gray-500">既存の候補者の場合、メールアドレスで自動検出されます。</p>
+                    </div>
+
+                    <div>
+                        <label for="id_phone" class="block text-sm font-medium text-gray-700">
+                            電話番号
+                        </label>
+                        {{ form.phone }}
+                        {% if form.phone.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.phone.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="id_gender" class="block text-sm font-medium text-gray-700">
+                            性別
+                        </label>
+                        {{ form.gender }}
+                        {% if form.gender.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.gender.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="id_birth_date" class="block text-sm font-medium text-gray-700">
+                            生年月日
+                        </label>
+                        {{ form.birth_date }}
+                        {% if form.birth_date.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.birth_date.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div>
+                    <label for="id_address" class="block text-sm font-medium text-gray-700">
+                        住所
+                    </label>
+                    {{ form.address }}
+                    {% if form.address.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.address.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- 職歴情報 -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">職歴情報</h3>
+            </div>
+            <div class="px-4 py-5 sm:p-6 space-y-6">
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <label for="id_current_company" class="block text-sm font-medium text-gray-700">
+                            現職企業
+                        </label>
+                        {{ form.current_company }}
+                        {% if form.current_company.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.current_company.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="id_current_position" class="block text-sm font-medium text-gray-700">
+                            現職役職
+                        </label>
+                        {{ form.current_position }}
+                        {% if form.current_position.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.current_position.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="id_employment_status" class="block text-sm font-medium text-gray-700">
+                            就業状況
+                        </label>
+                        {{ form.employment_status }}
+                        {% if form.employment_status.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.employment_status.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="id_years_of_experience" class="block text-sm font-medium text-gray-700">
+                            経験年数
+                        </label>
+                        {{ form.years_of_experience }}
+                        {% if form.years_of_experience.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.years_of_experience.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 希望条件 -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">希望条件</h3>
+            </div>
+            <div class="px-4 py-5 sm:p-6 space-y-6">
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <label for="id_desired_salary" class="block text-sm font-medium text-gray-700">
+                            希望年収（万円）
+                        </label>
+                        {{ form.desired_salary }}
+                        {% if form.desired_salary.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.desired_salary.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="id_available_from" class="block text-sm font-medium text-gray-700">
+                            入社可能日
+                        </label>
+                        {{ form.available_from }}
+                        {% if form.available_from.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.available_from.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- スキル・資格 -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">スキル・資格</h3>
+            </div>
+            <div class="px-4 py-5 sm:p-6 space-y-6">
+                <div>
+                    <label for="id_skills" class="block text-sm font-medium text-gray-700">
+                        スキル
+                    </label>
+                    {{ form.skills }}
+                    {% if form.skills.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.skills.errors.0 }}</p>
+                    {% endif %}
+                    <p class="mt-1 text-xs text-gray-500">{{ form.skills.help_text }}</p>
+                </div>
+
+                <div>
+                    <label for="id_qualifications" class="block text-sm font-medium text-gray-700">
+                        資格
+                    </label>
+                    {{ form.qualifications }}
+                    {% if form.qualifications.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.qualifications.errors.0 }}</p>
+                    {% endif %}
+                    <p class="mt-1 text-xs text-gray-500">{{ form.qualifications.help_text }}</p>
+                </div>
+
+                <div>
+                    <label for="id_education" class="block text-sm font-medium text-gray-700">
+                        最終学歴
+                    </label>
+                    {{ form.education }}
+                    {% if form.education.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.education.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- 書類 -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">書類</h3>
+                <p class="mt-1 text-sm text-gray-500">履歴書・職務経歴書のURLを入力してください。</p>
+            </div>
+            <div class="px-4 py-5 sm:p-6 space-y-6">
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <label for="id_resume_url" class="block text-sm font-medium text-gray-700">
+                            履歴書URL
+                        </label>
+                        {{ form.resume_url }}
+                        {% if form.resume_url.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.resume_url.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="id_cv_url" class="block text-sm font-medium text-gray-700">
+                            職務経歴書URL
+                        </label>
+                        {{ form.cv_url }}
+                        {% if form.cv_url.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.cv_url.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 応募情報 -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">応募情報</h3>
+                <p class="mt-1 text-sm text-gray-500">応募する求人を選択してください。</p>
+            </div>
+            <div class="px-4 py-5 sm:p-6 space-y-6">
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <label for="id_job" class="block text-sm font-medium text-gray-700">
+                            応募求人 <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.job }}
+                        {% if form.job.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.job.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="id_source" class="block text-sm font-medium text-gray-700">
+                            応募経路
+                        </label>
+                        {{ form.source }}
+                        {% if form.source.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.source.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 備考 -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">備考</h3>
+            </div>
+            <div class="px-4 py-5 sm:p-6">
+                <div>
+                    <label for="id_notes" class="block text-sm font-medium text-gray-700">
+                        メモ
+                    </label>
+                    {{ form.notes }}
+                    {% if form.notes.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.notes.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- エラーサマリー -->
+        {% if form.non_field_errors %}
+        <div class="rounded-md bg-red-50 p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800">入力内容にエラーがあります</h3>
+                    <div class="mt-2 text-sm text-red-700">
+                        <ul class="list-disc pl-5 space-y-1">
+                            {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- ボタン -->
+        <div class="flex justify-end space-x-3">
+            <button type="submit"
+                    class="inline-flex items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                候補者を登録
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

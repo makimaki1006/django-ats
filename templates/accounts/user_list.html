@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}ユーザー管理 - Django ATS{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- ヘッダー -->
+    <div class="sm:flex sm:items-center sm:justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">ユーザー管理</h1>
+            <p class="mt-1 text-sm text-gray-600">テナント内のユーザーを管理できます。</p>
+        </div>
+        <div class="mt-4 sm:mt-0">
+            <a href="{% url 'accounts:user_create' %}"
+               class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                新規ユーザー
+            </a>
+        </div>
+    </div>
+
+    <!-- フィルター -->
+    <div class="bg-white shadow rounded-lg p-4">
+        <form method="get" class="flex flex-wrap gap-4">
+            <div class="flex-1 min-w-[200px]">
+                <label for="q" class="sr-only">検索</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                    <input type="text" name="q" id="q" value="{{ request.GET.q|default:'' }}"
+                           class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                           placeholder="メールアドレス、名前で検索">
+                </div>
+            </div>
+            <div>
+                <select name="role" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                    <option value="">すべての役割</option>
+                    {% for value, label in role_choices %}
+                    <option value="{{ value }}" {% if selected_role == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <select name="is_active" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                    <option value="">すべてのステータス</option>
+                    <option value="true" {% if request.GET.is_active == 'true' %}selected{% endif %}>有効</option>
+                    <option value="false" {% if request.GET.is_active == 'false' %}selected{% endif %}>無効</option>
+                </select>
+            </div>
+            <button type="submit" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                絞り込み
+            </button>
+        </form>
+    </div>
+
+    <!-- ユーザー一覧 -->
+    <div class="bg-white shadow overflow-hidden rounded-lg">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ユーザー</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">役割</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ステータス</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">最終ログイン</th>
+                    <th scope="col" class="relative px-6 py-3">
+                        <span class="sr-only">操作</span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for user_obj in users %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10">
+                                {% if user_obj.profile and user_obj.profile.avatar %}
+                                <img class="h-10 w-10 rounded-full object-cover" src="{{ user_obj.profile.avatar.url }}" alt="">
+                                {% else %}
+                                <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                    <span class="text-sm font-medium text-gray-500">{{ user_obj.email|slice:":1"|upper }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">
+                                    {{ user_obj.full_name|default:"-" }}
+                                </div>
+                                <div class="text-sm text-gray-500">{{ user_obj.email }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                            {% if user_obj.role == 'system_admin' %}bg-purple-100 text-purple-800
+                            {% elif user_obj.role == 'client_admin' %}bg-blue-100 text-blue-800
+                            {% elif user_obj.role == 'client_recruiter' %}bg-green-100 text-green-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ user_obj.get_role_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        {% if user_obj.is_active %}
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">有効</span>
+                        {% else %}
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">無効</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ user_obj.last_login|date:"Y/m/d H:i"|default:"-" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div class="flex justify-end space-x-2">
+                            <a href="{% url 'accounts:user_detail' user_obj.pk %}" class="text-blue-600 hover:text-blue-900">詳細</a>
+                            <a href="{% url 'accounts:user_edit' user_obj.pk %}" class="text-blue-600 hover:text-blue-900">編集</a>
+                            {% if user_obj != request.user %}
+                            <form method="post" action="{% url 'accounts:user_toggle_active' user_obj.pk %}" class="inline"
+                                  hx-post="{% url 'accounts:user_toggle_active' user_obj.pk %}"
+                                  hx-confirm="{% if user_obj.is_active %}このユーザーを無効にしますか？{% else %}このユーザーを有効にしますか？{% endif %}">
+                                {% csrf_token %}
+                                <button type="submit" class="{% if user_obj.is_active %}text-red-600 hover:text-red-900{% else %}text-green-600 hover:text-green-900{% endif %}">
+                                    {% if user_obj.is_active %}無効化{% else %}有効化{% endif %}
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                        ユーザーが見つかりませんでした。
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- ページネーション -->
+        {% if is_paginated %}
+        <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+            <div class="flex items-center justify-between">
+                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm text-gray-700">
+                            <span class="font-medium">{{ page_obj.paginator.count }}</span> 件中
+                            <span class="font-medium">{{ page_obj.start_index }}</span> -
+                            <span class="font-medium">{{ page_obj.end_index }}</span> 件を表示
+                        </p>
+                    </div>
+                    <div>
+                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                            {% if page_obj.has_previous %}
+                            <a href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode }}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                前へ
+                            </a>
+                            {% endif %}
+
+                            {% for num in page_obj.paginator.page_range %}
+                            {% if num == page_obj.number %}
+                            <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-blue-50 text-sm font-medium text-blue-600">{{ num }}</span>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <a href="?page={{ num }}&{{ request.GET.urlencode }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">{{ num }}</a>
+                            {% endif %}
+                            {% endfor %}
+
+                            {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                次へ
+                            </a>
+                            {% endif %}
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

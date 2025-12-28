@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user_obj.full_name|default:user_obj.email }} - ユーザー詳細 - Django ATS{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <!-- ヘッダー -->
+    <div class="mb-8">
+        <nav class="flex mb-4" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                <li>
+                    <a href="{% url 'accounts:user_list' %}" class="text-sm font-medium text-gray-500 hover:text-gray-700">
+                        ユーザー管理
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="ml-1 text-sm font-medium text-gray-700">{{ user_obj.email }}</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+
+        <div class="flex items-center justify-between">
+            <h1 class="text-2xl font-bold text-gray-900">ユーザー詳細</h1>
+            <div class="flex space-x-3">
+                <a href="{% url 'accounts:user_edit' user_obj.pk %}"
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    編集
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ユーザー情報 -->
+    <div class="bg-white shadow overflow-hidden rounded-lg">
+        <div class="px-4 py-5 sm:px-6 flex items-center">
+            <div class="flex-shrink-0 h-16 w-16">
+                {% if user_obj.profile and user_obj.profile.avatar %}
+                <img class="h-16 w-16 rounded-full object-cover" src="{{ user_obj.profile.avatar.url }}" alt="">
+                {% else %}
+                <div class="h-16 w-16 rounded-full bg-gray-200 flex items-center justify-center">
+                    <span class="text-2xl font-medium text-gray-500">{{ user_obj.email|slice:":1"|upper }}</span>
+                </div>
+                {% endif %}
+            </div>
+            <div class="ml-4">
+                <h3 class="text-lg font-medium text-gray-900">{{ user_obj.full_name|default:"-" }}</h3>
+                <p class="text-sm text-gray-500">{{ user_obj.email }}</p>
+            </div>
+            <div class="ml-auto">
+                {% if user_obj.is_active %}
+                <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800">有効</span>
+                {% else %}
+                <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-red-100 text-red-800">無効</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="border-t border-gray-200">
+            <dl>
+                <div class="bg-gray-50 px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">役割</dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                            {% if user_obj.role == 'system_admin' %}bg-purple-100 text-purple-800
+                            {% elif user_obj.role == 'client_admin' %}bg-blue-100 text-blue-800
+                            {% elif user_obj.role == 'client_recruiter' %}bg-green-100 text-green-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ user_obj.get_role_display }}
+                        </span>
+                    </dd>
+                </div>
+                <div class="bg-white px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">テナント</dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ user_obj.tenant.name|default:"-" }}</dd>
+                </div>
+                {% if user_obj.profile %}
+                <div class="bg-gray-50 px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">電話番号</dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ user_obj.profile.phone|default:"-" }}</dd>
+                </div>
+                <div class="bg-white px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">部署</dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ user_obj.profile.department|default:"-" }}</dd>
+                </div>
+                <div class="bg-gray-50 px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">役職</dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ user_obj.profile.position|default:"-" }}</dd>
+                </div>
+                {% endif %}
+                <div class="bg-white px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">登録日</dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ user_obj.date_joined|date:"Y年n月j日 H:i" }}</dd>
+                </div>
+                <div class="bg-gray-50 px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">最終ログイン</dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ user_obj.last_login|date:"Y年n月j日 H:i"|default:"未ログイン" }}</dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+
+    <!-- アクション -->
+    {% if user_obj != request.user %}
+    <div class="mt-6 flex justify-end space-x-3">
+        <form method="post" action="{% url 'accounts:user_toggle_active' user_obj.pk %}"
+              hx-post="{% url 'accounts:user_toggle_active' user_obj.pk %}"
+              hx-confirm="{% if user_obj.is_active %}このユーザーを無効にしますか？{% else %}このユーザーを有効にしますか？{% endif %}">
+            {% csrf_token %}
+            <button type="submit"
+                    class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white {% if user_obj.is_active %}bg-red-600 hover:bg-red-700{% else %}bg-green-600 hover:bg-green-700{% endif %} focus:outline-none focus:ring-2 focus:ring-offset-2 {% if user_obj.is_active %}focus:ring-red-500{% else %}focus:ring-green-500{% endif %}">
+                {% if user_obj.is_active %}
+                <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                </svg>
+                このユーザーを無効化
+                {% else %}
+                <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                このユーザーを有効化
+                {% endif %}
+            </button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

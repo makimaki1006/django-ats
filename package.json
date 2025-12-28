@@ -1,0 +1,18 @@
+{
+  "name": "django-ats",
+  "version": "1.0.0",
+  "description": "Django ATS - Applicant Tracking System",
+  "scripts": {
+    "build:css": "npx tailwindcss -i ./static/css/input.css -o ./static/css/output.css --minify",
+    "watch:css": "npx tailwindcss -i ./static/css/input.css -o ./static/css/output.css --watch",
+    "dev": "npm run watch:css"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0",
+    "postcss": "^8.4.32",
+    "autoprefixer": "^10.4.16",
+    "@tailwindcss/forms": "^0.5.7",
+    "@tailwindcss/typography": "^0.5.10"
+  },
+  "dependencies": {}
+}

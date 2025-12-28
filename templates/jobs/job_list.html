@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}求人一覧 - Django ATS{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- ヘッダー -->
+    <div class="sm:flex sm:items-center sm:justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">求人一覧</h1>
+            <p class="mt-1 text-sm text-gray-500">募集中のポジションを管理します</p>
+        </div>
+        <div class="mt-4 sm:mt-0">
+            <a href="{% url 'jobs:job_create' %}"
+               class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                新規作成
+            </a>
+        </div>
+    </div>
+
+    <!-- フィルター -->
+    <div class="bg-white shadow rounded-lg p-4">
+        <form method="get" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+                <label for="q" class="sr-only">検索</label>
+                {{ filter_form.q }}
+            </div>
+            <div>
+                <label for="status" class="sr-only">ステータス</label>
+                {{ filter_form.status }}
+            </div>
+            <div>
+                <label for="employment_type" class="sr-only">雇用形態</label>
+                {{ filter_form.employment_type }}
+            </div>
+            <div class="flex items-center">
+                <button type="submit"
+                        class="w-full inline-flex justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    検索
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- 求人一覧 -->
+    <div class="bg-white shadow overflow-hidden rounded-lg">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        求人情報
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        ステータス
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        雇用形態
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        年収
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        応募数
+                    </th>
+                    <th scope="col" class="relative px-6 py-3">
+                        <span class="sr-only">操作</span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for job in jobs %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center">
+                            <div>
+                                <div class="text-sm font-medium text-gray-900">
+                                    <a href="{% url 'jobs:job_detail' pk=job.pk %}" class="hover:text-blue-600">
+                                        {{ job.title }}
+                                    </a>
+                                </div>
+                                <div class="text-sm text-gray-500">{{ job.unique_code }}</div>
+                                {% if job.department %}
+                                <div class="text-xs text-gray-400">{{ job.department }}{% if job.team %} / {{ job.team }}{% endif %}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                            {% if job.status == 'active' %}bg-green-100 text-green-800
+                            {% elif job.status == 'draft' %}bg-gray-100 text-gray-800
+                            {% elif job.status == 'paused' %}bg-yellow-100 text-yellow-800
+                            {% else %}bg-red-100 text-red-800{% endif %}">
+                            {{ job.get_status_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ job.get_employment_type_display }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ job.salary_range_display }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ job.application_count }}件
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <a href="{% url 'jobs:job_update' pk=job.pk %}" class="text-blue-600 hover:text-blue-900 mr-3">
+                            編集
+                        </a>
+                        <form method="post" action="{% url 'jobs:job_duplicate' pk=job.pk %}" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" class="text-gray-600 hover:text-gray-900">
+                                複製
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-6 py-12 text-center">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900">求人がありません</h3>
+                        <p class="mt-1 text-sm text-gray-500">新しい求人を作成してください。</p>
+                        <div class="mt-6">
+                            <a href="{% url 'jobs:job_create' %}"
+                               class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                                <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                求人を作成
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ページネーション -->
+    {% if page_obj.has_other_pages %}
+    <nav class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 rounded-lg shadow">
+        <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm text-gray-700">
+                    全 <span class="font-medium">{{ page_obj.paginator.count }}</span> 件中
+                    <span class="font-medium">{{ page_obj.start_index }}</span> -
+                    <span class="font-medium">{{ page_obj.end_index }}</span> 件を表示
+                </p>
+            </div>
+            <div>
+                <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm">
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                        <span class="sr-only">前へ</span>
+                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                    {% endif %}
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <span class="relative z-10 inline-flex items-center bg-blue-600 px-4 py-2 text-sm font-semibold text-white">{{ num }}</span>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?page={{ num }}" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                        <span class="sr-only">次へ</span>
+                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

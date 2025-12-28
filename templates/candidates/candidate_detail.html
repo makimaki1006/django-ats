@@ -1,0 +1,396 @@
+{% extends "base.html" %}
+
+{% block title %}{{ candidate.name }} - 候補者詳細 - Django ATS{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- ヘッダー -->
+    <div class="lg:flex lg:items-center lg:justify-between">
+        <div class="min-w-0 flex-1">
+            <nav class="flex mb-4" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li>
+                        <a href="{% url 'candidates:candidate_list' %}" class="text-sm font-medium text-gray-500 hover:text-gray-700">
+                            候補者一覧
+                        </a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="ml-1 text-sm font-medium text-gray-700">{{ candidate.name }}</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+            <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+                {{ candidate.name }}
+            </h1>
+            <div class="mt-1 flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:space-x-6">
+                <div class="mt-2 flex items-center text-sm text-gray-500">
+                    <svg class="mr-1.5 h-5 w-5 flex-shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    {{ candidate.email }}
+                </div>
+                {% if candidate.phone %}
+                <div class="mt-2 flex items-center text-sm text-gray-500">
+                    <svg class="mr-1.5 h-5 w-5 flex-shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                    {{ candidate.phone }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="mt-5 flex lg:ml-4 lg:mt-0 space-x-3">
+            <a href="{% url 'candidates:candidate_update' pk=candidate.pk %}"
+               class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                編集
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <!-- 基本情報 -->
+        <div class="lg:col-span-2 space-y-6">
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">基本情報</h3>
+                </div>
+                <div class="px-4 py-5 sm:p-6">
+                    <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">氏名（カナ）</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ candidate.name_kana|default:"-" }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">性別</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ candidate.get_gender_display }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">生年月日</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                {% if candidate.birth_date %}
+                                    {{ candidate.birth_date|date:"Y年m月d日" }}（{{ candidate.age }}歳）
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">住所</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ candidate.address|default:"-" }}</dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- 職歴情報 -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">職歴・スキル</h3>
+                </div>
+                <div class="px-4 py-5 sm:p-6">
+                    <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">就業状況</dt>
+                            <dd class="mt-1">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                    {% if candidate.employment_status == 'employed' %}bg-green-100 text-green-800
+                                    {% elif candidate.employment_status == 'unemployed' %}bg-yellow-100 text-yellow-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ candidate.get_employment_status_display }}
+                                </span>
+                            </dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">経験年数</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ candidate.years_of_experience|default:"-" }}年</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">現職企業</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ candidate.current_company|default:"-" }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">現職役職</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ candidate.current_position|default:"-" }}</dd>
+                        </div>
+                        <div class="sm:col-span-2">
+                            <dt class="text-sm font-medium text-gray-500">最終学歴</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ candidate.education|default:"-" }}</dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- 希望条件 -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">希望条件</h3>
+                </div>
+                <div class="px-4 py-5 sm:p-6">
+                    <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">希望年収</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                {% if candidate.desired_salary %}{{ candidate.desired_salary }}万円{% else %}-{% endif %}
+                            </dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">入社可能日</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                {% if candidate.available_from %}{{ candidate.available_from|date:"Y年m月d日" }}{% else %}-{% endif %}
+                            </dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">転勤可否</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                {% if candidate.can_relocate %}可{% else %}不可{% endif %}
+                            </dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- 応募履歴 -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">応募履歴</h3>
+                </div>
+                <div class="divide-y divide-gray-200">
+                    {% for application in candidate.applications.all %}
+                    <div class="px-4 py-4 sm:px-6 hover:bg-gray-50">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">{{ application.job.title }}</p>
+                                <p class="text-sm text-gray-500">応募日: {{ application.created_at|date:"Y/m/d" }}</p>
+                            </div>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                {% if application.status == 'new' %}bg-blue-100 text-blue-800
+                                {% elif application.status == 'screening' %}bg-yellow-100 text-yellow-800
+                                {% elif application.status == 'interview' %}bg-purple-100 text-purple-800
+                                {% elif application.status == 'offered' %}bg-green-100 text-green-800
+                                {% elif application.status == 'rejected' %}bg-red-100 text-red-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ application.get_status_display }}
+                            </span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="px-4 py-8 text-center text-gray-500">
+                        まだ応募履歴がありません
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- コメント -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-medium leading-6 text-gray-900">
+                            コメント
+                            <span class="ml-2 text-sm font-normal text-gray-500">({{ comments|length }}件)</span>
+                        </h3>
+                    </div>
+                </div>
+
+                <!-- コメント投稿フォーム -->
+                <div class="px-4 py-4 sm:px-6 border-b border-gray-200 bg-gray-50">
+                    <form method="post" action="{% url 'candidates:comment_create' candidate_pk=candidate.pk %}"
+                          hx-post="{% url 'candidates:comment_create' candidate_pk=candidate.pk %}"
+                          hx-swap="none">
+                        {% csrf_token %}
+                        <div class="flex items-start space-x-3">
+                            <div class="flex-shrink-0">
+                                <div class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center">
+                                    <span class="text-white text-sm font-medium">
+                                        {{ request.user.email|slice:":1"|upper }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                {{ comment_form.content }}
+                                <div class="mt-2 flex justify-end">
+                                    <button type="submit"
+                                            class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                        <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                                        </svg>
+                                        投稿
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- コメント一覧 -->
+                <div class="divide-y divide-gray-200" id="comment-list">
+                    {% for comment in comments %}
+                    <div class="px-4 py-4 sm:px-6 hover:bg-gray-50" id="comment-{{ comment.pk }}">
+                        <div class="flex space-x-3">
+                            <div class="flex-shrink-0">
+                                <div class="h-8 w-8 rounded-full bg-gray-400 flex items-center justify-center">
+                                    <span class="text-white text-sm font-medium">
+                                        {{ comment.author.email|slice:":1"|upper }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-center justify-between">
+                                    <p class="text-sm font-medium text-gray-900">
+                                        {{ comment.author.display_name }}
+                                    </p>
+                                    <div class="flex items-center space-x-2">
+                                        <p class="text-xs text-gray-500">
+                                            {{ comment.created_at|date:"Y/m/d H:i" }}
+                                            {% if comment.edit_history %}
+                                            <span class="text-gray-400">(編集済み)</span>
+                                            {% endif %}
+                                        </p>
+                                        {% if comment.author == request.user %}
+                                        <div class="relative" x-data="{ open: false }">
+                                            <button @click="open = !open" type="button"
+                                                    class="text-gray-400 hover:text-gray-500 p-1 rounded">
+                                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" />
+                                                </svg>
+                                            </button>
+                                            <div x-show="open" @click.away="open = false"
+                                                 class="origin-top-right absolute right-0 mt-1 w-32 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
+                                                <div class="py-1">
+                                                    <button type="button"
+                                                            @click="open = false; $dispatch('edit-comment', { id: '{{ comment.pk }}' })"
+                                                            class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                        編集
+                                                    </button>
+                                                    <form method="post"
+                                                          action="{% url 'candidates:comment_delete' candidate_pk=candidate.pk comment_pk=comment.pk %}"
+                                                          hx-post="{% url 'candidates:comment_delete' candidate_pk=candidate.pk comment_pk=comment.pk %}"
+                                                          hx-confirm="このコメントを削除しますか？"
+                                                          hx-swap="none">
+                                                        {% csrf_token %}
+                                                        <button type="submit"
+                                                                class="block w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-gray-100">
+                                                            削除
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="mt-1">
+                                    <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ comment.content }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="px-4 py-8 text-center text-gray-500">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 9.75a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 01.778-.332 48.294 48.294 0 005.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+                        </svg>
+                        <p class="mt-2 text-sm">まだコメントがありません</p>
+                        <p class="text-xs text-gray-400">最初のコメントを投稿しましょう</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- サイドバー -->
+        <div class="space-y-6">
+            <!-- ステータス -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">ステータス</h3>
+                </div>
+                <div class="px-4 py-5 sm:p-6">
+                    <dl class="space-y-4">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">登録日</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ candidate.created_at|date:"Y/m/d H:i" }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">更新日</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ candidate.updated_at|date:"Y/m/d H:i" }}</dd>
+                        </div>
+                        {% if candidate.registered_by %}
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">登録者</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ candidate.registered_by.display_name }}</dd>
+                        </div>
+                        {% endif %}
+                        {% if candidate.source %}
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">流入経路</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ candidate.source.name }}</dd>
+                        </div>
+                        {% endif %}
+                        {% if candidate.agent_company %}
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">紹介元エージェント</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ candidate.agent_company.name }}</dd>
+                        </div>
+                        {% endif %}
+                    </dl>
+                </div>
+            </div>
+
+            <!-- 書類 -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">書類</h3>
+                </div>
+                <div class="px-4 py-5 sm:p-6">
+                    <ul class="space-y-3">
+                        {% if candidate.resume_url %}
+                        <li>
+                            <a href="{{ candidate.resume_url }}" target="_blank" class="flex items-center text-sm text-blue-600 hover:text-blue-500">
+                                <svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                履歴書
+                            </a>
+                        </li>
+                        {% endif %}
+                        {% if candidate.cv_url %}
+                        <li>
+                            <a href="{{ candidate.cv_url }}" target="_blank" class="flex items-center text-sm text-blue-600 hover:text-blue-500">
+                                <svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                職務経歴書
+                            </a>
+                        </li>
+                        {% endif %}
+                        {% if not candidate.resume_url and not candidate.cv_url %}
+                        <li class="text-sm text-gray-500">書類が登録されていません</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 備考 -->
+            {% if candidate.notes %}
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">備考</h3>
+                </div>
+                <div class="px-4 py-5 sm:p-6">
+                    <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ candidate.notes }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

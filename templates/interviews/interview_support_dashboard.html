@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+
+{% block title %}面接サポート - Django ATS{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- ヘッダー -->
+    <div class="sm:flex sm:items-center sm:justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">面接サポート</h1>
+            <p class="mt-1 text-sm text-gray-500">
+                あなたが担当する面接の一覧と準備状況を確認できます
+            </p>
+        </div>
+        <div class="mt-4 sm:mt-0 flex space-x-3">
+            <a href="{% url 'interviews:interview_list' %}"
+               class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                </svg>
+                全面接一覧
+            </a>
+            <a href="{% url 'interviews:interview_calendar' %}"
+               class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                カレンダー
+            </a>
+        </div>
+    </div>
+
+    <!-- サマリーカード -->
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
+        <!-- 本日の面接 -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <svg class="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">本日の面接</dt>
+                            <dd class="flex items-baseline">
+                                <div class="text-2xl font-semibold text-gray-900">{{ today_count }}</div>
+                                <div class="ml-2 text-sm text-gray-500">件</div>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 今週の予定 -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <svg class="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">今週の予定</dt>
+                            <dd class="flex items-baseline">
+                                <div class="text-2xl font-semibold text-gray-900">{{ upcoming_count }}</div>
+                                <div class="ml-2 text-sm text-gray-500">件</div>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 評価待ち -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <svg class="h-6 w-6 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">評価待ち</dt>
+                            <dd class="flex items-baseline">
+                                <div class="text-2xl font-semibold text-gray-900">{{ pending_count }}</div>
+                                <div class="ml-2 text-sm text-gray-500">件</div>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 本日の面接 -->
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+            <h2 class="text-lg leading-6 font-medium text-gray-900">
+                <svg class="inline-block h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                本日の面接
+            </h2>
+        </div>
+        <div class="divide-y divide-gray-200">
+            {% for interview in today_interviews %}
+            <div class="p-4 hover:bg-gray-50">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center min-w-0">
+                        <div class="flex-shrink-0">
+                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
+                                <span class="text-sm font-medium text-blue-700">{{ interview.candidate.name|slice:":2" }}</span>
+                            </span>
+                        </div>
+                        <div class="ml-4 min-w-0">
+                            <div class="flex items-center">
+                                <span class="text-sm font-medium text-gray-900 truncate">{{ interview.candidate.name }}</span>
+                                <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                    {% if interview.status == 'scheduled' %}bg-blue-100 text-blue-800
+                                    {% elif interview.status == 'confirmed' %}bg-green-100 text-green-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ interview.get_status_display }}
+                                </span>
+                            </div>
+                            <div class="flex items-center mt-1 text-sm text-gray-500">
+                                <span>{{ interview.job.title }}</span>
+                                <span class="mx-2">•</span>
+                                <span>{{ interview.get_interview_round_display }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center ml-4 space-x-4">
+                        <div class="text-right">
+                            <div class="text-sm font-medium text-gray-900">{{ interview.scheduled_at|time:"H:i" }}</div>
+                            <div class="text-xs text-gray-500">{{ interview.duration_minutes }}分</div>
+                        </div>
+                        <a href="{% url 'interviews:interview_support_detail' pk=interview.pk %}"
+                           class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                            準備する
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="p-8 text-center">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">本日の面接はありません</h3>
+                <p class="mt-1 text-sm text-gray-500">ゆっくりお過ごしください</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- 今週の予定面接 -->
+    {% if upcoming_interviews %}
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+            <h2 class="text-lg leading-6 font-medium text-gray-900">
+                <svg class="inline-block h-5 w-5 mr-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                今週の予定
+            </h2>
+        </div>
+        <div class="divide-y divide-gray-200">
+            {% for interview in upcoming_interviews %}
+            <div class="p-4 hover:bg-gray-50">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center min-w-0">
+                        <div class="flex-shrink-0">
+                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-green-100">
+                                <span class="text-sm font-medium text-green-700">{{ interview.candidate.name|slice:":2" }}</span>
+                            </span>
+                        </div>
+                        <div class="ml-4 min-w-0">
+                            <div class="flex items-center">
+                                <span class="text-sm font-medium text-gray-900 truncate">{{ interview.candidate.name }}</span>
+                            </div>
+                            <div class="flex items-center mt-1 text-sm text-gray-500">
+                                <span>{{ interview.job.title }}</span>
+                                <span class="mx-2">•</span>
+                                <span>{{ interview.get_interview_round_display }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center ml-4 space-x-4">
+                        <div class="text-right">
+                            <div class="text-sm font-medium text-gray-900">{{ interview.scheduled_at|date:"m/d" }} {{ interview.scheduled_at|time:"H:i" }}</div>
+                            <div class="text-xs text-gray-500">{{ interview.duration_minutes }}分</div>
+                        </div>
+                        <a href="{% url 'interviews:interview_support_detail' pk=interview.pk %}"
+                           class="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            詳細
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 評価待ちの面接 -->
+    {% if pending_evaluation %}
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+            <h2 class="text-lg leading-6 font-medium text-gray-900">
+                <svg class="inline-block h-5 w-5 mr-2 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                評価待ち
+            </h2>
+            <p class="mt-1 text-sm text-gray-500">終了した面接の評価を入力してください</p>
+        </div>
+        <div class="divide-y divide-gray-200">
+            {% for interview in pending_evaluation %}
+            <div class="p-4 hover:bg-gray-50">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center min-w-0">
+                        <div class="flex-shrink-0">
+                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-yellow-100">
+                                <span class="text-sm font-medium text-yellow-700">{{ interview.candidate.name|slice:":2" }}</span>
+                            </span>
+                        </div>
+                        <div class="ml-4 min-w-0">
+                            <div class="flex items-center">
+                                <span class="text-sm font-medium text-gray-900 truncate">{{ interview.candidate.name }}</span>
+                            </div>
+                            <div class="flex items-center mt-1 text-sm text-gray-500">
+                                <span>{{ interview.job.title }}</span>
+                                <span class="mx-2">•</span>
+                                <span>{{ interview.scheduled_at|date:"m/d H:i" }}実施</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center ml-4 space-x-2">
+                        <a href="{% url 'interviews:interview_support_detail' pk=interview.pk %}"
+                           class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700">
+                            評価を入力
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

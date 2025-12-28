@@ -1,0 +1,11 @@
+{% for candidate in candidates %}
+<div class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+     onclick="selectCandidate('{{ candidate.pk }}', '{{ candidate.name }}')">
+    <div class="font-medium text-gray-900">{{ candidate.name }}</div>
+    <div class="text-sm text-gray-500">{{ candidate.email }}</div>
+</div>
+{% empty %}
+<div class="px-4 py-2 text-gray-500 text-sm">
+    該当する候補者が見つかりません
+</div>
+{% endfor %}

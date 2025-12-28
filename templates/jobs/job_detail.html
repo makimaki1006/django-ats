@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+
+{% block title %}{{ job.title }} - Django ATS{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- ヘッダー -->
+    <div class="sm:flex sm:items-center sm:justify-between">
+        <div>
+            <nav class="flex" aria-label="Breadcrumb">
+                <ol class="flex items-center space-x-2">
+                    <li>
+                        <a href="{% url 'jobs:job_list' %}" class="text-gray-400 hover:text-gray-500">求人一覧</a>
+                    </li>
+                    <li class="flex items-center">
+                        <svg class="h-5 w-5 flex-shrink-0 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M5.555 17.776l8-16 .894.448-8 16-.894-.448z" />
+                        </svg>
+                        <span class="ml-2 text-sm font-medium text-gray-500">{{ job.unique_code }}</span>
+                    </li>
+                </ol>
+            </nav>
+            <h1 class="mt-2 text-2xl font-bold text-gray-900">{{ job.title }}</h1>
+            <div class="mt-1 flex items-center space-x-4">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                    {% if job.status == 'active' %}bg-green-100 text-green-800
+                    {% elif job.status == 'draft' %}bg-gray-100 text-gray-800
+                    {% elif job.status == 'paused' %}bg-yellow-100 text-yellow-800
+                    {% else %}bg-red-100 text-red-800{% endif %}">
+                    {{ job.get_status_display }}
+                </span>
+                <span class="text-sm text-gray-500">{{ job.unique_code }}</span>
+            </div>
+        </div>
+        <div class="mt-4 sm:mt-0 flex space-x-3">
+            <!-- ステータス変更ボタン -->
+            {% if job.status == 'draft' %}
+            <form method="post" action="{% url 'jobs:job_status' pk=job.pk action='publish' %}" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700">
+                    公開する
+                </button>
+            </form>
+            {% elif job.status == 'active' %}
+            <form method="post" action="{% url 'jobs:job_status' pk=job.pk action='pause' %}" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="inline-flex items-center px-4 py-2 border border-yellow-300 rounded-md shadow-sm text-sm font-medium text-yellow-700 bg-yellow-50 hover:bg-yellow-100">
+                    一時停止
+                </button>
+            </form>
+            <form method="post" action="{% url 'jobs:job_status' pk=job.pk action='close' %}" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="inline-flex items-center px-4 py-2 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100">
+                    終了
+                </button>
+            </form>
+            {% elif job.status == 'paused' %}
+            <form method="post" action="{% url 'jobs:job_status' pk=job.pk action='publish' %}" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700">
+                    再開する
+                </button>
+            </form>
+            {% endif %}
+
+            <a href="{% url 'jobs:job_update' pk=job.pk %}"
+               class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                編集
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- メインコンテンツ -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- 基本情報 -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">基本情報</h3>
+                </div>
+                <div class="px-4 py-5 sm:p-6">
+                    <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">雇用形態</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ job.get_employment_type_display }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">勤務地</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ job.location|default:"-" }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">リモートワーク</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ job.remote_policy|default:"-" }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">年収</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ job.salary_range_display }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">部署</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ job.department|default:"-" }}{% if job.team %} / {{ job.team }}{% endif %}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">採用責任者</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ job.hiring_manager.get_full_name|default:"-" }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">採用予定人数</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ job.headcount|default:"-" }}名</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">募集締切</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ job.deadline|date:"Y年n月j日"|default:"-" }}</dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- 職務内容 -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">職務内容</h3>
+                </div>
+                <div class="px-4 py-5 sm:p-6">
+                    <div class="prose max-w-none">
+                        {{ job.description|linebreaks }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- 応募要件 -->
+            {% if job.requirements %}
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">必須要件</h3>
+                </div>
+                <div class="px-4 py-5 sm:p-6">
+                    <div class="prose max-w-none">
+                        {{ job.requirements|linebreaks }}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- 歓迎要件 -->
+            {% if job.preferred_requirements %}
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">歓迎要件</h3>
+                </div>
+                <div class="px-4 py-5 sm:p-6">
+                    <div class="prose max-w-none">
+                        {{ job.preferred_requirements|linebreaks }}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- 福利厚生 -->
+            {% if job.benefits %}
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">福利厚生</h3>
+                </div>
+                <div class="px-4 py-5 sm:p-6">
+                    <div class="prose max-w-none">
+                        {{ job.benefits|linebreaks }}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- 選考プロセス -->
+            {% if job.selection_process %}
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">選考プロセス</h3>
+                </div>
+                <div class="px-4 py-5 sm:p-6">
+                    <div class="prose max-w-none">
+                        {{ job.selection_process|linebreaks }}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- サイドバー -->
+        <div class="space-y-6">
+            <!-- 応募状況 -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">応募状況</h3>
+                </div>
+                <div class="px-4 py-5 sm:p-6">
+                    <div class="text-center">
+                        <div class="text-4xl font-bold text-blue-600">{{ job.application_count }}</div>
+                        <div class="text-sm text-gray-500">件の応募</div>
+                    </div>
+                    <div class="mt-4">
+                        <a href="{% url 'applications:application_list' %}?job={{ job.pk }}"
+                           class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                            応募者一覧を見る
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ペルソナ -->
+            {% if job.personas.exists %}
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">採用ペルソナ</h3>
+                </div>
+                <div class="px-4 py-5 sm:p-6">
+                    <ul class="space-y-3">
+                        {% for persona in job.personas.all %}
+                        <li class="flex items-center justify-between">
+                            <span class="text-sm text-gray-900">{{ persona.name }}</span>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+                                {% if persona.priority == 'high' %}bg-red-100 text-red-800
+                                {% elif persona.priority == 'medium' %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ persona.get_priority_display }}
+                            </span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- エージェント会社 -->
+            {% if job.agent_companies.exists %}
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">連携エージェント</h3>
+                </div>
+                <div class="px-4 py-5 sm:p-6">
+                    <ul class="space-y-2">
+                        {% for agent in job.agent_companies.all %}
+                        <li class="text-sm text-gray-900">{{ agent.name }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- メタ情報 -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">登録情報</h3>
+                </div>
+                <div class="px-4 py-5 sm:p-6">
+                    <dl class="space-y-4">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">作成者</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ job.created_by.get_full_name|default:"-" }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">作成日時</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ job.created_at|date:"Y年n月j日 H:i" }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">最終更新</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ job.updated_at|date:"Y年n月j日 H:i" }}</dd>
+                        </div>
+                        {% if job.published_at %}
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">公開日時</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ job.published_at|date:"Y年n月j日 H:i" }}</dd>
+                        </div>
+                        {% endif %}
+                        {% if job.closed_at %}
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">終了日時</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ job.closed_at|date:"Y年n月j日 H:i" }}</dd>
+                        </div>
+                        {% endif %}
+                    </dl>
+                </div>
+            </div>
+
+            <!-- 備考 -->
+            {% if job.notes %}
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">備考</h3>
+                </div>
+                <div class="px-4 py-5 sm:p-6">
+                    <div class="text-sm text-gray-700">
+                        {{ job.notes|linebreaks }}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

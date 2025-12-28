@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block title %}CSVインポート - Django ATS{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <!-- ヘッダー -->
+    <div class="mb-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">候補者CSVインポート</h1>
+                <p class="mt-1 text-sm text-gray-500">CSVファイルから候補者を一括登録します。</p>
+            </div>
+            <div class="flex space-x-3">
+                <a href="{% url 'candidates:csv_template_download' %}"
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                    </svg>
+                    テンプレートダウンロード
+                </a>
+                <a href="{% url 'candidates:csv_import_history' %}"
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    インポート履歴
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- アップロードフォーム -->
+        <div class="lg:col-span-2">
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="px-4 py-5 sm:p-6">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <!-- ファイルアップロード -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">CSVファイル</label>
+                            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-blue-400 transition-colors"
+                                 id="drop-zone">
+                                <div class="space-y-1 text-center">
+                                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                    <div class="flex text-sm text-gray-600">
+                                        <label for="csv_file" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                            <span>ファイルを選択</span>
+                                            {{ form.csv_file }}
+                                        </label>
+                                        <p class="pl-1">またはドラッグ&ドロップ</p>
+                                    </div>
+                                    <p class="text-xs text-gray-500">CSV形式、最大10MB</p>
+                                </div>
+                            </div>
+                            {% if form.csv_file.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.csv_file.errors.0 }}</p>
+                            {% endif %}
+                            <p id="selected-file" class="mt-2 text-sm text-gray-600 hidden"></p>
+                        </div>
+
+                        <!-- オプション -->
+                        <div class="mb-6">
+                            <div class="flex items-center">
+                                {{ form.skip_duplicates }}
+                                <label for="id_skip_duplicates" class="ml-2 text-sm text-gray-700">
+                                    重複をスキップ
+                                    <span class="text-gray-500">（同じメールアドレスの候補者が既に存在する場合）</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- 送信ボタン -->
+                        <div class="flex justify-end">
+                            <button type="submit"
+                                    class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                                </svg>
+                                インポート開始
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- サイドバー -->
+        <div class="lg:col-span-1 space-y-6">
+            <!-- CSVフォーマット説明 -->
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-sm font-medium text-gray-900 mb-3">CSVフォーマット</h3>
+                    <p class="text-xs text-gray-500 mb-3">
+                        テンプレートをダウンロードして参考にしてください。
+                    </p>
+                    <div class="text-xs text-gray-600 space-y-1">
+                        <p><span class="font-medium text-red-600">*</span> 氏名（必須）</p>
+                        <p><span class="font-medium text-red-600">*</span> メールアドレス（必須）</p>
+                        <p>氏名（カナ）</p>
+                        <p>電話番号</p>
+                        <p>性別</p>
+                        <p>生年月日</p>
+                        <p>住所</p>
+                        <p>現職企業</p>
+                        <p>現職役職</p>
+                        <p>就業状況</p>
+                        <p>経験年数</p>
+                        <p>希望年収</p>
+                        <p>スキル（カンマ区切り）</p>
+                        <p>資格（カンマ区切り）</p>
+                        <p>最終学歴</p>
+                        <p>履歴書URL</p>
+                        <p>職務経歴書URL</p>
+                        <p>備考</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 最近のインポート -->
+            {% if recent_imports %}
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-sm font-medium text-gray-900 mb-3">最近のインポート</h3>
+                    <ul class="space-y-3">
+                        {% for import in recent_imports %}
+                        <li>
+                            <a href="{% url 'candidates:csv_import_result' pk=import.pk %}"
+                               class="block hover:bg-gray-50 -mx-2 px-2 py-1 rounded">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-900 truncate">{{ import.file_name }}</span>
+                                    {% if import.status == 'completed' %}
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                                        完了
+                                    </span>
+                                    {% elif import.status == 'partial' %}
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                                        一部成功
+                                    </span>
+                                    {% elif import.status == 'failed' %}
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                                        失敗
+                                    </span>
+                                    {% else %}
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                                        処理中
+                                    </span>
+                                    {% endif %}
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    {{ import.created_at|date:"Y/m/d H:i" }} - {{ import.success_count }}件成功
+                                </p>
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('id_csv_file');
+    const selectedFile = document.getElementById('selected-file');
+
+    // ドラッグ&ドロップ
+    dropZone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        dropZone.classList.add('border-blue-400', 'bg-blue-50');
+    });
+
+    dropZone.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        dropZone.classList.remove('border-blue-400', 'bg-blue-50');
+    });
+
+    dropZone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        dropZone.classList.remove('border-blue-400', 'bg-blue-50');
+
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            updateSelectedFile(files[0]);
+        }
+    });
+
+    // ファイル選択
+    fileInput.addEventListener('change', function(e) {
+        if (e.target.files.length > 0) {
+            updateSelectedFile(e.target.files[0]);
+        }
+    });
+
+    function updateSelectedFile(file) {
+        selectedFile.textContent = `選択されたファイル: ${file.name} (${formatBytes(file.size)})`;
+        selectedFile.classList.remove('hidden');
+    }
+
+    function formatBytes(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+});
+</script>
+{% endblock %}

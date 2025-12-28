@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}{% if object %}候補者編集{% else %}候補者登録{% endif %} - Django ATS{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <!-- ヘッダー -->
+    <div class="mb-8">
+        <nav class="flex mb-4" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                <li>
+                    <a href="{% url 'candidates:candidate_list' %}" class="text-sm font-medium text-gray-500 hover:text-gray-700">
+                        候補者一覧
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="ml-1 text-sm font-medium text-gray-700">
+                            {% if object %}{{ object.name }}{% else %}新規登録{% endif %}
+                        </span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+        <h1 class="text-2xl font-bold text-gray-900">{% if object %}候補者編集{% else %}候補者登録{% endif %}</h1>
+    </div>
+
+    <!-- フォーム -->
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="rounded-md bg-red-50 p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    {% for error in form.non_field_errors %}
+                    <p class="text-sm text-red-700">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- 基本情報 -->
+        <div class="bg-white shadow rounded-lg p-6">
+            <h2 class="text-lg font-medium text-gray-900 mb-4">基本情報</h2>
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
+                    <label for="id_name" class="block text-sm font-medium text-gray-700">
+                        氏名 <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    <label for="id_name_kana" class="block text-sm font-medium text-gray-700">氏名（カナ）</label>
+                    {{ form.name_kana }}
+                    {% if form.name_kana.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.name_kana.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    <label for="id_email" class="block text-sm font-medium text-gray-700">
+                        メールアドレス <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    <label for="id_phone" class="block text-sm font-medium text-gray-700">電話番号</label>
+                    {{ form.phone }}
+                    {% if form.phone.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.phone.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    <label for="id_gender" class="block text-sm font-medium text-gray-700">性別</label>
+                    {{ form.gender }}
+                    {% if form.gender.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.gender.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    <label for="id_birth_date" class="block text-sm font-medium text-gray-700">生年月日</label>
+                    {{ form.birth_date }}
+                    {% if form.birth_date.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.birth_date.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <div class="sm:col-span-2">
+                    <label for="id_address" class="block text-sm font-medium text-gray-700">住所</label>
+                    {{ form.address }}
+                    {% if form.address.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.address.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- 職歴情報 -->
+        <div class="bg-white shadow rounded-lg p-6">
+            <h2 class="text-lg font-medium text-gray-900 mb-4">職歴情報</h2>
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
+                    <label for="id_current_company" class="block text-sm font-medium text-gray-700">現職企業</label>
+                    {{ form.current_company }}
+                </div>
+                <div>
+                    <label for="id_current_position" class="block text-sm font-medium text-gray-700">現職役職</label>
+                    {{ form.current_position }}
+                </div>
+                <div>
+                    <label for="id_employment_status" class="block text-sm font-medium text-gray-700">就業状況</label>
+                    {{ form.employment_status }}
+                </div>
+                <div>
+                    <label for="id_years_of_experience" class="block text-sm font-medium text-gray-700">経験年数</label>
+                    {{ form.years_of_experience }}
+                </div>
+                <div class="sm:col-span-2">
+                    <label for="id_education" class="block text-sm font-medium text-gray-700">最終学歴</label>
+                    {{ form.education }}
+                </div>
+            </div>
+        </div>
+
+        <!-- 希望条件 -->
+        <div class="bg-white shadow rounded-lg p-6">
+            <h2 class="text-lg font-medium text-gray-900 mb-4">希望条件</h2>
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
+                    <label for="id_desired_salary" class="block text-sm font-medium text-gray-700">希望年収（万円）</label>
+                    {{ form.desired_salary }}
+                </div>
+                <div>
+                    <label for="id_available_from" class="block text-sm font-medium text-gray-700">入社可能日</label>
+                    {{ form.available_from }}
+                </div>
+                <div class="sm:col-span-2">
+                    <div class="flex items-center">
+                        {{ form.can_relocate }}
+                        <label for="id_can_relocate" class="ml-2 block text-sm text-gray-900">転勤可</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 書類・その他 -->
+        <div class="bg-white shadow rounded-lg p-6">
+            <h2 class="text-lg font-medium text-gray-900 mb-4">書類・その他</h2>
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
+                    <label for="id_resume_url" class="block text-sm font-medium text-gray-700">履歴書URL</label>
+                    {{ form.resume_url }}
+                </div>
+                <div>
+                    <label for="id_cv_url" class="block text-sm font-medium text-gray-700">職務経歴書URL</label>
+                    {{ form.cv_url }}
+                </div>
+                <div>
+                    <label for="id_agent_company" class="block text-sm font-medium text-gray-700">紹介元エージェント</label>
+                    {{ form.agent_company }}
+                </div>
+                <div>
+                    <label for="id_source" class="block text-sm font-medium text-gray-700">流入経路</label>
+                    {{ form.source }}
+                </div>
+                <div class="sm:col-span-2">
+                    <label for="id_notes" class="block text-sm font-medium text-gray-700">備考</label>
+                    {{ form.notes }}
+                </div>
+            </div>
+        </div>
+
+        <!-- ボタン -->
+        <div class="flex justify-end space-x-3">
+            <a href="{% url 'candidates:candidate_list' %}"
+               class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                キャンセル
+            </a>
+            <button type="submit"
+                    class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                {% if object %}更新{% else %}登録{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

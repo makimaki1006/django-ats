@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}候補者一覧 - Django ATS{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- ヘッダー -->
+    <div class="sm:flex sm:items-center sm:justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">候補者一覧</h1>
+            <p class="mt-1 text-sm text-gray-500">登録されている候補者を管理します</p>
+        </div>
+        <div class="mt-4 sm:mt-0">
+            <a href="{% url 'candidates:candidate_create' %}"
+               class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                新規登録
+            </a>
+        </div>
+    </div>
+
+    <!-- フィルター -->
+    <div class="bg-white shadow rounded-lg p-4">
+        <form method="get" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            <div>
+                <label for="q" class="sr-only">検索</label>
+                {{ filter_form.q }}
+            </div>
+            <div>
+                <label for="employment_status" class="sr-only">就業状況</label>
+                {{ filter_form.employment_status }}
+            </div>
+            <div>
+                <label for="gender" class="sr-only">性別</label>
+                {{ filter_form.gender }}
+            </div>
+            <div class="flex items-center space-x-4">
+                <label class="inline-flex items-center">
+                    {{ filter_form.agent_only }}
+                    <span class="ml-2 text-sm text-gray-600">エージェント経由のみ</span>
+                </label>
+            </div>
+            <div class="flex items-center">
+                <button type="submit"
+                        class="w-full inline-flex justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    検索
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- 候補者一覧 -->
+    <div class="bg-white shadow overflow-hidden rounded-lg">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        候補者
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        就業状況
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        現職
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        経験年数
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        登録日
+                    </th>
+                    <th scope="col" class="relative px-6 py-3">
+                        <span class="sr-only">操作</span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for candidate in candidates %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10">
+                                <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                    <span class="text-sm font-medium text-gray-500">{{ candidate.name|slice:":1" }}</span>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">
+                                    <a href="{% url 'candidates:candidate_detail' pk=candidate.pk %}" class="hover:text-blue-600">
+                                        {{ candidate.name }}
+                                    </a>
+                                </div>
+                                <div class="text-sm text-gray-500">{{ candidate.email }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                            {% if candidate.employment_status == 'employed' %}bg-green-100 text-green-800
+                            {% elif candidate.employment_status == 'unemployed' %}bg-yellow-100 text-yellow-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ candidate.get_employment_status_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {% if candidate.current_company %}
+                            {{ candidate.current_company }}
+                            {% if candidate.current_position %}<br><span class="text-xs">{{ candidate.current_position }}</span>{% endif %}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ candidate.years_of_experience|default:"-" }}年
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ candidate.created_at|date:"Y/m/d" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <a href="{% url 'candidates:candidate_update' pk=candidate.pk %}" class="text-blue-600 hover:text-blue-900 mr-3">
+                            編集
+                        </a>
+                        <form method="post" action="{% url 'candidates:candidate_archive' pk=candidate.pk %}" class="inline"
+                              hx-post="{% url 'candidates:candidate_archive' pk=candidate.pk %}"
+                              hx-confirm="この候補者をアーカイブしますか？">
+                            {% csrf_token %}
+                            <button type="submit" class="text-red-600 hover:text-red-900">
+                                アーカイブ
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-6 py-12 text-center">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900">候補者がいません</h3>
+                        <p class="mt-1 text-sm text-gray-500">新しい候補者を登録してください。</p>
+                        <div class="mt-6">
+                            <a href="{% url 'candidates:candidate_create' %}"
+                               class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                                <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                候補者を登録
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ページネーション -->
+    {% if page_obj.has_other_pages %}
+    <nav class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 rounded-lg shadow">
+        <div class="flex flex-1 justify-between sm:hidden">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                前へ
+            </a>
+            {% endif %}
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                次へ
+            </a>
+            {% endif %}
+        </div>
+        <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm text-gray-700">
+                    全 <span class="font-medium">{{ page_obj.paginator.count }}</span> 件中
+                    <span class="font-medium">{{ page_obj.start_index }}</span> -
+                    <span class="font-medium">{{ page_obj.end_index }}</span> 件を表示
+                </p>
+            </div>
+            <div>
+                <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm">
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                        <span class="sr-only">前へ</span>
+                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                    {% endif %}
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <span class="relative z-10 inline-flex items-center bg-blue-600 px-4 py-2 text-sm font-semibold text-white">{{ num }}</span>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?page={{ num }}" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                        <span class="sr-only">次へ</span>
+                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}
