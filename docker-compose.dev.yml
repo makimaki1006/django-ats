@@ -1,0 +1,56 @@
+# Django ATS - Docker Compose for Development
+# Overrides for local development with hot reload
+
+version: '3.9'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: django_ats_web_dev
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=True
+      - SECRET_KEY=dev-secret-key-not-for-production
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/django_ats_dev
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - .:/app
+      - /app/__pycache__
+    depends_on:
+      - db
+      - redis
+    networks:
+      - django_ats_dev_network
+    command: python manage.py runserver 0.0.0.0:8000
+
+  db:
+    image: postgres:15-alpine
+    container_name: django_ats_db_dev
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=django_ats_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    networks:
+      - django_ats_dev_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: django_ats_redis_dev
+    ports:
+      - "6379:6379"
+    networks:
+      - django_ats_dev_network
+
+networks:
+  django_ats_dev_network:
+    driver: bridge
+
+volumes:
+  postgres_dev_data:

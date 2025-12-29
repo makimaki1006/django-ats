@@ -1,0 +1,79 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info
+.eggs
+*.egg
+dist
+build
+
+# Virtual environment
+venv
+.venv
+env
+ENV
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Testing
+.pytest_cache
+.coverage
+htmlcov
+.tox
+.nox
+
+# Local settings
+.env
+.env.local
+*.local.py
+
+# Database
+*.sqlite3
+db.sqlite3
+
+# Static files (generated)
+staticfiles
+static/CACHE
+
+# Media files
+media
+
+# Logs
+logs
+*.log
+
+# Documentation
+docs/_build
+*.md
+!README.md
+
+# CI/CD
+.github
+.gitlab-ci.yml
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Misc
+*.bak
+*.tmp
+nul
+Thumbs.db
+.DS_Store
+
+# Node (if using for frontend build)
+node_modules
+package-lock.json
