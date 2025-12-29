@@ -49,7 +49,7 @@
                 <div class="flex items-center space-x-3">
                     <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium
                         {% if interview.status == 'scheduled' %}bg-blue-100 text-blue-800
-                        {% elif interview.status == 'confirmed' %}bg-green-100 text-green-800
+                        {% elif interview.status == 'confirmed' %}bg-success-100 text-success-800
                         {% elif interview.status == 'completed' %}bg-gray-100 text-gray-800
                         {% else %}bg-gray-100 text-gray-800{% endif %}">
                         {{ interview.get_status_display }}
@@ -145,7 +145,7 @@
             <div class="bg-white shadow rounded-lg">
                 <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
                     <h2 class="text-lg leading-6 font-medium text-gray-900">
-                        <svg class="inline-block h-5 w-5 mr-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg class="inline-block h-5 w-5 mr-2 text-success-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                         </svg>
                         求人情報
@@ -196,8 +196,8 @@
                                 <span class="text-sm text-gray-500 ml-2">{{ past.scheduled_at|date:"Y/m/d" }}</span>
                             </div>
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                {% if past.result == 'passed' %}bg-green-100 text-green-800
-                                {% elif past.result == 'failed' %}bg-red-100 text-red-800
+                                {% if past.result == 'passed' %}bg-success-100 text-success-800
+                                {% elif past.result == 'failed' %}bg-danger-100 text-danger-800
                                 {% else %}bg-yellow-100 text-yellow-800{% endif %}">
                                 {{ past.get_result_display }}
                             </span>
@@ -302,8 +302,8 @@
                     <div class="flex items-center justify-between">
                         <span class="text-sm font-medium text-gray-500">結果</span>
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
-                            {% if interview.result == 'passed' %}bg-green-100 text-green-800
-                            {% elif interview.result == 'failed' %}bg-red-100 text-red-800
+                            {% if interview.result == 'passed' %}bg-success-100 text-success-800
+                            {% elif interview.result == 'failed' %}bg-danger-100 text-danger-800
                             {% else %}bg-yellow-100 text-yellow-800{% endif %}">
                             {{ interview.get_result_display }}
                         </span>

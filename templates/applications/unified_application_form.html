@@ -41,11 +41,11 @@
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
                         <label for="id_name" class="block text-sm font-medium text-gray-700">
-                            氏名 <span class="text-red-500">*</span>
+                            氏名 <span class="text-danger-500">*</span>
                         </label>
                         {{ form.name }}
                         {% if form.name.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.name.errors.0 }}</p>
+                        <p class="mt-1 text-sm text-danger-600">{{ form.name.errors.0 }}</p>
                         {% endif %}
                     </div>
 
@@ -55,17 +55,17 @@
                         </label>
                         {{ form.name_kana }}
                         {% if form.name_kana.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.name_kana.errors.0 }}</p>
+                        <p class="mt-1 text-sm text-danger-600">{{ form.name_kana.errors.0 }}</p>
                         {% endif %}
                     </div>
 
                     <div>
                         <label for="id_email" class="block text-sm font-medium text-gray-700">
-                            メールアドレス <span class="text-red-500">*</span>
+                            メールアドレス <span class="text-danger-500">*</span>
                         </label>
                         {{ form.email }}
                         {% if form.email.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+                        <p class="mt-1 text-sm text-danger-600">{{ form.email.errors.0 }}</p>
                         {% endif %}
                         <p class="mt-1 text-xs text-gray-500">既存の候補者の場合、メールアドレスで自動検出されます。</p>
                     </div>
@@ -76,7 +76,7 @@
                         </label>
                         {{ form.phone }}
                         {% if form.phone.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.phone.errors.0 }}</p>
+                        <p class="mt-1 text-sm text-danger-600">{{ form.phone.errors.0 }}</p>
                         {% endif %}
                     </div>
 
@@ -86,7 +86,7 @@
                         </label>
                         {{ form.gender }}
                         {% if form.gender.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.gender.errors.0 }}</p>
+                        <p class="mt-1 text-sm text-danger-600">{{ form.gender.errors.0 }}</p>
                         {% endif %}
                     </div>
 
@@ -96,7 +96,7 @@
                         </label>
                         {{ form.birth_date }}
                         {% if form.birth_date.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.birth_date.errors.0 }}</p>
+                        <p class="mt-1 text-sm text-danger-600">{{ form.birth_date.errors.0 }}</p>
                         {% endif %}
                     </div>
                 </div>
@@ -107,7 +107,7 @@
                     </label>
                     {{ form.address }}
                     {% if form.address.errors %}
-                    <p class="mt-1 text-sm text-red-600">{{ form.address.errors.0 }}</p>
+                    <p class="mt-1 text-sm text-danger-600">{{ form.address.errors.0 }}</p>
                     {% endif %}
                 </div>
             </div>
@@ -126,7 +126,7 @@
                         </label>
                         {{ form.current_company }}
                         {% if form.current_company.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.current_company.errors.0 }}</p>
+                        <p class="mt-1 text-sm text-danger-600">{{ form.current_company.errors.0 }}</p>
                         {% endif %}
                     </div>
 
@@ -136,7 +136,7 @@
                         </label>
                         {{ form.current_position }}
                         {% if form.current_position.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.current_position.errors.0 }}</p>
+                        <p class="mt-1 text-sm text-danger-600">{{ form.current_position.errors.0 }}</p>
                         {% endif %}
                     </div>
 
@@ -146,7 +146,7 @@
                         </label>
                         {{ form.employment_status }}
                         {% if form.employment_status.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.employment_status.errors.0 }}</p>
+                        <p class="mt-1 text-sm text-danger-600">{{ form.employment_status.errors.0 }}</p>
                         {% endif %}
                     </div>
 
@@ -156,7 +156,7 @@
                         </label>
                         {{ form.years_of_experience }}
                         {% if form.years_of_experience.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.years_of_experience.errors.0 }}</p>
+                        <p class="mt-1 text-sm text-danger-600">{{ form.years_of_experience.errors.0 }}</p>
                         {% endif %}
                     </div>
                 </div>
@@ -176,7 +176,7 @@
                         </label>
                         {{ form.desired_salary }}
                         {% if form.desired_salary.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.desired_salary.errors.0 }}</p>
+                        <p class="mt-1 text-sm text-danger-600">{{ form.desired_salary.errors.0 }}</p>
                         {% endif %}
                     </div>
 
@@ -186,7 +186,7 @@
                         </label>
                         {{ form.available_from }}
                         {% if form.available_from.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.available_from.errors.0 }}</p>
+                        <p class="mt-1 text-sm text-danger-600">{{ form.available_from.errors.0 }}</p>
                         {% endif %}
                     </div>
                 </div>
@@ -205,7 +205,7 @@
                     </label>
                     {{ form.skills }}
                     {% if form.skills.errors %}
-                    <p class="mt-1 text-sm text-red-600">{{ form.skills.errors.0 }}</p>
+                    <p class="mt-1 text-sm text-danger-600">{{ form.skills.errors.0 }}</p>
                     {% endif %}
                     <p class="mt-1 text-xs text-gray-500">{{ form.skills.help_text }}</p>
                 </div>
@@ -216,7 +216,7 @@
                     </label>
                     {{ form.qualifications }}
                     {% if form.qualifications.errors %}
-                    <p class="mt-1 text-sm text-red-600">{{ form.qualifications.errors.0 }}</p>
+                    <p class="mt-1 text-sm text-danger-600">{{ form.qualifications.errors.0 }}</p>
                     {% endif %}
                     <p class="mt-1 text-xs text-gray-500">{{ form.qualifications.help_text }}</p>
                 </div>
@@ -227,7 +227,7 @@
                     </label>
                     {{ form.education }}
                     {% if form.education.errors %}
-                    <p class="mt-1 text-sm text-red-600">{{ form.education.errors.0 }}</p>
+                    <p class="mt-1 text-sm text-danger-600">{{ form.education.errors.0 }}</p>
                     {% endif %}
                 </div>
             </div>
@@ -247,7 +247,7 @@
                         </label>
                         {{ form.resume_url }}
                         {% if form.resume_url.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.resume_url.errors.0 }}</p>
+                        <p class="mt-1 text-sm text-danger-600">{{ form.resume_url.errors.0 }}</p>
                         {% endif %}
                     </div>
 
@@ -257,7 +257,7 @@
                         </label>
                         {{ form.cv_url }}
                         {% if form.cv_url.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.cv_url.errors.0 }}</p>
+                        <p class="mt-1 text-sm text-danger-600">{{ form.cv_url.errors.0 }}</p>
                         {% endif %}
                     </div>
                 </div>
@@ -274,11 +274,11 @@
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
                         <label for="id_job" class="block text-sm font-medium text-gray-700">
-                            応募求人 <span class="text-red-500">*</span>
+                            応募求人 <span class="text-danger-500">*</span>
                         </label>
                         {{ form.job }}
                         {% if form.job.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.job.errors.0 }}</p>
+                        <p class="mt-1 text-sm text-danger-600">{{ form.job.errors.0 }}</p>
                         {% endif %}
                     </div>
 
@@ -288,7 +288,7 @@
                         </label>
                         {{ form.source }}
                         {% if form.source.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.source.errors.0 }}</p>
+                        <p class="mt-1 text-sm text-danger-600">{{ form.source.errors.0 }}</p>
                         {% endif %}
                     </div>
                 </div>
@@ -307,7 +307,7 @@
                     </label>
                     {{ form.notes }}
                     {% if form.notes.errors %}
-                    <p class="mt-1 text-sm text-red-600">{{ form.notes.errors.0 }}</p>
+                    <p class="mt-1 text-sm text-danger-600">{{ form.notes.errors.0 }}</p>
                     {% endif %}
                 </div>
             </div>
@@ -315,16 +315,16 @@
 
         <!-- エラーサマリー -->
         {% if form.non_field_errors %}
-        <div class="rounded-md bg-red-50 p-4">
+        <div class="rounded-md bg-danger-50 p-4">
             <div class="flex">
                 <div class="flex-shrink-0">
-                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <svg class="h-5 w-5 text-danger-400" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
                     </svg>
                 </div>
                 <div class="ml-3">
                     <h3 class="text-sm font-medium text-red-800">入力内容にエラーがあります</h3>
-                    <div class="mt-2 text-sm text-red-700">
+                    <div class="mt-2 text-sm text-danger-700">
                         <ul class="list-disc pl-5 space-y-1">
                             {% for error in form.non_field_errors %}
                             <li>{{ error }}</li>

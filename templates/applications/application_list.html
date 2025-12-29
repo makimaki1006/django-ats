@@ -115,11 +115,11 @@
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                             {% if application.status == 'new' %}bg-blue-100 text-blue-800
                             {% elif application.status == 'document_screening' %}bg-yellow-100 text-yellow-800
-                            {% elif application.status == 'document_passed' %}bg-green-100 text-green-800
+                            {% elif application.status == 'document_passed' %}bg-success-100 text-success-800
                             {% elif application.status == 'interviewing' %}bg-purple-100 text-purple-800
                             {% elif application.status == 'offer_made' %}bg-indigo-100 text-indigo-800
-                            {% elif application.status == 'offer_accepted' %}bg-green-100 text-green-800
-                            {% elif application.status == 'rejected' or application.status == 'document_rejected' %}bg-red-100 text-red-800
+                            {% elif application.status == 'offer_accepted' %}bg-success-100 text-success-800
+                            {% elif application.status == 'rejected' or application.status == 'document_rejected' %}bg-danger-100 text-danger-800
                             {% elif application.status == 'withdrawn' or application.status == 'offer_declined' %}bg-gray-100 text-gray-800
                             {% else %}bg-gray-100 text-gray-800{% endif %}">
                             {{ application.get_status_display }}
@@ -129,7 +129,7 @@
                         {{ application.applied_at|date:"Y/m/d" }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm">
-                        <span class="{% if application.days_since_applied >= 7 %}text-red-600 font-medium{% elif application.days_since_applied >= 3 %}text-yellow-600{% else %}text-gray-500{% endif %}">
+                        <span class="{% if application.days_since_applied >= 7 %}text-danger-600 font-medium{% elif application.days_since_applied >= 3 %}text-yellow-600{% else %}text-gray-500{% endif %}">
                             {{ application.days_since_applied }}日
                         </span>
                     </td>

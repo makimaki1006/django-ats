@@ -97,7 +97,7 @@
                         </svg>
                         <span class="text-sm text-gray-700">ビデオ面接</span>
                         {% elif item.interview_type == 'IN_PERSON' %}
-                        <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-5 h-5 text-success-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
                             </path>
@@ -128,10 +128,10 @@
                 <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <div class="flex items-center">
                         {% if item.result == 'PASS' %}
-                        <span class="w-3 h-3 bg-green-500 rounded-full mr-3"></span>
+                        <span class="w-3 h-3 bg-success-500 rounded-full mr-3"></span>
                         <span class="text-sm text-gray-700">合格</span>
                         {% elif item.result == 'FAIL' %}
-                        <span class="w-3 h-3 bg-red-500 rounded-full mr-3"></span>
+                        <span class="w-3 h-3 bg-danger-500 rounded-full mr-3"></span>
                         <span class="text-sm text-gray-700">不合格</span>
                         {% elif item.result == 'PENDING' %}
                         <span class="w-3 h-3 bg-yellow-500 rounded-full mr-3"></span>
@@ -153,7 +153,7 @@
     <!-- エクスポートボタン -->
     <div class="mt-6 flex justify-end">
         <a href="{% url 'reports:export_csv' 'interviews' %}"
-            class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+            class="inline-flex items-center px-4 py-2 bg-success-600 text-white rounded-md hover:bg-success-700">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>

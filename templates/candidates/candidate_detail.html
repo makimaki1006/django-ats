@@ -101,7 +101,7 @@
                             <dt class="text-sm font-medium text-gray-500">就業状況</dt>
                             <dd class="mt-1">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                    {% if candidate.employment_status == 'employed' %}bg-green-100 text-green-800
+                                    {% if candidate.employment_status == 'employed' %}bg-success-100 text-success-800
                                     {% elif candidate.employment_status == 'unemployed' %}bg-yellow-100 text-yellow-800
                                     {% else %}bg-gray-100 text-gray-800{% endif %}">
                                     {{ candidate.get_employment_status_display }}
@@ -174,8 +174,8 @@
                                 {% if application.status == 'new' %}bg-blue-100 text-blue-800
                                 {% elif application.status == 'screening' %}bg-yellow-100 text-yellow-800
                                 {% elif application.status == 'interview' %}bg-purple-100 text-purple-800
-                                {% elif application.status == 'offered' %}bg-green-100 text-green-800
-                                {% elif application.status == 'rejected' %}bg-red-100 text-red-800
+                                {% elif application.status == 'offered' %}bg-success-100 text-success-800
+                                {% elif application.status == 'rejected' %}bg-danger-100 text-danger-800
                                 {% else %}bg-gray-100 text-gray-800{% endif %}">
                                 {{ application.get_status_display }}
                             </span>
@@ -277,7 +277,7 @@
                                                           hx-swap="none">
                                                         {% csrf_token %}
                                                         <button type="submit"
-                                                                class="block w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-gray-100">
+                                                                class="block w-full text-left px-4 py-2 text-sm text-danger-700 hover:bg-gray-100">
                                                             削除
                                                         </button>
                                                     </form>

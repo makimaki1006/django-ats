@@ -24,8 +24,8 @@
         {% if messages %}
         <div class="mb-4 space-y-2">
             {% for message in messages %}
-            <div class="rounded-md {% if message.tags == 'error' %}bg-red-50{% else %}bg-blue-50{% endif %} p-4">
-                <p class="text-sm {% if message.tags == 'error' %}text-red-700{% else %}text-blue-700{% endif %}">{{ message }}</p>
+            <div class="rounded-md {% if message.tags == 'error' %}bg-danger-50{% else %}bg-blue-50{% endif %} p-4">
+                <p class="text-sm {% if message.tags == 'error' %}text-danger-700{% else %}text-blue-700{% endif %}">{{ message }}</p>
             </div>
             {% endfor %}
         </div>
@@ -48,7 +48,7 @@
                            placeholder="your@email.com">
                 </div>
                 {% if form.login.errors %}
-                <p class="mt-2 text-sm text-red-600">{{ form.login.errors.0 }}</p>
+                <p class="mt-2 text-sm text-danger-600">{{ form.login.errors.0 }}</p>
                 {% endif %}
             </div>
 
@@ -62,7 +62,7 @@
                            placeholder="********">
                 </div>
                 {% if form.password.errors %}
-                <p class="mt-2 text-sm text-red-600">{{ form.password.errors.0 }}</p>
+                <p class="mt-2 text-sm text-danger-600">{{ form.password.errors.0 }}</p>
                 {% endif %}
             </div>
 

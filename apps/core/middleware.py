@@ -117,7 +117,8 @@ class AuditLogMiddleware:
     """
     監査ログミドルウェア
 
-    重要な操作をログに記録
+    重要な操作をデータベースとログファイルに記録。
+    POST/PUT/PATCH/DELETEリクエストを自動的に記録。
     """
 
     # ログ対象のメソッド
@@ -128,21 +129,30 @@ class AuditLogMiddleware:
         '/static/',
         '/media/',
         '/__debug__/',
+        '/health/',
+        '/favicon.ico',
     ]
+
+    # パスからリソースタイプへのマッピング
+    PATH_TO_RESOURCE = {
+        '/candidates/': 'Candidate',
+        '/jobs/': 'Job',
+        '/applications/': 'Application',
+        '/interviews/': 'Interview',
+        '/accounts/': 'User',
+        '/settings/': 'Settings',
+        '/reports/': 'Report',
+    }
 
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
-        # リクエスト前の処理
-        if self._should_log(request):
-            self._log_request(request)
-
         response = self.get_response(request)
 
-        # レスポンス後の処理
+        # レスポンス後にログを記録（成功した操作のみDB保存）
         if self._should_log(request):
-            self._log_response(request, response)
+            self._log_operation(request, response)
 
         return response
 
@@ -154,20 +164,60 @@ class AuditLogMiddleware:
             return False
         return True
 
-    def _log_request(self, request):
-        """リクエストをログに記録"""
-        user = request.user if request.user.is_authenticated else 'anonymous'
-        tenant_id = getattr(request, 'tenant_id', None)
-        logger.info(
-            f"[AUDIT] {request.method} {request.path} "
-            f"user={user} tenant={tenant_id}"
-        )
+    def _get_resource_type(self, path):
+        """パスからリソースタイプを判定"""
+        for prefix, resource_type in self.PATH_TO_RESOURCE.items():
+            if prefix in path:
+                return resource_type
+        return 'Unknown'
 
-    def _log_response(self, request, response):
-        """レスポンスをログに記録"""
+    def _get_action(self, method, path):
+        """HTTPメソッドとパスからアクションを判定"""
+        if method == 'DELETE':
+            return 'delete'
+        if method == 'POST':
+            if 'create' in path or path.endswith('/'):
+                return 'create'
+            if 'import' in path:
+                return 'import'
+            if 'export' in path:
+                return 'export'
+            return 'create'
+        if method in ['PUT', 'PATCH']:
+            return 'update'
+        return 'other'
+
+    def _log_operation(self, request, response):
+        """操作をログに記録"""
+        from .models import AuditLog, AuditActionChoices
+
+        user = request.user if request.user.is_authenticated else None
+        tenant = getattr(request, 'tenant', None)
+        resource_type = self._get_resource_type(request.path)
+        action = self._get_action(request.method, request.path)
+
+        # ログファイルに記録（エラーレスポンスはwarningレベル）
+        user_str = user.email if user else 'anonymous'
+        tenant_str = tenant.name if tenant else 'none'
+        log_message = (
+            f"[AUDIT] {request.method} {request.path} "
+            f"status={response.status_code} user={user_str} tenant={tenant_str}"
+        )
         if response.status_code >= 400:
-            user = request.user if request.user.is_authenticated else 'anonymous'
-            logger.warning(
-                f"[AUDIT] {request.method} {request.path} "
-                f"status={response.status_code} user={user}"
-            )
+            logger.warning(log_message)
+        else:
+            logger.info(log_message)
+
+        # 成功した操作のみデータベースに記録
+        if response.status_code < 400:
+            try:
+                AuditLog.log(
+                    action=action,
+                    resource_type=resource_type,
+                    request=request,
+                    user=user,
+                    tenant=tenant,
+                    status_code=response.status_code,
+                )
+            except Exception as e:
+                logger.error(f"[AUDIT] Failed to save audit log: {e}")

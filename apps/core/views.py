@@ -4,11 +4,16 @@ Django ATS - コアビュー
 """
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.cache import cache
 from django.utils import timezone
 from django.views.generic import TemplateView
 from datetime import timedelta
 
 from .mixins import HtmxMixin
+
+# キャッシュキー定数
+DASHBOARD_STATS_CACHE_KEY = 'dashboard_stats_{tenant_id}'
+DASHBOARD_STATS_CACHE_TIMEOUT = 300  # 5分
 
 
 class DashboardView(LoginRequiredMixin, HtmxMixin, TemplateView):
@@ -35,7 +40,7 @@ class DashboardView(LoginRequiredMixin, HtmxMixin, TemplateView):
         return context
 
     def get_statistics(self, tenant):
-        """統計データを取得"""
+        """統計データを取得（キャッシュ付き）"""
         from apps.candidates.models import Candidate
         from apps.jobs.models import Job
         from apps.applications.models import Application
@@ -45,6 +50,12 @@ class DashboardView(LoginRequiredMixin, HtmxMixin, TemplateView):
 
         if not tenant:
             return stats
+
+        # キャッシュから取得を試みる
+        cache_key = DASHBOARD_STATS_CACHE_KEY.format(tenant_id=tenant.id)
+        cached_stats = cache.get(cache_key)
+        if cached_stats is not None:
+            return cached_stats
 
         # 応募者数
         try:
@@ -109,6 +120,9 @@ class DashboardView(LoginRequiredMixin, HtmxMixin, TemplateView):
         except Exception:
             stats['interviews_today'] = 0
             stats['interviews_this_week'] = 0
+
+        # キャッシュに保存
+        cache.set(cache_key, stats, DASHBOARD_STATS_CACHE_TIMEOUT)
 
         return stats
 

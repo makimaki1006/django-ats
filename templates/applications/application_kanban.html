@@ -62,7 +62,7 @@
                             <span class="text-gray-500">
                                 {{ application.applied_at|date:"m/d" }}
                             </span>
-                            <span class="{% if application.days_since_applied >= 7 %}text-red-600{% elif application.days_since_applied >= 3 %}text-yellow-600{% else %}text-gray-500{% endif %}">
+                            <span class="{% if application.days_since_applied >= 7 %}text-danger-600{% elif application.days_since_applied >= 3 %}text-yellow-600{% else %}text-gray-500{% endif %}">
                                 {{ application.days_since_applied }}日経過
                             </span>
                         </div>

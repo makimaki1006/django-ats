@@ -58,7 +58,7 @@
                                 </div>
                             </div>
                             {% if form.csv_file.errors %}
-                            <p class="mt-2 text-sm text-red-600">{{ form.csv_file.errors.0 }}</p>
+                            <p class="mt-2 text-sm text-danger-600">{{ form.csv_file.errors.0 }}</p>
                             {% endif %}
                             <p id="selected-file" class="mt-2 text-sm text-gray-600 hidden"></p>
                         </div>
@@ -99,8 +99,8 @@
                         テンプレートをダウンロードして参考にしてください。
                     </p>
                     <div class="text-xs text-gray-600 space-y-1">
-                        <p><span class="font-medium text-red-600">*</span> 氏名（必須）</p>
-                        <p><span class="font-medium text-red-600">*</span> メールアドレス（必須）</p>
+                        <p><span class="font-medium text-danger-600">*</span> 氏名（必須）</p>
+                        <p><span class="font-medium text-danger-600">*</span> メールアドレス（必須）</p>
                         <p>氏名（カナ）</p>
                         <p>電話番号</p>
                         <p>性別</p>
@@ -134,7 +134,7 @@
                                 <div class="flex items-center justify-between">
                                     <span class="text-sm text-gray-900 truncate">{{ import.file_name }}</span>
                                     {% if import.status == 'completed' %}
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-success-100 text-success-800">
                                         完了
                                     </span>
                                     {% elif import.status == 'partial' %}
@@ -142,7 +142,7 @@
                                         一部成功
                                     </span>
                                     {% elif import.status == 'failed' %}
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-danger-100 text-danger-800">
                                         失敗
                                     </span>
                                     {% else %}

@@ -38,7 +38,7 @@
                            placeholder="your@email.com">
                 </div>
                 {% if form.email.errors %}
-                <p class="mt-2 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+                <p class="mt-2 text-sm text-danger-600">{{ form.email.errors.0 }}</p>
                 {% endif %}
             </div>
 
@@ -52,7 +52,7 @@
                            placeholder="8文字以上">
                 </div>
                 {% if form.password1.errors %}
-                <p class="mt-2 text-sm text-red-600">{{ form.password1.errors.0 }}</p>
+                <p class="mt-2 text-sm text-danger-600">{{ form.password1.errors.0 }}</p>
                 {% endif %}
             </div>
 
@@ -66,7 +66,7 @@
                            placeholder="パスワードを再入力">
                 </div>
                 {% if form.password2.errors %}
-                <p class="mt-2 text-sm text-red-600">{{ form.password2.errors.0 }}</p>
+                <p class="mt-2 text-sm text-danger-600">{{ form.password2.errors.0 }}</p>
                 {% endif %}
             </div>
 

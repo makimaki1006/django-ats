@@ -177,3 +177,196 @@ class SoftDeleteTenantModel(TenantBaseModel, SoftDeleteModel):
     """
     class Meta:
         abstract = True
+
+
+class AuditActionChoices(models.TextChoices):
+    """監査アクションの種類"""
+    CREATE = 'create', '作成'
+    UPDATE = 'update', '更新'
+    DELETE = 'delete', '削除'
+    LOGIN = 'login', 'ログイン'
+    LOGOUT = 'logout', 'ログアウト'
+    VIEW = 'view', '閲覧'
+    EXPORT = 'export', 'エクスポート'
+    IMPORT = 'import', 'インポート'
+    OTHER = 'other', 'その他'
+
+
+class AuditLog(models.Model):
+    """監査ログモデル
+
+    システム内の重要な操作を記録。
+    セキュリティ監査、コンプライアンス対応に使用。
+
+    Attributes:
+        timestamp: 操作日時
+        user: 操作ユーザー（null=匿名）
+        tenant: テナント
+        action: 操作種類
+        resource_type: リソース種別（モデル名）
+        resource_id: リソースID
+        resource_repr: リソースの表示名
+        ip_address: クライアントIPアドレス
+        user_agent: ユーザーエージェント
+        path: リクエストパス
+        method: HTTPメソッド
+        status_code: レスポンスステータスコード
+        changes: 変更内容（JSON）
+        extra_data: 追加データ（JSON）
+    """
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False,
+        verbose_name='ID'
+    )
+    timestamp = models.DateTimeField(
+        auto_now_add=True,
+        db_index=True,
+        verbose_name='操作日時'
+    )
+    user = models.ForeignKey(
+        'accounts.CustomUser',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='audit_logs',
+        verbose_name='ユーザー'
+    )
+    tenant = models.ForeignKey(
+        'tenants.Tenant',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='audit_logs',
+        verbose_name='テナント'
+    )
+    action = models.CharField(
+        max_length=20,
+        choices=AuditActionChoices.choices,
+        db_index=True,
+        verbose_name='アクション'
+    )
+    resource_type = models.CharField(
+        max_length=100,
+        db_index=True,
+        verbose_name='リソース種別'
+    )
+    resource_id = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name='リソースID'
+    )
+    resource_repr = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name='リソース表示名'
+    )
+    ip_address = models.GenericIPAddressField(
+        null=True,
+        blank=True,
+        verbose_name='IPアドレス'
+    )
+    user_agent = models.TextField(
+        blank=True,
+        verbose_name='ユーザーエージェント'
+    )
+    path = models.CharField(
+        max_length=500,
+        blank=True,
+        verbose_name='パス'
+    )
+    method = models.CharField(
+        max_length=10,
+        blank=True,
+        verbose_name='メソッド'
+    )
+    status_code = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        verbose_name='ステータスコード'
+    )
+    changes = models.JSONField(
+        default=dict,
+        blank=True,
+        verbose_name='変更内容'
+    )
+    extra_data = models.JSONField(
+        default=dict,
+        blank=True,
+        verbose_name='追加データ'
+    )
+
+    class Meta:
+        verbose_name = '監査ログ'
+        verbose_name_plural = '監査ログ'
+        ordering = ['-timestamp']
+        indexes = [
+            models.Index(fields=['tenant', 'timestamp']),
+            models.Index(fields=['user', 'timestamp']),
+            models.Index(fields=['resource_type', 'resource_id']),
+        ]
+
+    def __str__(self):
+        user_str = self.user.email if self.user else 'anonymous'
+        return f"{self.timestamp} | {user_str} | {self.action} | {self.resource_type}"
+
+    @classmethod
+    def log(cls, action, resource_type, request=None, user=None, tenant=None,
+            resource_id='', resource_repr='', changes=None, extra_data=None,
+            status_code=None):
+        """監査ログを作成するユーティリティメソッド
+
+        Args:
+            action: AuditActionChoices の値
+            resource_type: リソース種別（モデル名など）
+            request: HttpRequest オブジェクト（オプション）
+            user: ユーザー（requestから取得可能）
+            tenant: テナント（requestから取得可能）
+            resource_id: リソースID
+            resource_repr: リソースの表示名
+            changes: 変更内容辞書
+            extra_data: 追加データ辞書
+            status_code: レスポンスステータスコード
+
+        Returns:
+            AuditLog: 作成されたログオブジェクト
+        """
+        if request:
+            user = user or (request.user if request.user.is_authenticated else None)
+            tenant = tenant or getattr(request, 'tenant', None)
+            ip_address = cls._get_client_ip(request)
+            user_agent = request.META.get('HTTP_USER_AGENT', '')[:500]
+            path = request.path
+            method = request.method
+        else:
+            ip_address = None
+            user_agent = ''
+            path = ''
+            method = ''
+
+        return cls.objects.create(
+            user=user,
+            tenant=tenant,
+            action=action,
+            resource_type=resource_type,
+            resource_id=str(resource_id) if resource_id else '',
+            resource_repr=str(resource_repr)[:255] if resource_repr else '',
+            ip_address=ip_address,
+            user_agent=user_agent,
+            path=path,
+            method=method,
+            status_code=status_code,
+            changes=changes or {},
+            extra_data=extra_data or {},
+        )
+
+    @staticmethod
+    def _get_client_ip(request):
+        """クライアントIPアドレスを取得"""
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0].strip()
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip

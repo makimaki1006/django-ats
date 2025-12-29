@@ -33,16 +33,16 @@
         {% csrf_token %}
 
         {% if form.non_field_errors %}
-        <div class="rounded-md bg-red-50 p-4">
+        <div class="rounded-md bg-danger-50 p-4">
             <div class="flex">
                 <div class="flex-shrink-0">
-                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <svg class="h-5 w-5 text-danger-400" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
                     </svg>
                 </div>
                 <div class="ml-3">
                     {% for error in form.non_field_errors %}
-                    <p class="text-sm text-red-700">{{ error }}</p>
+                    <p class="text-sm text-danger-700">{{ error }}</p>
                     {% endfor %}
                 </div>
             </div>
@@ -55,33 +55,33 @@
             <div class="space-y-4">
                 <div>
                     <label for="id_email" class="block text-sm font-medium text-gray-700">
-                        メールアドレス <span class="text-red-500">*</span>
+                        メールアドレス <span class="text-danger-500">*</span>
                     </label>
                     {{ form.email }}
                     {% if form.email.errors %}
-                    <p class="mt-1 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+                    <p class="mt-1 text-sm text-danger-600">{{ form.email.errors.0 }}</p>
                     {% endif %}
                 </div>
 
                 {% if not object %}
                 <div>
                     <label for="id_password1" class="block text-sm font-medium text-gray-700">
-                        パスワード <span class="text-red-500">*</span>
+                        パスワード <span class="text-danger-500">*</span>
                     </label>
                     {{ form.password1 }}
                     {% if form.password1.errors %}
-                    <p class="mt-1 text-sm text-red-600">{{ form.password1.errors.0 }}</p>
+                    <p class="mt-1 text-sm text-danger-600">{{ form.password1.errors.0 }}</p>
                     {% endif %}
                     <p class="mt-1 text-xs text-gray-500">8文字以上で設定してください。</p>
                 </div>
 
                 <div>
                     <label for="id_password2" class="block text-sm font-medium text-gray-700">
-                        パスワード（確認） <span class="text-red-500">*</span>
+                        パスワード（確認） <span class="text-danger-500">*</span>
                     </label>
                     {{ form.password2 }}
                     {% if form.password2.errors %}
-                    <p class="mt-1 text-sm text-red-600">{{ form.password2.errors.0 }}</p>
+                    <p class="mt-1 text-sm text-danger-600">{{ form.password2.errors.0 }}</p>
                     {% endif %}
                 </div>
                 {% endif %}
@@ -91,25 +91,25 @@
                         <label for="id_last_name" class="block text-sm font-medium text-gray-700">姓</label>
                         {{ form.last_name }}
                         {% if form.last_name.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.last_name.errors.0 }}</p>
+                        <p class="mt-1 text-sm text-danger-600">{{ form.last_name.errors.0 }}</p>
                         {% endif %}
                     </div>
                     <div>
                         <label for="id_first_name" class="block text-sm font-medium text-gray-700">名</label>
                         {{ form.first_name }}
                         {% if form.first_name.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.first_name.errors.0 }}</p>
+                        <p class="mt-1 text-sm text-danger-600">{{ form.first_name.errors.0 }}</p>
                         {% endif %}
                     </div>
                 </div>
 
                 <div>
                     <label for="id_role" class="block text-sm font-medium text-gray-700">
-                        役割 <span class="text-red-500">*</span>
+                        役割 <span class="text-danger-500">*</span>
                     </label>
                     {{ form.role }}
                     {% if form.role.errors %}
-                    <p class="mt-1 text-sm text-red-600">{{ form.role.errors.0 }}</p>
+                    <p class="mt-1 text-sm text-danger-600">{{ form.role.errors.0 }}</p>
                     {% endif %}
                 </div>
 

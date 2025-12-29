@@ -39,21 +39,21 @@
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
                         <label for="id_candidate" class="block text-sm font-medium text-gray-700">
-                            候補者 <span class="text-red-500">*</span>
+                            候補者 <span class="text-danger-500">*</span>
                         </label>
                         {{ form.candidate }}
                         {% if form.candidate.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.candidate.errors.0 }}</p>
+                        <p class="mt-1 text-sm text-danger-600">{{ form.candidate.errors.0 }}</p>
                         {% endif %}
                     </div>
 
                     <div>
                         <label for="id_job" class="block text-sm font-medium text-gray-700">
-                            求人 <span class="text-red-500">*</span>
+                            求人 <span class="text-danger-500">*</span>
                         </label>
                         {{ form.job }}
                         {% if form.job.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.job.errors.0 }}</p>
+                        <p class="mt-1 text-sm text-danger-600">{{ form.job.errors.0 }}</p>
                         {% endif %}
                     </div>
 
@@ -63,7 +63,7 @@
                         </label>
                         {{ form.status }}
                         {% if form.status.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.status.errors.0 }}</p>
+                        <p class="mt-1 text-sm text-danger-600">{{ form.status.errors.0 }}</p>
                         {% endif %}
                     </div>
 
@@ -73,7 +73,7 @@
                         </label>
                         {{ form.source }}
                         {% if form.source.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.source.errors.0 }}</p>
+                        <p class="mt-1 text-sm text-danger-600">{{ form.source.errors.0 }}</p>
                         {% endif %}
                     </div>
                 </div>
@@ -93,7 +93,7 @@
                         </label>
                         {{ form.evaluation_score }}
                         {% if form.evaluation_score.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.evaluation_score.errors.0 }}</p>
+                        <p class="mt-1 text-sm text-danger-600">{{ form.evaluation_score.errors.0 }}</p>
                         {% endif %}
                         <p class="mt-1 text-xs text-gray-500">1〜5の5段階評価</p>
                     </div>
@@ -105,7 +105,7 @@
                     </label>
                     {{ form.evaluation_notes }}
                     {% if form.evaluation_notes.errors %}
-                    <p class="mt-1 text-sm text-red-600">{{ form.evaluation_notes.errors.0 }}</p>
+                    <p class="mt-1 text-sm text-danger-600">{{ form.evaluation_notes.errors.0 }}</p>
                     {% endif %}
                 </div>
             </div>
@@ -125,7 +125,7 @@
                         </label>
                         {{ form.offer_salary }}
                         {% if form.offer_salary.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.offer_salary.errors.0 }}</p>
+                        <p class="mt-1 text-sm text-danger-600">{{ form.offer_salary.errors.0 }}</p>
                         {% endif %}
                     </div>
 
@@ -135,7 +135,7 @@
                         </label>
                         {{ form.offer_deadline }}
                         {% if form.offer_deadline.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.offer_deadline.errors.0 }}</p>
+                        <p class="mt-1 text-sm text-danger-600">{{ form.offer_deadline.errors.0 }}</p>
                         {% endif %}
                     </div>
 
@@ -145,7 +145,7 @@
                         </label>
                         {{ form.joined_at }}
                         {% if form.joined_at.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.joined_at.errors.0 }}</p>
+                        <p class="mt-1 text-sm text-danger-600">{{ form.joined_at.errors.0 }}</p>
                         {% endif %}
                     </div>
                 </div>
@@ -156,7 +156,7 @@
                     </label>
                     {{ form.offer_notes }}
                     {% if form.offer_notes.errors %}
-                    <p class="mt-1 text-sm text-red-600">{{ form.offer_notes.errors.0 }}</p>
+                    <p class="mt-1 text-sm text-danger-600">{{ form.offer_notes.errors.0 }}</p>
                     {% endif %}
                 </div>
             </div>
@@ -174,7 +174,7 @@
                     </label>
                     {{ form.notes }}
                     {% if form.notes.errors %}
-                    <p class="mt-1 text-sm text-red-600">{{ form.notes.errors.0 }}</p>
+                    <p class="mt-1 text-sm text-danger-600">{{ form.notes.errors.0 }}</p>
                     {% endif %}
                 </div>
             </div>
@@ -182,16 +182,16 @@
 
         <!-- エラーサマリー -->
         {% if form.non_field_errors %}
-        <div class="rounded-md bg-red-50 p-4">
+        <div class="rounded-md bg-danger-50 p-4">
             <div class="flex">
                 <div class="flex-shrink-0">
-                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <svg class="h-5 w-5 text-danger-400" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
                     </svg>
                 </div>
                 <div class="ml-3">
                     <h3 class="text-sm font-medium text-red-800">入力内容にエラーがあります</h3>
-                    <div class="mt-2 text-sm text-red-700">
+                    <div class="mt-2 text-sm text-danger-700">
                         <ul class="list-disc pl-5 space-y-1">
                             {% for error in form.non_field_errors %}
                             <li>{{ error }}</li>

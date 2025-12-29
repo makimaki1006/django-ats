@@ -33,16 +33,16 @@
         {% csrf_token %}
 
         {% if form.non_field_errors %}
-        <div class="rounded-md bg-red-50 p-4">
+        <div class="rounded-md bg-danger-50 p-4">
             <div class="flex">
                 <div class="flex-shrink-0">
-                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <svg class="h-5 w-5 text-danger-400" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
                     </svg>
                 </div>
                 <div class="ml-3">
                     {% for error in form.non_field_errors %}
-                    <p class="text-sm text-red-700">{{ error }}</p>
+                    <p class="text-sm text-danger-700">{{ error }}</p>
                     {% endfor %}
                 </div>
             </div>
@@ -55,55 +55,55 @@
             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div>
                     <label for="id_name" class="block text-sm font-medium text-gray-700">
-                        氏名 <span class="text-red-500">*</span>
+                        氏名 <span class="text-danger-500">*</span>
                     </label>
                     {{ form.name }}
                     {% if form.name.errors %}
-                    <p class="mt-1 text-sm text-red-600">{{ form.name.errors.0 }}</p>
+                    <p class="mt-1 text-sm text-danger-600">{{ form.name.errors.0 }}</p>
                     {% endif %}
                 </div>
                 <div>
                     <label for="id_name_kana" class="block text-sm font-medium text-gray-700">氏名（カナ）</label>
                     {{ form.name_kana }}
                     {% if form.name_kana.errors %}
-                    <p class="mt-1 text-sm text-red-600">{{ form.name_kana.errors.0 }}</p>
+                    <p class="mt-1 text-sm text-danger-600">{{ form.name_kana.errors.0 }}</p>
                     {% endif %}
                 </div>
                 <div>
                     <label for="id_email" class="block text-sm font-medium text-gray-700">
-                        メールアドレス <span class="text-red-500">*</span>
+                        メールアドレス <span class="text-danger-500">*</span>
                     </label>
                     {{ form.email }}
                     {% if form.email.errors %}
-                    <p class="mt-1 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+                    <p class="mt-1 text-sm text-danger-600">{{ form.email.errors.0 }}</p>
                     {% endif %}
                 </div>
                 <div>
                     <label for="id_phone" class="block text-sm font-medium text-gray-700">電話番号</label>
                     {{ form.phone }}
                     {% if form.phone.errors %}
-                    <p class="mt-1 text-sm text-red-600">{{ form.phone.errors.0 }}</p>
+                    <p class="mt-1 text-sm text-danger-600">{{ form.phone.errors.0 }}</p>
                     {% endif %}
                 </div>
                 <div>
                     <label for="id_gender" class="block text-sm font-medium text-gray-700">性別</label>
                     {{ form.gender }}
                     {% if form.gender.errors %}
-                    <p class="mt-1 text-sm text-red-600">{{ form.gender.errors.0 }}</p>
+                    <p class="mt-1 text-sm text-danger-600">{{ form.gender.errors.0 }}</p>
                     {% endif %}
                 </div>
                 <div>
                     <label for="id_birth_date" class="block text-sm font-medium text-gray-700">生年月日</label>
                     {{ form.birth_date }}
                     {% if form.birth_date.errors %}
-                    <p class="mt-1 text-sm text-red-600">{{ form.birth_date.errors.0 }}</p>
+                    <p class="mt-1 text-sm text-danger-600">{{ form.birth_date.errors.0 }}</p>
                     {% endif %}
                 </div>
                 <div class="sm:col-span-2">
                     <label for="id_address" class="block text-sm font-medium text-gray-700">住所</label>
                     {{ form.address }}
                     {% if form.address.errors %}
-                    <p class="mt-1 text-sm text-red-600">{{ form.address.errors.0 }}</p>
+                    <p class="mt-1 text-sm text-danger-600">{{ form.address.errors.0 }}</p>
                     {% endif %}
                 </div>
             </div>

@@ -38,14 +38,14 @@
                     <label for="id_last_name" class="block text-sm font-medium text-gray-700">姓</label>
                     {{ form.last_name }}
                     {% if form.last_name.errors %}
-                    <p class="mt-1 text-sm text-red-600">{{ form.last_name.errors.0 }}</p>
+                    <p class="mt-1 text-sm text-danger-600">{{ form.last_name.errors.0 }}</p>
                     {% endif %}
                 </div>
                 <div>
                     <label for="id_first_name" class="block text-sm font-medium text-gray-700">名前</label>
                     {{ form.first_name }}
                     {% if form.first_name.errors %}
-                    <p class="mt-1 text-sm text-red-600">{{ form.first_name.errors.0 }}</p>
+                    <p class="mt-1 text-sm text-danger-600">{{ form.first_name.errors.0 }}</p>
                     {% endif %}
                 </div>
             </div>
@@ -54,7 +54,7 @@
                 <label for="id_phone" class="block text-sm font-medium text-gray-700">電話番号</label>
                 {{ form.phone }}
                 {% if form.phone.errors %}
-                <p class="mt-1 text-sm text-red-600">{{ form.phone.errors.0 }}</p>
+                <p class="mt-1 text-sm text-danger-600">{{ form.phone.errors.0 }}</p>
                 {% endif %}
             </div>
 
@@ -63,14 +63,14 @@
                     <label for="id_department" class="block text-sm font-medium text-gray-700">部署</label>
                     {{ form.department }}
                     {% if form.department.errors %}
-                    <p class="mt-1 text-sm text-red-600">{{ form.department.errors.0 }}</p>
+                    <p class="mt-1 text-sm text-danger-600">{{ form.department.errors.0 }}</p>
                     {% endif %}
                 </div>
                 <div>
                     <label for="id_position" class="block text-sm font-medium text-gray-700">役職</label>
                     {{ form.position }}
                     {% if form.position.errors %}
-                    <p class="mt-1 text-sm text-red-600">{{ form.position.errors.0 }}</p>
+                    <p class="mt-1 text-sm text-danger-600">{{ form.position.errors.0 }}</p>
                     {% endif %}
                 </div>
             </div>
@@ -90,7 +90,7 @@
                 <div class="flex-1">
                     {{ form.avatar }}
                     {% if form.avatar.errors %}
-                    <p class="mt-1 text-sm text-red-600">{{ form.avatar.errors.0 }}</p>
+                    <p class="mt-1 text-sm text-danger-600">{{ form.avatar.errors.0 }}</p>
                     {% endif %}
                     <p class="mt-1 text-xs text-gray-500">PNG、JPG、GIF形式。最大2MB。</p>
                 </div>

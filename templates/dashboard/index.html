@@ -36,8 +36,8 @@
                             <dd class="flex items-baseline">
                                 <div class="text-2xl font-semibold text-gray-900">{{ total_candidates|default:0 }}</div>
                                 {% if new_candidates_this_month %}
-                                <div class="ml-2 flex items-baseline text-sm font-semibold text-green-600">
-                                    <svg class="self-center flex-shrink-0 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <div class="ml-2 flex items-baseline text-sm font-semibold text-success-600">
+                                    <svg class="self-center flex-shrink-0 h-5 w-5 text-success-500" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
                                     </svg>
                                     +{{ new_candidates_this_month }}
@@ -62,7 +62,7 @@
             <div class="p-5">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <svg class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg class="h-6 w-6 text-success-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                         </svg>
                     </div>
@@ -79,7 +79,7 @@
             </div>
             <div class="bg-gray-50 px-5 py-3">
                 <div class="text-sm">
-                    <a href="{% url 'jobs:job_list' %}" class="font-medium text-green-600 hover:text-green-500">
+                    <a href="{% url 'jobs:job_list' %}" class="font-medium text-success-600 hover:text-success-500">
                         すべて表示
                     </a>
                 </div>
@@ -178,11 +178,11 @@
                         </div>
                         <div class="ml-4 flex-shrink-0">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                {% if activity.status == 'new' %}bg-blue-100 text-blue-800
-                                {% elif activity.status == 'screening' %}bg-yellow-100 text-yellow-800
+                                {% if activity.status == 'new' %}bg-primary-100 text-primary-800
+                                {% elif activity.status == 'screening' %}bg-warning-100 text-warning-800
                                 {% elif activity.status == 'interview' %}bg-purple-100 text-purple-800
-                                {% elif activity.status == 'offered' %}bg-green-100 text-green-800
-                                {% elif activity.status == 'rejected' %}bg-red-100 text-red-800
+                                {% elif activity.status == 'offered' %}bg-success-100 text-success-800
+                                {% elif activity.status == 'rejected' %}bg-danger-100 text-danger-800
                                 {% else %}bg-gray-100 text-gray-800{% endif %}">
                                 {{ activity.get_status_display }}
                             </span>
