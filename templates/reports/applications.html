@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}応募レポート - Django ATS{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <!-- ヘッダー -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">応募レポート</h1>
+            <p class="text-sm text-gray-500 mt-1">応募状況の詳細分析</p>
+        </div>
+        <a href="{% url 'reports:dashboard' %}"
+            class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            ダッシュボードに戻る
+        </a>
+    </div>
+
+    <!-- 週別応募推移 -->
+    <div class="bg-white rounded-lg shadow p-6 mb-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">週別応募推移（過去3ヶ月）</h2>
+        <div class="space-y-2">
+            {% for week in weekly_applications %}
+            <div class="flex items-center">
+                <span class="w-24 text-sm text-gray-600">{{ week.week|date:"m/d" }}</span>
+                <div class="flex-1 mx-4">
+                    <div class="bg-gray-200 rounded-full h-6">
+                        {% if weekly_applications %}
+                        <div class="bg-blue-600 rounded-full h-6 flex items-center justify-end pr-2"
+                            style="width: {% widthratio week.count weekly_applications.0.count 100 %}%">
+                            <span class="text-xs text-white font-medium">{{ week.count }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-gray-500">データがありません</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- ステータス別内訳 -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">ステータス別内訳</h2>
+            <div class="space-y-3">
+                {% for item in status_breakdown %}
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div class="flex items-center">
+                        {% if item.status == 'NEW' %}
+                        <span class="w-3 h-3 bg-blue-500 rounded-full mr-3"></span>
+                        {% elif item.status == 'SCREENING' %}
+                        <span class="w-3 h-3 bg-yellow-500 rounded-full mr-3"></span>
+                        {% elif item.status == 'INTERVIEW' %}
+                        <span class="w-3 h-3 bg-purple-500 rounded-full mr-3"></span>
+                        {% elif item.status == 'OFFER_MADE' %}
+                        <span class="w-3 h-3 bg-green-500 rounded-full mr-3"></span>
+                        {% elif item.status == 'OFFER_ACCEPTED' %}
+                        <span class="w-3 h-3 bg-green-700 rounded-full mr-3"></span>
+                        {% elif item.status == 'REJECTED' %}
+                        <span class="w-3 h-3 bg-red-500 rounded-full mr-3"></span>
+                        {% elif item.status == 'WITHDRAWN' %}
+                        <span class="w-3 h-3 bg-gray-500 rounded-full mr-3"></span>
+                        {% else %}
+                        <span class="w-3 h-3 bg-gray-400 rounded-full mr-3"></span>
+                        {% endif %}
+                        <span class="text-sm text-gray-700">{{ item.status }}</span>
+                    </div>
+                    <span class="text-sm font-semibold text-gray-900">{{ item.count }}件</span>
+                </div>
+                {% empty %}
+                <p class="text-gray-500">データがありません</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- 応募経路別内訳 -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">応募経路別内訳（TOP10）</h2>
+            <div class="space-y-3">
+                {% for source in source_breakdown %}
+                <div class="flex items-center">
+                    <span class="w-32 text-sm text-gray-600 truncate">
+                        {% if source.source__name %}{{ source.source__name }}{% else %}（未設定）{% endif %}
+                    </span>
+                    <div class="flex-1 mx-4">
+                        <div class="bg-gray-200 rounded-full h-4">
+                            {% if source_breakdown %}
+                            <div class="bg-indigo-600 rounded-full h-4"
+                                style="width: {% widthratio source.count source_breakdown.0.count 100 %}%"></div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <span class="text-sm font-medium text-gray-900">{{ source.count }}</span>
+                </div>
+                {% empty %}
+                <p class="text-gray-500">データがありません</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- エクスポートボタン -->
+    <div class="mt-6 flex justify-end">
+        <a href="{% url 'reports:export_csv' 'applications' %}"
+            class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+            </svg>
+            応募データをCSVエクスポート
+        </a>
+    </div>
+</div>
+{% endblock %}

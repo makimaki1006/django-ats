@@ -1,16 +1,25 @@
 """Django ATS - Reports URLs"""
 from django.urls import path
-from django.views.generic import TemplateView
-from django.contrib.auth.mixins import LoginRequiredMixin
 
-
-class ReportsIndexView(LoginRequiredMixin, TemplateView):
-    """レポートインデックス（スタブ）"""
-    template_name = 'reports/index.html'
+from .views import (
+    ReportsDashboardView,
+    ApplicationsReportView,
+    InterviewsReportView,
+    ExportCSVView,
+)
 
 
 app_name = 'reports'
 
 urlpatterns = [
-    path('', ReportsIndexView.as_view(), name='index'),
+    # ダッシュボード
+    path('', ReportsDashboardView.as_view(), name='index'),
+    path('dashboard/', ReportsDashboardView.as_view(), name='dashboard'),
+
+    # 個別レポート
+    path('applications/', ApplicationsReportView.as_view(), name='applications'),
+    path('interviews/', InterviewsReportView.as_view(), name='interviews'),
+
+    # CSVエクスポート
+    path('export/<str:report_type>/', ExportCSVView.as_view(), name='export_csv'),
 ]

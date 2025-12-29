@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}レポートダッシュボード - Django ATS{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <!-- ヘッダー -->
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">レポートダッシュボード</h1>
+        <div class="flex items-center space-x-4">
+            <!-- 期間フィルター -->
+            <form method="get" class="flex items-center space-x-2">
+                <label for="period" class="text-sm text-gray-600">期間:</label>
+                <select name="period" id="period" onchange="this.form.submit()"
+                    class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <option value="7" {% if period == '7' %}selected{% endif %}>過去7日</option>
+                    <option value="30" {% if period == '30' %}selected{% endif %}>過去30日</option>
+                    <option value="90" {% if period == '90' %}selected{% endif %}>過去90日</option>
+                    <option value="365" {% if period == '365' %}selected{% endif %}>過去1年</option>
+                </select>
+            </form>
+            <!-- CSVエクスポート -->
+            <div class="relative" x-data="{ open: false }">
+                <button @click="open = !open"
+                    class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    CSVエクスポート
+                </button>
+                <div x-show="open" @click.away="open = false"
+                    class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
+                    <a href="{% url 'reports:export_csv' 'candidates' %}"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">候補者一覧</a>
+                    <a href="{% url 'reports:export_csv' 'applications' %}"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">応募一覧</a>
+                    <a href="{% url 'reports:export_csv' 'interviews' %}"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">面接一覧</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 統計カード -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <!-- 候補者数 -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm text-gray-500">候補者数</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ stats.total_candidates }}</p>
+                    <p class="text-sm text-green-600">+{{ stats.new_candidates }} 新規</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 応募数 -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-green-100 text-green-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm text-gray-500">応募数</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ stats.total_applications }}</p>
+                    <p class="text-sm text-green-600">+{{ stats.new_applications }} 新規</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- アクティブ求人 -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm text-gray-500">アクティブ求人</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ stats.active_jobs }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 内定率 -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm text-gray-500">内定率</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ stats.offer_rate }}%</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- グラフセクション -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- 応募ステータス分布 -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">応募ステータス分布</h2>
+            <div class="space-y-3">
+                {% for item in application_status_dist %}
+                <div class="flex items-center">
+                    <span class="w-32 text-sm text-gray-600">{{ item.status }}</span>
+                    <div class="flex-1 mx-4">
+                        <div class="bg-gray-200 rounded-full h-4">
+                            <div class="bg-blue-600 rounded-full h-4"
+                                style="width: {% widthratio item.count stats.total_applications 100 %}%"></div>
+                        </div>
+                    </div>
+                    <span class="text-sm font-medium text-gray-900">{{ item.count }}</span>
+                </div>
+                {% empty %}
+                <p class="text-gray-500">データがありません</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- 求人別応募数TOP10 -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">求人別応募数 TOP10</h2>
+            <div class="space-y-3">
+                {% for job in job_applications %}
+                <div class="flex items-center">
+                    <span class="w-48 text-sm text-gray-600 truncate">{{ job.title }}</span>
+                    <div class="flex-1 mx-4">
+                        <div class="bg-gray-200 rounded-full h-4">
+                            <div class="bg-green-600 rounded-full h-4"
+                                style="width: {% widthratio job.app_count job_applications.0.app_count 100 %}%"></div>
+                        </div>
+                    </div>
+                    <span class="text-sm font-medium text-gray-900">{{ job.app_count }}</span>
+                </div>
+                {% empty %}
+                <p class="text-gray-500">データがありません</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- クイックリンク -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <a href="{% url 'reports:applications' %}"
+            class="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow">
+            <h3 class="text-lg font-semibold text-gray-900">応募レポート</h3>
+            <p class="text-sm text-gray-500 mt-2">応募の詳細分析を表示</p>
+        </a>
+        <a href="{% url 'reports:interviews' %}"
+            class="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow">
+            <h3 class="text-lg font-semibold text-gray-900">面接レポート</h3>
+            <p class="text-sm text-gray-500 mt-2">面接の詳細分析を表示</p>
+        </a>
+        <a href="{% url 'candidates:candidate_list' %}"
+            class="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow">
+            <h3 class="text-lg font-semibold text-gray-900">候補者一覧</h3>
+            <p class="text-sm text-gray-500 mt-2">候補者の管理画面へ</p>
+        </a>
+    </div>
+</div>
+{% endblock %}
