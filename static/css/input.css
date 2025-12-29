@@ -222,3 +222,402 @@
     border-radius: 3px;
   }
 }
+
+/* ===================================
+   2025 UI/UX Enhancement Styles
+   =================================== */
+
+/* マイクロインタラクション - ホバーエフェクト */
+@layer components {
+  /* インタラクティブカード */
+  .card-interactive {
+    @apply card transition-all duration-300 ease-out
+           hover:shadow-lg hover:-translate-y-1
+           hover:border-primary-200;
+  }
+
+  /* 統計カード（ダッシュボード用） */
+  .stat-card {
+    @apply bg-white overflow-hidden shadow rounded-lg
+           transition-all duration-300 ease-out
+           hover:shadow-lg hover:-translate-y-0.5;
+  }
+
+  .stat-card:hover .stat-icon {
+    @apply scale-110;
+  }
+
+  .stat-icon {
+    @apply transition-transform duration-300 ease-out;
+  }
+
+  /* パルスアニメーション（要対応バッジ用） */
+  .badge-pulse {
+    @apply relative;
+  }
+
+  .badge-pulse::before {
+    content: '';
+    @apply absolute inset-0 rounded-full;
+    animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* スケルトンローダー */
+  .skeleton {
+    @apply bg-gray-200 rounded animate-pulse;
+  }
+
+  .skeleton-text {
+    @apply skeleton h-4 w-full;
+  }
+
+  .skeleton-text-sm {
+    @apply skeleton h-3 w-3/4;
+  }
+
+  .skeleton-avatar {
+    @apply skeleton h-10 w-10 rounded-full;
+  }
+
+  .skeleton-card {
+    @apply skeleton h-32 w-full;
+  }
+
+  /* リストアイテムホバー */
+  .list-item-interactive {
+    @apply transition-all duration-200 ease-out
+           hover:bg-gray-50 hover:shadow-sm
+           cursor-pointer;
+  }
+
+  /* ボタンにマイクロインタラクション追加 */
+  .btn-animated {
+    @apply transform transition-all duration-200 ease-out
+           hover:scale-[1.02] active:scale-[0.98];
+  }
+
+  /* フォーカスリング改善 */
+  .focus-ring-enhanced {
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2
+           focus:ring-primary-500 focus:ring-opacity-50;
+  }
+
+  /* ツールチップ */
+  .tooltip {
+    @apply relative inline-block;
+  }
+
+  .tooltip .tooltip-text {
+    @apply invisible opacity-0 bg-gray-900 text-white text-xs
+           rounded py-1 px-2 absolute z-50
+           transition-all duration-200 ease-out
+           whitespace-nowrap;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .tooltip:hover .tooltip-text {
+    @apply visible opacity-100;
+  }
+
+  /* 進捗バー */
+  .progress-bar {
+    @apply h-2 bg-gray-200 rounded-full overflow-hidden;
+  }
+
+  .progress-bar-fill {
+    @apply h-full rounded-full transition-all duration-500 ease-out;
+  }
+
+  .progress-bar-fill-primary {
+    @apply progress-bar-fill bg-primary-500;
+  }
+
+  .progress-bar-fill-success {
+    @apply progress-bar-fill bg-success-500;
+  }
+
+  .progress-bar-fill-warning {
+    @apply progress-bar-fill bg-warning-500;
+  }
+
+  .progress-bar-fill-danger {
+    @apply progress-bar-fill bg-danger-500;
+  }
+
+  /* スパークライン用コンテナ */
+  .sparkline-container {
+    @apply inline-flex items-end gap-0.5 h-6;
+  }
+
+  .sparkline-bar {
+    @apply w-1 bg-primary-400 rounded-t transition-all duration-200;
+  }
+
+  .sparkline-bar:hover {
+    @apply bg-primary-600;
+  }
+
+  /* 空状態の改善 */
+  .empty-state {
+    @apply text-center py-12;
+  }
+
+  .empty-state-icon {
+    @apply mx-auto h-16 w-16 text-gray-300;
+  }
+
+  .empty-state-title {
+    @apply mt-4 text-lg font-medium text-gray-900;
+  }
+
+  .empty-state-description {
+    @apply mt-2 text-sm text-gray-500 max-w-sm mx-auto;
+  }
+
+  .empty-state-action {
+    @apply mt-6;
+  }
+
+  /* フェードインアニメーション */
+  .fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  /* スライドインアニメーション */
+  .slide-in-up {
+    animation: slideInUp 0.3s ease-out;
+  }
+
+  .slide-in-right {
+    animation: slideInRight 0.3s ease-out;
+  }
+
+  /* トレンドインジケーター */
+  .trend-up {
+    @apply inline-flex items-center text-success-600;
+  }
+
+  .trend-down {
+    @apply inline-flex items-center text-danger-600;
+  }
+
+  .trend-neutral {
+    @apply inline-flex items-center text-gray-500;
+  }
+
+  /* モーダルオーバーレイ改善 */
+  .modal-overlay {
+    @apply fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity
+           backdrop-blur-sm;
+  }
+
+  /* ドロップダウンメニュー改善 */
+  .dropdown-menu {
+    @apply absolute right-0 z-10 mt-2 w-48 origin-top-right
+           rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5
+           focus:outline-none
+           transition-all duration-200 ease-out;
+  }
+
+  .dropdown-item {
+    @apply block px-4 py-2 text-sm text-gray-700
+           hover:bg-gray-100 hover:text-gray-900
+           transition-colors duration-150;
+  }
+
+  /* ナビゲーションリンクアニメーション */
+  .nav-link-animated {
+    @apply relative;
+  }
+
+  .nav-link-animated::after {
+    content: '';
+    @apply absolute bottom-0 left-0 w-0 h-0.5 bg-primary-500
+           transition-all duration-300 ease-out;
+  }
+
+  .nav-link-animated:hover::after,
+  .nav-link-animated.active::after {
+    @apply w-full;
+  }
+
+  /* タブ改善 */
+  .tab-list {
+    @apply flex space-x-1 border-b border-gray-200;
+  }
+
+  .tab-item {
+    @apply px-4 py-2 text-sm font-medium text-gray-500
+           border-b-2 border-transparent
+           transition-all duration-200 ease-out
+           hover:text-gray-700 hover:border-gray-300
+           focus:outline-none;
+  }
+
+  .tab-item-active {
+    @apply tab-item text-primary-600 border-primary-500;
+  }
+
+  /* カウントアップアニメーション用 */
+  .count-up {
+    @apply tabular-nums;
+  }
+
+  /* グラデーションボーダー */
+  .border-gradient {
+    @apply relative;
+  }
+
+  .border-gradient::before {
+    content: '';
+    @apply absolute inset-0 rounded-lg p-[1px];
+    background: linear-gradient(135deg, theme('colors.primary.400'), theme('colors.success.400'));
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+  }
+
+  /* ローディングスピナー改善 */
+  .spinner {
+    @apply animate-spin h-5 w-5;
+  }
+
+  .spinner-dots {
+    @apply inline-flex space-x-1;
+  }
+
+  .spinner-dots span {
+    @apply w-2 h-2 bg-current rounded-full;
+    animation: bounce 1.4s infinite ease-in-out both;
+  }
+
+  .spinner-dots span:nth-child(1) {
+    animation-delay: -0.32s;
+  }
+
+  .spinner-dots span:nth-child(2) {
+    animation-delay: -0.16s;
+  }
+}
+
+/* アニメーションキーフレーム */
+@keyframes pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.25;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes bounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
+}
+
+/* ===================================
+   ダークモードサポート
+   =================================== */
+@media (prefers-color-scheme: dark) {
+  .dark-mode-auto {
+    @apply bg-gray-900 text-gray-100;
+  }
+}
+
+/* 手動ダークモードクラス */
+.dark {
+  --color-bg-primary: theme('colors.gray.900');
+  --color-bg-secondary: theme('colors.gray.800');
+  --color-text-primary: theme('colors.gray.100');
+  --color-text-secondary: theme('colors.gray.400');
+}
+
+.dark .card {
+  @apply bg-gray-800 border-gray-700;
+}
+
+.dark .btn-secondary {
+  @apply bg-gray-700 text-gray-100 border-gray-600
+         hover:bg-gray-600;
+}
+
+.dark .sidebar {
+  @apply bg-gray-900;
+}
+
+.dark .table thead {
+  @apply bg-gray-800;
+}
+
+.dark .table th,
+.dark .table td {
+  @apply text-gray-300;
+}
+
+.dark .skeleton {
+  @apply bg-gray-700;
+}
+
+/* ===================================
+   レスポンシブ改善
+   =================================== */
+@layer utilities {
+  /* タッチフレンドリーなターゲットサイズ */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* モバイルでの余白調整 */
+  @screen sm {
+    .mobile-padding {
+      @apply px-4;
+    }
+  }
+
+  /* コンテナ幅制限 */
+  .content-width {
+    @apply max-w-7xl mx-auto;
+  }
+}

@@ -22,11 +22,11 @@
     <!-- 統計カード -->
     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         <!-- 応募者数 -->
-        <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="stat-card slide-in-up" style="animation-delay: 0ms;">
             <div class="p-5">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <svg class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg class="h-6 w-6 text-blue-500 stat-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
                     </div>
@@ -58,11 +58,11 @@
         </div>
 
         <!-- 公開中の求人 -->
-        <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="stat-card slide-in-up" style="animation-delay: 50ms;">
             <div class="p-5">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <svg class="h-6 w-6 text-success-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg class="h-6 w-6 text-success-500 stat-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                         </svg>
                     </div>
@@ -87,11 +87,11 @@
         </div>
 
         <!-- 未処理の応募 -->
-        <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="stat-card slide-in-up" style="animation-delay: 100ms;">
             <div class="p-5">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <svg class="h-6 w-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg class="h-6 w-6 text-yellow-500 stat-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                         </svg>
                     </div>
@@ -120,11 +120,11 @@
         </div>
 
         <!-- 今日の面接 -->
-        <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="stat-card slide-in-up" style="animation-delay: 150ms;">
             <div class="p-5">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <svg class="h-6 w-6 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg class="h-6 w-6 text-purple-500 stat-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                     </div>
@@ -151,13 +151,13 @@
 
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <!-- 最近の応募 -->
-        <div class="bg-white shadow rounded-lg">
+        <div class="bg-white shadow rounded-lg card-interactive fade-in">
             <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
                 <h3 class="text-lg font-medium text-gray-900">最近の応募</h3>
             </div>
             <div class="divide-y divide-gray-200">
                 {% for activity in recent_activities %}
-                <div class="px-4 py-4 sm:px-6 hover:bg-gray-50">
+                <div class="px-4 py-4 sm:px-6 list-item-interactive">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center min-w-0">
                             <div class="flex-shrink-0">
@@ -208,13 +208,13 @@
         </div>
 
         <!-- 今後の面接 -->
-        <div class="bg-white shadow rounded-lg">
+        <div class="bg-white shadow rounded-lg card-interactive fade-in">
             <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
                 <h3 class="text-lg font-medium text-gray-900">今後の面接</h3>
             </div>
             <div class="divide-y divide-gray-200">
                 {% for interview in upcoming_interviews %}
-                <div class="px-4 py-4 sm:px-6 hover:bg-gray-50">
+                <div class="px-4 py-4 sm:px-6 list-item-interactive">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center min-w-0">
                             <div class="flex-shrink-0">
@@ -264,12 +264,12 @@
 
     <!-- クイックアクション -->
     {% if quick_actions %}
-    <div class="bg-white shadow rounded-lg p-6">
+    <div class="bg-white shadow rounded-lg p-6 fade-in">
         <h3 class="text-lg font-medium text-gray-900 mb-4">クイックアクション</h3>
         <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
             {% for action in quick_actions %}
             <a href="{% url action.url %}"
-               class="relative group bg-gray-50 p-6 rounded-lg hover:bg-gray-100 transition-colors">
+               class="relative group bg-gray-50 p-6 rounded-lg hover:bg-gray-100 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
                 <div class="text-center">
                     <div class="inline-flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white mb-4">
                         {% if action.icon == 'user-plus' %}
