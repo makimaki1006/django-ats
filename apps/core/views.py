@@ -4,7 +4,6 @@ Django ATS - コアビュー
 """
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Count, Q
 from django.utils import timezone
 from django.views.generic import TemplateView
 from datetime import timedelta

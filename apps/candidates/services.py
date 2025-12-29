@@ -8,7 +8,6 @@ import csv
 import io
 from typing import List, Dict, Any, Tuple
 from dataclasses import dataclass
-from django.db import transaction
 from django.utils import timezone
 
 from .models import Candidate, ImportHistory, GenderChoices, EmploymentStatusChoices

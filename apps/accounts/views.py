@@ -23,7 +23,6 @@ from django.http import HttpResponse
 
 from apps.core.mixins import (
     HtmxMixin,
-    TenantAccessMixin,
     TenantQuerysetMixin,
     AdminRequiredMixin,
     PaginationMixin,

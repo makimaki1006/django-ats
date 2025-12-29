@@ -4,7 +4,6 @@ Django ATS - ミドルウェア
 """
 
 import logging
-from django.conf import settings
 from django.shortcuts import redirect
 from django.contrib import messages
 from django.utils import timezone

@@ -11,7 +11,7 @@
 """
 
 from django.db import models
-from django.core.validators import RegexValidator, MinValueValidator, MaxValueValidator
+from django.core.validators import RegexValidator, MaxValueValidator
 
 from apps.core.models import TenantBaseModel
 

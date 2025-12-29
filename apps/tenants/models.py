@@ -10,7 +10,6 @@
 """
 
 from django.db import models
-from django.core.validators import URLValidator
 
 from apps.core.models import BaseModel
 

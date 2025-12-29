@@ -4,7 +4,6 @@ Django ATS - 候補者ビュー
 """
 
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -26,7 +25,6 @@ from apps.core.mixins import (
     LimitedCandidateAccessMixin,
     FullCandidateAccessMixin,
     CandidateQuerysetFilterMixin,
-    ConsultantOrAboveMixin,
 )
 from .models import Candidate, CandidateComment, ImportHistory, GenderChoices, EmploymentStatusChoices
 from .forms import CandidateForm, CandidateFilterForm, CSVImportForm, CommentForm

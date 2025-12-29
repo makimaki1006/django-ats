@@ -6,7 +6,6 @@ from django import forms
 
 from .models import (
     Interview,
-    InterviewTypeChoices,
     InterviewStatusChoices,
     InterviewResultChoices,
 )

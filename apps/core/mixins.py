@@ -6,11 +6,9 @@
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect
-from django.http import HttpResponseForbidden
 
-from .exceptions import TenantAccessError, RolePermissionError, OptimisticLockError
+from .exceptions import TenantAccessError, RolePermissionError
 
 
 class TenantQuerysetMixin:
