@@ -1,0 +1,58 @@
+{#
+  Empty State コンポーネント
+
+  使用方法:
+  {% include "components/empty_state.html" with title="候補者がいません" message="最初の候補者を登録しましょう" action_url=create_url action_text="候補者を登録" %}
+
+  パラメータ:
+  - title: タイトル (必須)
+  - message: 説明メッセージ (オプション)
+  - icon: カスタムアイコン (オプション、デフォルト: フォルダアイコン)
+  - action_url: CTAボタンのURL (オプション)
+  - action_text: CTAボタンのテキスト (オプション)
+  - secondary_action_url: セカンダリボタンのURL (オプション)
+  - secondary_action_text: セカンダリボタンのテキスト (オプション)
+#}
+<div class="text-center py-12">
+    {# アイコン #}
+    <div class="mx-auto h-12 w-12 text-gray-400">
+        {% if icon %}
+        {{ icon|safe }}
+        {% else %}
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                  d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+        </svg>
+        {% endif %}
+    </div>
+
+    {# タイトル #}
+    <h3 class="mt-4 text-lg font-medium text-gray-900">{{ title }}</h3>
+
+    {# メッセージ #}
+    {% if message %}
+    <p class="mt-2 text-sm text-gray-500 max-w-sm mx-auto">{{ message }}</p>
+    {% endif %}
+
+    {# アクションボタン #}
+    {% if action_url or secondary_action_url %}
+    <div class="mt-6 flex justify-center gap-3">
+        {% if action_url %}
+        <a href="{{ action_url }}"
+           class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+            </svg>
+            {{ action_text }}
+        </a>
+        {% endif %}
+
+        {% if secondary_action_url %}
+        <a href="{{ secondary_action_url }}"
+           class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            {{ secondary_action_text }}
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>

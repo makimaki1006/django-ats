@@ -6,10 +6,34 @@ from django import forms
 from django.core.exceptions import ValidationError
 
 from .models import Job, JobStatusChoices, EmploymentTypeChoices
+from apps.personas.models import Persona
+from apps.agents.models import AgentCompany
 
 
 class JobForm(forms.ModelForm):
     """求人作成・更新フォーム"""
+
+    # ペルソナ選択フィールド
+    personas = forms.ModelMultipleChoiceField(
+        queryset=Persona.objects.none(),
+        required=False,
+        widget=forms.CheckboxSelectMultiple(attrs={
+            'class': 'form-checkbox',
+        }),
+        label='ペルソナ',
+        help_text='この求人に紐付けるペルソナを選択してください'
+    )
+
+    # エージェント選択フィールド
+    agent_companies = forms.ModelMultipleChoiceField(
+        queryset=AgentCompany.objects.none(),
+        required=False,
+        widget=forms.CheckboxSelectMultiple(attrs={
+            'class': 'form-checkbox',
+        }),
+        label='依頼エージェント',
+        help_text='この求人を依頼するエージェント会社を選択してください'
+    )
 
     class Meta:
         model = Job
@@ -109,12 +133,29 @@ class JobForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.tenant = tenant
 
-        # テナントに紐づくユーザーのみ表示（採用責任者）
         if tenant:
+            # テナントに紐づくユーザーのみ表示（採用責任者）
             from apps.accounts.models import CustomUser
             self.fields['hiring_manager'].queryset = CustomUser.objects.filter(
                 tenant=tenant, is_active=True
             )
+
+            # ペルソナ: テナントに紐づくもののみ
+            self.fields['personas'].queryset = Persona.objects.filter(
+                tenant=tenant, is_active=True
+            ).order_by('name')
+
+            # エージェント: テナントに紐づくもの + グローバル
+            from django.db.models import Q
+            self.fields['agent_companies'].queryset = AgentCompany.objects.filter(
+                Q(tenant=tenant) | Q(tenant__isnull=True),
+                is_active=True
+            ).order_by('name')
+
+        # 編集時は既存の関連を初期値として設定
+        if self.instance.pk:
+            self.fields['personas'].initial = self.instance.personas.all()
+            self.fields['agent_companies'].initial = self.instance.agent_companies.all()
 
     def clean_unique_code(self):
         unique_code = self.cleaned_data.get('unique_code')

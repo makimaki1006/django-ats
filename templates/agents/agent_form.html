@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% block title %}{% if object %}エージェント編集{% else %}エージェント登録{% endif %} - Django ATS{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto fade-in">
+    <!-- ヘッダー -->
+    <div class="mb-8">
+        <nav class="flex mb-4" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                <li>
+                    <a href="{% url 'agents:agent_list' %}" class="text-sm font-medium text-gray-500 hover:text-gray-700">
+                        エージェント一覧
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="ml-1 text-sm font-medium text-gray-700">
+                            {% if object %}{{ object.name }}{% else %}新規登録{% endif %}
+                        </span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+        <h1 class="text-2xl font-bold text-gray-900">{% if object %}エージェント編集{% else %}エージェント登録{% endif %}</h1>
+    </div>
+
+    <!-- フォーム -->
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="rounded-md bg-danger-50 p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-danger-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    {% for error in form.non_field_errors %}
+                    <p class="text-sm text-danger-700">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- 基本情報 -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="text-lg font-medium text-gray-900">基本情報</h2>
+            </div>
+            <div class="card-body">
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <label for="id_name" class="block text-sm font-medium text-gray-700">
+                            会社名 <span class="text-danger-500">*</span>
+                        </label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                        <p class="mt-1 text-sm text-danger-600">{{ form.name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label for="id_code" class="block text-sm font-medium text-gray-700">
+                            会社コード <span class="text-danger-500">*</span>
+                        </label>
+                        {{ form.code }}
+                        {% if form.code.errors %}
+                        <p class="mt-1 text-sm text-danger-600">{{ form.code.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <div class="flex items-center">
+                            {{ form.is_active }}
+                            <label for="id_is_active" class="ml-2 block text-sm text-gray-900">有効</label>
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500">無効にすると新規紹介を受け付けません</p>
+                    </div>
+                    <div>
+                        <div class="flex items-center">
+                            {{ form.is_preferred }}
+                            <label for="id_is_preferred" class="ml-2 block text-sm text-gray-900">優先パートナー</label>
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500">優先的に案件を紹介するパートナー</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 連絡先情報 -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="text-lg font-medium text-gray-900">連絡先情報</h2>
+            </div>
+            <div class="card-body">
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <label for="id_contact_person" class="block text-sm font-medium text-gray-700">担当者名</label>
+                        {{ form.contact_person }}
+                        {% if form.contact_person.errors %}
+                        <p class="mt-1 text-sm text-danger-600">{{ form.contact_person.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label for="id_contact_email" class="block text-sm font-medium text-gray-700">連絡先メール</label>
+                        {{ form.contact_email }}
+                        {% if form.contact_email.errors %}
+                        <p class="mt-1 text-sm text-danger-600">{{ form.contact_email.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label for="id_contact_phone" class="block text-sm font-medium text-gray-700">連絡先電話番号</label>
+                        {{ form.contact_phone }}
+                        {% if form.contact_phone.errors %}
+                        <p class="mt-1 text-sm text-danger-600">{{ form.contact_phone.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label for="id_website" class="block text-sm font-medium text-gray-700">Webサイト</label>
+                        {{ form.website }}
+                        {% if form.website.errors %}
+                        <p class="mt-1 text-sm text-danger-600">{{ form.website.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label for="id_address" class="block text-sm font-medium text-gray-700">住所</label>
+                        {{ form.address }}
+                        {% if form.address.errors %}
+                        <p class="mt-1 text-sm text-danger-600">{{ form.address.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 契約情報 -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="text-lg font-medium text-gray-900">契約情報</h2>
+            </div>
+            <div class="card-body">
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+                    <div>
+                        <label for="id_fee_rate" class="block text-sm font-medium text-gray-700">紹介手数料率（%）</label>
+                        {{ form.fee_rate }}
+                        <p class="mt-1 text-xs text-gray-500">成功報酬の割合（年収の何%）</p>
+                        {% if form.fee_rate.errors %}
+                        <p class="mt-1 text-sm text-danger-600">{{ form.fee_rate.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label for="id_contract_start_date" class="block text-sm font-medium text-gray-700">契約開始日</label>
+                        {{ form.contract_start_date }}
+                        {% if form.contract_start_date.errors %}
+                        <p class="mt-1 text-sm text-danger-600">{{ form.contract_start_date.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label for="id_contract_end_date" class="block text-sm font-medium text-gray-700">契約終了日</label>
+                        {{ form.contract_end_date }}
+                        {% if form.contract_end_date.errors %}
+                        <p class="mt-1 text-sm text-danger-600">{{ form.contract_end_date.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 備考 -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="text-lg font-medium text-gray-900">備考</h2>
+            </div>
+            <div class="card-body">
+                <div>
+                    <label for="id_notes" class="block text-sm font-medium text-gray-700">備考</label>
+                    {{ form.notes }}
+                    {% if form.notes.errors %}
+                    <p class="mt-1 text-sm text-danger-600">{{ form.notes.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- ボタン -->
+        <div class="flex justify-end space-x-3">
+            <a href="{% url 'agents:agent_list' %}" class="btn btn-secondary">
+                キャンセル
+            </a>
+            <button type="submit" class="btn btn-primary">
+                {% if object %}更新{% else %}登録{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

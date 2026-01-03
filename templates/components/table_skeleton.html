@@ -1,0 +1,189 @@
+{# テーブル用スケルトンローダー #}
+{# 使用方法: {% include "components/table_skeleton.html" with skeleton_type="candidates" %} #}
+
+{% if skeleton_type == "candidates" %}
+{# 候補者テーブル用スケルトン（6列）#}
+<div class="animate-pulse">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th scope="col" class="px-6 py-3 text-left"><div class="skeleton h-4 w-16"></div></th>
+                <th scope="col" class="px-6 py-3 text-left"><div class="skeleton h-4 w-20"></div></th>
+                <th scope="col" class="px-6 py-3 text-left"><div class="skeleton h-4 w-12"></div></th>
+                <th scope="col" class="px-6 py-3 text-left"><div class="skeleton h-4 w-16"></div></th>
+                <th scope="col" class="px-6 py-3 text-left"><div class="skeleton h-4 w-14"></div></th>
+                <th scope="col" class="px-6 py-3 text-left"><div class="skeleton h-4 w-10"></div></th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% for i in "12345" %}
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                        <div class="skeleton h-10 w-10 rounded-full"></div>
+                        <div class="ml-4">
+                            <div class="skeleton h-4 w-24 mb-1"></div>
+                            <div class="skeleton h-3 w-32"></div>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap"><div class="skeleton h-5 w-16 rounded-full"></div></td>
+                <td class="px-6 py-4 whitespace-nowrap"><div class="skeleton h-4 w-20"></div></td>
+                <td class="px-6 py-4 whitespace-nowrap"><div class="skeleton h-4 w-10"></div></td>
+                <td class="px-6 py-4 whitespace-nowrap"><div class="skeleton h-4 w-16"></div></td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex space-x-2">
+                        <div class="skeleton h-6 w-10 rounded"></div>
+                        <div class="skeleton h-6 w-16 rounded"></div>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% elif skeleton_type == "jobs" %}
+{# 求人テーブル用スケルトン（5列）#}
+<div class="animate-pulse">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th scope="col" class="px-6 py-3 text-left"><div class="skeleton h-4 w-20"></div></th>
+                <th scope="col" class="px-6 py-3 text-left"><div class="skeleton h-4 w-16"></div></th>
+                <th scope="col" class="px-6 py-3 text-left"><div class="skeleton h-4 w-14"></div></th>
+                <th scope="col" class="px-6 py-3 text-left"><div class="skeleton h-4 w-12"></div></th>
+                <th scope="col" class="px-6 py-3 text-left"><div class="skeleton h-4 w-10"></div></th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% for i in "12345" %}
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="skeleton h-4 w-40 mb-1"></div>
+                    <div class="skeleton h-3 w-24"></div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap"><div class="skeleton h-5 w-16 rounded-full"></div></td>
+                <td class="px-6 py-4 whitespace-nowrap"><div class="skeleton h-4 w-24"></div></td>
+                <td class="px-6 py-4 whitespace-nowrap"><div class="skeleton h-4 w-16"></div></td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex space-x-2">
+                        <div class="skeleton h-6 w-10 rounded"></div>
+                        <div class="skeleton h-6 w-16 rounded"></div>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% elif skeleton_type == "applications" %}
+{# 応募テーブル用スケルトン（6列）#}
+<div class="animate-pulse">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th scope="col" class="px-6 py-3 text-left"><div class="skeleton h-4 w-16"></div></th>
+                <th scope="col" class="px-6 py-3 text-left"><div class="skeleton h-4 w-20"></div></th>
+                <th scope="col" class="px-6 py-3 text-left"><div class="skeleton h-4 w-16"></div></th>
+                <th scope="col" class="px-6 py-3 text-left"><div class="skeleton h-4 w-14"></div></th>
+                <th scope="col" class="px-6 py-3 text-left"><div class="skeleton h-4 w-12"></div></th>
+                <th scope="col" class="px-6 py-3 text-left"><div class="skeleton h-4 w-10"></div></th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% for i in "12345" %}
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                        <div class="skeleton h-10 w-10 rounded-full"></div>
+                        <div class="ml-4">
+                            <div class="skeleton h-4 w-24 mb-1"></div>
+                            <div class="skeleton h-3 w-28"></div>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap"><div class="skeleton h-4 w-32"></div></td>
+                <td class="px-6 py-4 whitespace-nowrap"><div class="skeleton h-5 w-16 rounded-full"></div></td>
+                <td class="px-6 py-4 whitespace-nowrap"><div class="skeleton h-4 w-20"></div></td>
+                <td class="px-6 py-4 whitespace-nowrap"><div class="skeleton h-4 w-16"></div></td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex space-x-2">
+                        <div class="skeleton h-6 w-10 rounded"></div>
+                        <div class="skeleton h-6 w-16 rounded"></div>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% elif skeleton_type == "interviews" %}
+{# 面接テーブル用スケルトン（6列）#}
+<div class="animate-pulse">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th scope="col" class="px-6 py-3 text-left"><div class="skeleton h-4 w-16"></div></th>
+                <th scope="col" class="px-6 py-3 text-left"><div class="skeleton h-4 w-20"></div></th>
+                <th scope="col" class="px-6 py-3 text-left"><div class="skeleton h-4 w-14"></div></th>
+                <th scope="col" class="px-6 py-3 text-left"><div class="skeleton h-4 w-16"></div></th>
+                <th scope="col" class="px-6 py-3 text-left"><div class="skeleton h-4 w-12"></div></th>
+                <th scope="col" class="px-6 py-3 text-left"><div class="skeleton h-4 w-10"></div></th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% for i in "12345" %}
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="skeleton h-4 w-24 mb-1"></div>
+                    <div class="skeleton h-3 w-16"></div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                        <div class="skeleton h-8 w-8 rounded-full"></div>
+                        <div class="ml-3 skeleton h-4 w-20"></div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap"><div class="skeleton h-4 w-28"></div></td>
+                <td class="px-6 py-4 whitespace-nowrap"><div class="skeleton h-5 w-16 rounded-full"></div></td>
+                <td class="px-6 py-4 whitespace-nowrap"><div class="skeleton h-4 w-20"></div></td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex space-x-2">
+                        <div class="skeleton h-6 w-10 rounded"></div>
+                        <div class="skeleton h-6 w-16 rounded"></div>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% else %}
+{# デフォルト: 汎用テーブルスケルトン #}
+<div class="animate-pulse">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th scope="col" class="px-6 py-3 text-left"><div class="skeleton h-4 w-20"></div></th>
+                <th scope="col" class="px-6 py-3 text-left"><div class="skeleton h-4 w-16"></div></th>
+                <th scope="col" class="px-6 py-3 text-left"><div class="skeleton h-4 w-14"></div></th>
+                <th scope="col" class="px-6 py-3 text-left"><div class="skeleton h-4 w-10"></div></th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% for i in "12345" %}
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap"><div class="skeleton h-4 w-24"></div></td>
+                <td class="px-6 py-4 whitespace-nowrap"><div class="skeleton h-4 w-20"></div></td>
+                <td class="px-6 py-4 whitespace-nowrap"><div class="skeleton h-4 w-16"></div></td>
+                <td class="px-6 py-4 whitespace-nowrap"><div class="skeleton h-6 w-12 rounded"></div></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}

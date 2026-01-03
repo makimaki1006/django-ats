@@ -23,20 +23,43 @@
 </head>
 <body class="h-full" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
     {% block body %}
+    {# アクセシビリティ: スキップリンク #}
+    {% include "components/skip_links.html" %}
+
+    {# アクセシビリティ: スクリーンリーダーアナウンサー #}
+    {% include "components/screen_reader_announcer.html" %}
+
+    {# プログレスバー #}
+    <div id="progress-bar"
+         class="fixed top-0 left-0 h-1 bg-blue-600 z-50 transition-all duration-300"
+         style="width: 0%"
+         role="progressbar"
+         aria-valuemin="0"
+         aria-valuemax="100"
+         aria-valuenow="0"
+         aria-label="ページ読み込み中"></div>
+
+    {# トースト通知 #}
+    {% include "components/toast.html" %}
+
     <div class="min-h-full">
         {% if user.is_authenticated %}
         <!-- サイドバー付きレイアウト -->
         <div class="flex h-screen overflow-hidden">
             <!-- サイドバー -->
-            {% include "components/sidebar.html" %}
+            <nav id="main-navigation" role="navigation" aria-label="メインナビゲーション">
+                {% include "components/sidebar.html" %}
+            </nav>
 
             <!-- メインコンテンツ -->
             <div class="flex flex-1 flex-col overflow-hidden">
                 <!-- トップバー -->
-                {% include "components/navbar.html" %}
+                <header role="banner">
+                    {% include "components/navbar.html" %}
+                </header>
 
                 <!-- メイン -->
-                <main class="flex-1 overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
+                <main id="main-content" class="flex-1 overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8" role="main" aria-label="メインコンテンツ">
                     <!-- フラッシュメッセージ -->
                     {% if messages %}
                     <div class="mb-4 space-y-2">
@@ -85,9 +108,9 @@
         </div>
         {% else %}
         <!-- 未認証時のレイアウト -->
-        <div class="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <main id="main-content" class="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8" role="main" aria-label="認証">
             {% block auth_content %}{% endblock %}
-        </div>
+        </main>
         {% endif %}
     </div>
     {% endblock %}
@@ -98,32 +121,56 @@
     <!-- Alpine.js (モーダル・ドロップダウン用) -->
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
+    <!-- Chart.js (グラフ描画用) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
     <!-- htmx拡張設定 -->
     <script>
         // htmx設定
         htmx.config.defaultSwapStyle = 'innerHTML';
         htmx.config.historyCacheSize = 10;
 
+        // プログレスバー要素
+        const progressBar = document.getElementById('progress-bar');
+
         // htmxリクエスト前にローディング表示
         document.body.addEventListener('htmx:beforeRequest', function(evt) {
             evt.target.classList.add('htmx-request');
+            // プログレスバー開始
+            if (progressBar) {
+                progressBar.style.width = '30%';
+                progressBar.setAttribute('aria-valuenow', '30');
+            }
         });
 
         // htmxリクエスト後にローディング非表示
         document.body.addEventListener('htmx:afterRequest', function(evt) {
             evt.target.classList.remove('htmx-request');
+            // プログレスバー完了
+            if (progressBar) {
+                progressBar.style.width = '100%';
+                progressBar.setAttribute('aria-valuenow', '100');
+                setTimeout(() => {
+                    progressBar.style.width = '0%';
+                    progressBar.setAttribute('aria-valuenow', '0');
+                }, 300);
+            }
         });
 
-        // htmxエラー時の処理
-        document.body.addEventListener('htmx:responseError', function(evt) {
-            console.error('htmx error:', evt.detail);
-            // エラートーストを表示
-            const alert = document.createElement('div');
-            alert.className = 'fixed bottom-4 right-4 alert alert-danger z-50';
-            alert.innerHTML = '<p class="text-sm">エラーが発生しました。再度お試しください。</p>';
-            document.body.appendChild(alert);
-            setTimeout(() => alert.remove(), 5000);
+        // キーボードナビゲーション改善: Escキーでモーダルを閉じる
+        document.addEventListener('keydown', function(evt) {
+            if (evt.key === 'Escape') {
+                // Alpine.jsモーダルを閉じる
+                const openModals = document.querySelectorAll('[x-data]:not([x-show="false"])');
+                openModals.forEach(modal => {
+                    if (modal._x_dataStack && modal._x_dataStack[0] && modal._x_dataStack[0].open !== undefined) {
+                        modal._x_dataStack[0].open = false;
+                    }
+                });
+            }
         });
+
+        // htmxエラー時の処理はcomponents/toast.htmlで実装済み
     </script>
 
     <!-- Extra JS -->

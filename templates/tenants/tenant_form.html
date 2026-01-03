@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% load static crispy_forms_tags %}
+
+{% block title %}{% if object %}テナント編集{% else %}新規テナント{% endif %} - Django ATS{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <!-- ヘッダー -->
+    <div class="mb-6">
+        <div class="flex items-center">
+            <a href="{% if object %}{% url 'tenants:tenant_detail' pk=object.pk %}{% else %}{% url 'tenants:tenant_list' %}{% endif %}"
+               class="mr-4 text-gray-400 hover:text-gray-500">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+            </a>
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">
+                    {% if object %}テナント編集{% else %}新規テナント{% endif %}
+                </h1>
+                {% if object %}
+                <p class="mt-1 text-sm text-gray-500">{{ object.name }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- フォーム -->
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+
+        <div class="bg-white shadow rounded-lg p-6">
+            <h2 class="text-lg font-medium text-gray-900 mb-4">基本情報</h2>
+
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div class="sm:col-span-2">
+                    <label for="id_name" class="block text-sm font-medium text-gray-700">
+                        テナント名 <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="name" id="id_name"
+                           value="{{ form.name.value|default:'' }}"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm {% if form.name.errors %}border-red-300{% endif %}"
+                           placeholder="株式会社〇〇"
+                           required>
+                    {% if form.name.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="id_code" class="block text-sm font-medium text-gray-700">
+                        コード <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="code" id="id_code"
+                           value="{{ form.code.value|default:'' }}"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm {% if form.code.errors %}border-red-300{% endif %}"
+                           placeholder="example-corp"
+                           pattern="[a-z0-9-]+"
+                           required>
+                    <p class="mt-1 text-xs text-gray-500">URLで使用する識別子（小文字英数字とハイフンのみ）</p>
+                    {% if form.code.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.code.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="id_logo_url" class="block text-sm font-medium text-gray-700">
+                        ロゴURL
+                    </label>
+                    <input type="url" name="logo_url" id="id_logo_url"
+                           value="{{ form.logo_url.value|default:'' }}"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                           placeholder="https://example.com/logo.png">
+                    {% if form.logo_url.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.logo_url.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white shadow rounded-lg p-6">
+            <h2 class="text-lg font-medium text-gray-900 mb-4">契約情報</h2>
+
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
+                    <label for="id_plan" class="block text-sm font-medium text-gray-700">
+                        プラン <span class="text-red-500">*</span>
+                    </label>
+                    <select name="plan" id="id_plan"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
+                        {% for value, label in form.fields.plan.choices %}
+                        <option value="{{ value }}" {% if form.plan.value == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if form.plan.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.plan.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="id_max_users" class="block text-sm font-medium text-gray-700">
+                        最大ユーザー数 <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number" name="max_users" id="id_max_users"
+                           value="{{ form.max_users.value|default:5 }}"
+                           min="1"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm {% if form.max_users.errors %}border-red-300{% endif %}"
+                           required>
+                    {% if form.max_users.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.max_users.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="id_trial_ends_at" class="block text-sm font-medium text-gray-700">
+                        トライアル終了日
+                    </label>
+                    <input type="datetime-local" name="trial_ends_at" id="id_trial_ends_at"
+                           value="{{ form.trial_ends_at.value|date:'Y-m-d\TH:i'|default:'' }}"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
+                    <p class="mt-1 text-xs text-gray-500">トライアル期間を設定する場合のみ入力</p>
+                    {% if form.trial_ends_at.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.trial_ends_at.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="flex items-center">
+                    <input type="checkbox" name="is_active" id="id_is_active"
+                           {% if form.is_active.value %}checked{% endif %}
+                           class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                    <label for="id_is_active" class="ml-2 block text-sm text-gray-900">
+                        有効
+                    </label>
+                    <p class="ml-2 text-xs text-gray-500">無効にするとユーザーがログインできなくなります</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ボタン -->
+        <div class="flex justify-end space-x-3">
+            <a href="{% if object %}{% url 'tenants:tenant_detail' pk=object.pk %}{% else %}{% url 'tenants:tenant_list' %}{% endif %}"
+               class="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                キャンセル
+            </a>
+            <button type="submit"
+                    class="rounded-md bg-primary-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">
+                {% if object %}更新{% else %}作成{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

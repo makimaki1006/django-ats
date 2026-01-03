@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ tenant.name }} - テナント詳細 - Django ATS{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- ヘッダー -->
+    <div class="sm:flex sm:items-center sm:justify-between">
+        <div class="flex items-center">
+            <a href="{% url 'tenants:tenant_list' %}" class="mr-4 text-gray-400 hover:text-gray-500">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+            </a>
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">{{ tenant.name }}</h1>
+                <p class="mt-1 text-sm text-gray-500">コード: {{ tenant.code }}</p>
+            </div>
+        </div>
+        <div class="mt-4 sm:mt-0 flex space-x-3">
+            <button hx-post="{% url 'tenants:tenant_toggle_active' pk=tenant.pk %}"
+                    hx-swap="none"
+                    hx-confirm="テナントを{% if tenant.is_active %}無効{% else %}有効{% endif %}にしますか？"
+                    class="inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold shadow-sm ring-1 ring-inset
+                        {% if tenant.is_active %}bg-white text-red-600 ring-red-300 hover:bg-red-50
+                        {% else %}bg-white text-green-600 ring-green-300 hover:bg-green-50{% endif %}">
+                {% if tenant.is_active %}無効化{% else %}有効化{% endif %}
+            </button>
+            <a href="{% url 'tenants:tenant_update' pk=tenant.pk %}"
+               class="inline-flex items-center rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500">
+                <svg class="-ml-0.5 mr-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                編集
+            </a>
+        </div>
+    </div>
+
+    <!-- ステータスバッジ -->
+    <div class="flex items-center space-x-2">
+        {% if tenant.is_active %}
+        <span class="inline-flex items-center rounded-full bg-green-50 px-3 py-1 text-sm font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+            有効
+        </span>
+        {% else %}
+        <span class="inline-flex items-center rounded-full bg-red-50 px-3 py-1 text-sm font-medium text-red-700 ring-1 ring-inset ring-red-600/20">
+            無効
+        </span>
+        {% endif %}
+        <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium
+            {% if tenant.plan == 'enterprise' %}bg-purple-50 text-purple-700 ring-1 ring-inset ring-purple-700/10
+            {% elif tenant.plan == 'professional' %}bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-700/10
+            {% elif tenant.plan == 'starter' %}bg-green-50 text-green-700 ring-1 ring-inset ring-green-700/10
+            {% else %}bg-gray-50 text-gray-600 ring-1 ring-inset ring-gray-500/10{% endif %}">
+            {{ tenant.get_plan_display }}
+        </span>
+        {% if tenant.is_trial %}
+        <span class="inline-flex items-center rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-700 ring-1 ring-inset ring-yellow-700/10">
+            トライアル中（{{ tenant.trial_ends_at|date:"Y/m/d" }}まで）
+        </span>
+        {% endif %}
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <!-- 左カラム: 基本情報 -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- 統計情報 -->
+            <div class="bg-white shadow rounded-lg p-6">
+                <h2 class="text-lg font-medium text-gray-900 mb-4">利用状況</h2>
+                <div class="grid grid-cols-2 gap-4 sm:grid-cols-5">
+                    <div class="text-center p-3 bg-gray-50 rounded-lg">
+                        <p class="text-2xl font-semibold text-gray-900">{{ total_users }}</p>
+                        <p class="text-xs text-gray-500">ユーザー</p>
+                    </div>
+                    <div class="text-center p-3 bg-gray-50 rounded-lg">
+                        <p class="text-2xl font-semibold text-gray-900">{{ stats.jobs }}</p>
+                        <p class="text-xs text-gray-500">求人</p>
+                    </div>
+                    <div class="text-center p-3 bg-gray-50 rounded-lg">
+                        <p class="text-2xl font-semibold text-gray-900">{{ stats.candidates }}</p>
+                        <p class="text-xs text-gray-500">候補者</p>
+                    </div>
+                    <div class="text-center p-3 bg-gray-50 rounded-lg">
+                        <p class="text-2xl font-semibold text-gray-900">{{ stats.applications }}</p>
+                        <p class="text-xs text-gray-500">応募</p>
+                    </div>
+                    <div class="text-center p-3 bg-gray-50 rounded-lg">
+                        <p class="text-2xl font-semibold text-gray-900">{{ stats.interviews }}</p>
+                        <p class="text-xs text-gray-500">面接</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ユーザー一覧 -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                    <h2 class="text-lg font-medium text-gray-900">ユーザー一覧</h2>
+                    <span class="text-sm text-gray-500">{{ total_users }} / {{ tenant.max_users }} 名</span>
+                </div>
+                <ul class="divide-y divide-gray-200">
+                    {% for user in users %}
+                    <li class="px-6 py-4 flex items-center justify-between">
+                        <div class="flex items-center">
+                            <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-primary-500">
+                                <span class="text-sm font-medium leading-none text-white">
+                                    {{ user.get_short_name|default:user.email|slice:":1"|upper }}
+                                </span>
+                            </span>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900">{{ user.get_full_name|default:user.email }}</p>
+                                <p class="text-xs text-gray-500">{{ user.email }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
+                                {{ user.get_role_display }}
+                            </span>
+                            {% if user.is_superuser %}
+                            <span class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">
+                                管理者
+                            </span>
+                            {% endif %}
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li class="px-6 py-4 text-center text-gray-500">
+                        ユーザーがいません
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% if total_users > 10 %}
+                <div class="px-6 py-3 border-t border-gray-200">
+                    <p class="text-sm text-gray-500">他 {{ total_users|add:"-10" }} 名</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 右カラム: 詳細情報 -->
+        <div class="space-y-6">
+            <!-- 基本情報 -->
+            <div class="bg-white shadow rounded-lg p-6">
+                <h2 class="text-lg font-medium text-gray-900 mb-4">基本情報</h2>
+                <dl class="space-y-4">
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">テナント名</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ tenant.name }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">コード</dt>
+                        <dd class="mt-1 text-sm text-gray-900 font-mono">{{ tenant.code }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">プラン</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ tenant.get_plan_display }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">最大ユーザー数</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ tenant.max_users }} 名</dd>
+                    </div>
+                    {% if tenant.trial_ends_at %}
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">トライアル終了日</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ tenant.trial_ends_at|date:"Y年m月d日 H:i" }}</dd>
+                    </div>
+                    {% endif %}
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">作成日</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ tenant.created_at|date:"Y年m月d日 H:i" }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">更新日</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ tenant.updated_at|date:"Y年m月d日 H:i" }}</dd>
+                    </div>
+                </dl>
+            </div>
+
+            <!-- スプレッドシート接続 -->
+            <div class="bg-white shadow rounded-lg p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-medium text-gray-900">スプレッドシート接続</h2>
+                    <button hx-get="{% url 'tenants:tenant_spreadsheet' pk=tenant.pk %}"
+                            hx-target="#spreadsheet-form"
+                            hx-swap="innerHTML"
+                            class="text-sm text-primary-600 hover:text-primary-500">
+                        {% if spreadsheet %}編集{% else %}設定{% endif %}
+                    </button>
+                </div>
+                <div id="spreadsheet-form">
+                    {% if spreadsheet %}
+                    <dl class="space-y-3">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">ステータス</dt>
+                            <dd class="mt-1">
+                                {% if spreadsheet.is_active %}
+                                <span class="inline-flex items-center rounded-full bg-green-50 px-2 py-1 text-xs font-medium text-green-700">
+                                    接続中
+                                </span>
+                                {% else %}
+                                <span class="inline-flex items-center rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600">
+                                    停止中
+                                </span>
+                                {% endif %}
+                            </dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">シート名</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ spreadsheet.spreadsheet_name|default:"未設定" }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">最終同期</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                {% if spreadsheet.last_synced_at %}
+                                {{ spreadsheet.last_synced_at|date:"Y/m/d H:i" }}
+                                {% else %}
+                                未同期
+                                {% endif %}
+                            </dd>
+                        </div>
+                        <div>
+                            <a href="{{ spreadsheet.spreadsheet_url }}" target="_blank"
+                               class="inline-flex items-center text-sm text-primary-600 hover:text-primary-500">
+                                <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                                シートを開く
+                            </a>
+                        </div>
+                    </dl>
+                    {% else %}
+                    <p class="text-sm text-gray-500">スプレッドシートが接続されていません</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -22,7 +22,7 @@ from apps.core.mixins import (
     PaginationMixin,
     SearchMixin,
 )
-from .models import Job, JobStatusChoices, EmploymentTypeChoices
+from .models import Job, JobStatusChoices, EmploymentTypeChoices, JobPersona, JobAgentCompany
 from .forms import JobForm, JobFilterForm
 
 
@@ -40,6 +40,12 @@ class JobListView(
     context_object_name = 'jobs'
     search_fields = ['title', 'unique_code', 'department', 'location']
     paginate_by = 20
+
+    def get_template_names(self):
+        """HTMXリクエストの場合はパーシャルテンプレートを返す"""
+        if self.request.htmx:
+            return ['jobs/partials/job_table.html']
+        return [self.template_name]
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -65,6 +71,8 @@ class JobListView(
         context['status_choices'] = JobStatusChoices.choices
         context['employment_type_choices'] = EmploymentTypeChoices.choices
         context['filter_form'] = JobFilterForm(self.request.GET)
+        # Empty Stateで使用する作成URL
+        context['create_url'] = reverse_lazy('jobs:job_create')
         return context
 
 
@@ -113,6 +121,19 @@ class JobCreateView(
         job.tenant = self.request.tenant
         job.created_by = self.request.user
         job.save()
+
+        # ペルソナ関連を保存
+        personas = form.cleaned_data.get('personas', [])
+        JobPersona.objects.filter(job=job).delete()
+        for persona in personas:
+            JobPersona.objects.create(job=job, persona=persona)
+
+        # エージェント関連を保存
+        agents = form.cleaned_data.get('agent_companies', [])
+        JobAgentCompany.objects.filter(job=job).delete()
+        for agent in agents:
+            JobAgentCompany.objects.create(job=job, agent_company=agent)
+
         messages.success(self.request, f'求人「{job.title}」を作成しました。')
         return super().form_valid(form)
 
@@ -143,8 +164,22 @@ class JobUpdateView(
         return reverse_lazy('jobs:job_detail', kwargs={'pk': self.object.pk})
 
     def form_valid(self, form):
+        job = form.save()
+
+        # ペルソナ関連を保存
+        personas = form.cleaned_data.get('personas', [])
+        JobPersona.objects.filter(job=job).delete()
+        for persona in personas:
+            JobPersona.objects.create(job=job, persona=persona)
+
+        # エージェント関連を保存
+        agents = form.cleaned_data.get('agent_companies', [])
+        JobAgentCompany.objects.filter(job=job).delete()
+        for agent in agents:
+            JobAgentCompany.objects.create(job=job, agent_company=agent)
+
         messages.success(self.request, f'求人「{form.instance.title}」を更新しました。')
-        return super().form_valid(form)
+        return redirect(self.get_success_url())
 
 
 class JobStatusChangeView(

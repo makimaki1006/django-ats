@@ -1,0 +1,4 @@
+name,code,plan,max_users,is_active
+医療法人さくら会,sakura-kai,professional,20,TRUE
+社会福祉法人ひまわり福祉会,himawari-fukushi,professional,15,TRUE
+株式会社メディケアサポート,medicare-support,starter,10,TRUE

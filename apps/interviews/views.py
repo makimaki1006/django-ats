@@ -48,6 +48,12 @@ class InterviewListView(
     search_fields = ['application__candidate__name', 'application__job__title']
     paginate_by = 20
 
+    def get_template_names(self):
+        """HTMXリクエストの場合はパーシャルテンプレートを返す"""
+        if self.request.htmx:
+            return ['interviews/partials/interview_table.html']
+        return [self.template_name]
+
     def get_queryset(self):
         queryset = super().get_queryset()
 
@@ -88,6 +94,8 @@ class InterviewListView(
         context = super().get_context_data(**kwargs)
         context['status_choices'] = InterviewStatusChoices.choices
         context['filter_form'] = InterviewFilterForm(self.request.GET)
+        # Empty Stateで使用する作成URL
+        context['create_url'] = reverse_lazy('interviews:interview_create')
 
         # 今日の面接数
         today = timezone.now().date()

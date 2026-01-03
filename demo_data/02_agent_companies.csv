@@ -1,0 +1,6 @@
+name,code,contact_email,contact_phone,contact_person,fee_rate,is_active,is_preferred,notes
+株式会社マイナビ介護,mynavi-kaigo,kaigo@mynavi.co.jp,03-1234-5678,田中健太,30.00,TRUE,TRUE,大手人材紹介。介護・福祉分野に強み
+株式会社リクルートメディカル,recruit-medical,medical@recruit.co.jp,03-2345-6789,佐藤美咲,32.00,TRUE,TRUE,医療系人材に特化。看護師紹介実績多数
+株式会社カイゴワークス,kaigo-works,info@kaigoworks.jp,06-3456-7890,鈴木一郎,28.00,TRUE,FALSE,関西エリアの介護施設紹介に強い
+ナースパワー株式会社,nurse-power,contact@nursepower.co.jp,03-4567-8901,山田花子,35.00,TRUE,FALSE,看護師・准看護師の紹介専門
+株式会社ケアスタッフ,care-staff,recruit@carestaff.jp,052-5678-9012,伊藤翔太,25.00,TRUE,FALSE,東海エリア中心の介護人材紹介

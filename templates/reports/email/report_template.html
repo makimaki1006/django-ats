@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ schedule.name }}</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            padding: 30px;
+            border-radius: 8px 8px 0 0;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .header .period {
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+        .content {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            padding: 30px;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .summary-card {
+            background: #f9fafb;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+        .summary-card .value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #4f46e5;
+        }
+        .summary-card .label {
+            color: #6b7280;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .summary-card .change {
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .change.positive {
+            color: #10b981;
+        }
+        .change.negative {
+            color: #ef4444;
+        }
+        .section {
+            margin-top: 30px;
+        }
+        .section h2 {
+            font-size: 18px;
+            color: #374151;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        th {
+            background: #f9fafb;
+            font-weight: 600;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            text-align: center;
+            color: #9ca3af;
+            font-size: 12px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .badge-success { background: #d1fae5; color: #065f46; }
+        .badge-warning { background: #fef3c7; color: #92400e; }
+        .badge-info { background: #dbeafe; color: #1e40af; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>{{ schedule.name }}</h1>
+        <div class="period">{{ data.period }}</div>
+    </div>
+
+    <div class="content">
+        {% if data.summary %}
+        <div class="summary-grid">
+            {% if data.summary.applications %}
+            <div class="summary-card">
+                <div class="value">{{ data.summary.applications.current }}</div>
+                <div class="label">応募数</div>
+                {% with change=data.summary.applications.current|add:"-"|add:data.summary.applications.previous %}
+                <div class="change {% if change >= 0 %}positive{% else %}negative{% endif %}">
+                    {% if change >= 0 %}+{% endif %}{{ change }} (前期比)
+                </div>
+                {% endwith %}
+            </div>
+            {% endif %}
+
+            {% if data.summary.candidates %}
+            <div class="summary-card">
+                <div class="value">{{ data.summary.candidates.current }}</div>
+                <div class="label">新規候補者</div>
+                {% with change=data.summary.candidates.current|add:"-"|add:data.summary.candidates.previous %}
+                <div class="change {% if change >= 0 %}positive{% else %}negative{% endif %}">
+                    {% if change >= 0 %}+{% endif %}{{ change }} (前期比)
+                </div>
+                {% endwith %}
+            </div>
+            {% endif %}
+
+            {% if data.summary.hired is not None %}
+            <div class="summary-card">
+                <div class="value">{{ data.summary.hired }}</div>
+                <div class="label">採用決定</div>
+            </div>
+            {% endif %}
+
+            {% if data.summary.active_jobs is not None %}
+            <div class="summary-card">
+                <div class="value">{{ data.summary.active_jobs }}</div>
+                <div class="label">公開中求人</div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% if data.kpis %}
+        <div class="section">
+            <h2>KPI サマリー</h2>
+            <table>
+                <tr>
+                    <th>指標</th>
+                    <th>値</th>
+                </tr>
+                <tr>
+                    <td>総応募数</td>
+                    <td>{{ data.kpis.total_applications }}</td>
+                </tr>
+                <tr>
+                    <td>総候補者数</td>
+                    <td>{{ data.kpis.total_candidates }}</td>
+                </tr>
+                <tr>
+                    <td>総面接数</td>
+                    <td>{{ data.kpis.total_interviews }}</td>
+                </tr>
+                <tr>
+                    <td>採用決定数</td>
+                    <td>{{ data.kpis.hired }}</td>
+                </tr>
+                <tr>
+                    <td>採用率</td>
+                    <td>{{ data.kpis.hire_rate }}%</td>
+                </tr>
+            </table>
+        </div>
+        {% endif %}
+
+        {% if data.status_breakdown %}
+        <div class="section">
+            <h2>ステータス別内訳</h2>
+            <table>
+                <tr>
+                    <th>ステータス</th>
+                    <th>件数</th>
+                </tr>
+                {% for item in data.status_breakdown %}
+                <tr>
+                    <td>{{ item.status }}</td>
+                    <td>{{ item.count }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% endif %}
+
+        {% if data.new_applications %}
+        <div class="section">
+            <h2>新規応募 (最大20件)</h2>
+            <table>
+                <tr>
+                    <th>候補者</th>
+                    <th>求人</th>
+                    <th>応募日</th>
+                </tr>
+                {% for app in data.new_applications %}
+                <tr>
+                    <td>{{ app.candidate }}</td>
+                    <td>{{ app.job }}</td>
+                    <td>{{ app.applied_at|slice:":10" }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% endif %}
+
+        {% if data.months %}
+        <div class="section">
+            <h2>月別比較</h2>
+            <table>
+                <tr>
+                    <th>期間</th>
+                    <th>応募数</th>
+                    <th>採用</th>
+                    <th>不採用</th>
+                </tr>
+                {% for month in data.months %}
+                <tr>
+                    <td>{{ month.label }} ({{ month.period }})</td>
+                    <td>{{ month.applications }}</td>
+                    <td>{{ month.hired }}</td>
+                    <td>{{ month.rejected }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% if data.change %}
+            <p style="margin-top: 15px; color: #6b7280;">
+                <strong>増減:</strong>
+                応募数 {% if data.change.applications >= 0 %}+{% endif %}{{ data.change.applications }},
+                採用 {% if data.change.hired >= 0 %}+{% endif %}{{ data.change.hired }}
+            </p>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <div class="footer">
+            <p>
+                このレポートは {{ tenant.name }} の定期レポート設定により自動送信されました。<br>
+                生成日時: {{ data.generated_at|slice:":19"|default:"N/A" }}
+            </p>
+            <p>
+                レポート設定の変更は管理画面から行えます。
+            </p>
+        </div>
+    </div>
+</body>
+</html>

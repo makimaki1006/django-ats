@@ -4,14 +4,145 @@
 
 {% block content %}
 <div class="space-y-6">
+    <!-- ヘッダー -->
     <div class="sm:flex sm:items-center sm:justify-between">
         <div>
             <h1 class="text-2xl font-bold text-gray-900">通知一覧</h1>
-            <p class="mt-1 text-sm text-gray-500">すべての通知を確認します</p>
+            <p class="mt-1 text-sm text-gray-500">
+                {% if unread_count > 0 %}
+                    {{ unread_count }}件の未読通知があります
+                {% else %}
+                    すべての通知を確認済みです
+                {% endif %}
+            </p>
+        </div>
+        <div class="mt-4 sm:mt-0 sm:ml-4 flex space-x-3">
+            {% if unread_count > 0 %}
+            <button type="button"
+                    hx-post="{% url 'notifications:mark_all_read' %}"
+                    hx-confirm="すべての通知を既読にしますか？"
+                    class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                <svg class="-ml-1 mr-2 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                すべて既読にする
+            </button>
+            {% endif %}
+            {% if notifications %}
+            <button type="button"
+                    hx-post="{% url 'notifications:clear_all' %}"
+                    hx-confirm="すべての通知を削除しますか？この操作は取り消せません。"
+                    class="inline-flex items-center px-4 py-2 border border-red-300 shadow-sm text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                <svg class="-ml-1 mr-2 h-5 w-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                すべて削除
+            </button>
+            {% endif %}
         </div>
     </div>
-    <div class="bg-white shadow rounded-lg p-6">
-        <p class="text-gray-500">通知はありません。</p>
+
+    <!-- フィルター -->
+    <div class="bg-white shadow rounded-lg p-4">
+        <form method="GET" class="flex flex-wrap gap-4 items-end">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">状態</label>
+                <select name="is_read" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
+                    <option value="" {% if current_filter == 'all' %}selected{% endif %}>すべて</option>
+                    <option value="unread" {% if current_filter == 'unread' %}selected{% endif %}>未読のみ</option>
+                    <option value="read" {% if current_filter == 'read' %}selected{% endif %}>既読のみ</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">タイプ</label>
+                <select name="type" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
+                    <option value="">すべて</option>
+                    {% for value, label in notification_types %}
+                    <option value="{{ value }}" {% if current_type == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">優先度</label>
+                <select name="priority" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
+                    <option value="">すべて</option>
+                    {% for value, label in priority_choices %}
+                    <option value="{{ value }}" {% if current_priority == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                    フィルター適用
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- 通知リスト -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        {% if notifications %}
+        <ul role="list" class="divide-y divide-gray-200" id="notification-list">
+            {% for notification in notifications %}
+            {% include "notifications/partials/notification_row.html" with notification=notification %}
+            {% endfor %}
+        </ul>
+
+        <!-- ページネーション -->
+        {% if is_paginated %}
+        <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+            <div class="flex-1 flex justify-between sm:hidden">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if current_filter != 'all' %}&is_read={{ current_filter }}{% endif %}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">前へ</a>
+                {% endif %}
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if current_filter != 'all' %}&is_read={{ current_filter }}{% endif %}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">次へ</a>
+                {% endif %}
+            </div>
+            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <div>
+                    <p class="text-sm text-gray-700">
+                        <span class="font-medium">{{ page_obj.paginator.count }}</span>件中
+                        <span class="font-medium">{{ page_obj.start_index }}</span>-<span class="font-medium">{{ page_obj.end_index }}</span>件表示
+                    </p>
+                </div>
+                <div>
+                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                        {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}{% if current_filter != 'all' %}&is_read={{ current_filter }}{% endif %}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <span class="sr-only">前へ</span>
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                        </a>
+                        {% endif %}
+                        <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                            {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+                        </span>
+                        {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}{% if current_filter != 'all' %}&is_read={{ current_filter }}{% endif %}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <span class="sr-only">次へ</span>
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                        </a>
+                        {% endif %}
+                    </nav>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">通知はありません</h3>
+            <p class="mt-1 text-sm text-gray-500">
+                {% if current_filter == 'unread' %}
+                すべての通知を確認済みです
+                {% else %}
+                新しい通知が届くとここに表示されます
+                {% endif %}
+            </p>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

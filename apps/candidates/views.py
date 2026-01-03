@@ -51,6 +51,12 @@ class CandidateListView(
     search_fields = ['name', 'name_kana', 'email', 'current_company']
     paginate_by = 20
 
+    def get_template_names(self):
+        """HTMXリクエストの場合はパーシャルテンプレートを返す"""
+        if self.request.htmx:
+            return ['candidates/partials/candidate_table.html']
+        return [self.template_name]
+
     def get_queryset(self):
         # ロールベースのフィルタリングを適用
         queryset = super().get_queryset()
@@ -80,6 +86,8 @@ class CandidateListView(
         context['employment_status_choices'] = EmploymentStatusChoices.choices
         context['gender_choices'] = GenderChoices.choices
         context['filter_form'] = CandidateFilterForm(self.request.GET)
+        # Empty Stateで使用する作成URL
+        context['create_url'] = reverse_lazy('candidates:candidate_create')
         return context
 
 

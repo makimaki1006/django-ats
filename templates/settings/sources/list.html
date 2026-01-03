@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block title %}応募経路一覧 - Django ATS{% endblock %}
+
+{% block content %}
+<div class="space-y-6 fade-in">
+    <!-- ヘッダー -->
+    <div class="sm:flex sm:items-center sm:justify-between">
+        <div>
+            <nav class="flex mb-2" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li>
+                        <a href="{% url 'settings:index' %}" class="text-sm font-medium text-gray-500 hover:text-gray-700">
+                            設定
+                        </a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="ml-1 text-sm font-medium text-gray-700">応募経路</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+            <h1 class="text-2xl font-bold text-gray-900">応募経路</h1>
+            <p class="mt-1 text-sm text-gray-500">候補者の流入経路を管理します</p>
+        </div>
+        <div class="mt-4 sm:mt-0">
+            <a href="{% url 'settings:source_create' %}" class="btn btn-primary">
+                <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                新規作成
+            </a>
+        </div>
+    </div>
+
+    <!-- フィルター -->
+    <div class="card">
+        <div class="card-body">
+            <form method="get" class="grid grid-cols-1 gap-4 sm:grid-cols-4">
+                <div>
+                    <label for="source_type" class="sr-only">タイプ</label>
+                    {{ filter_form.source_type }}
+                </div>
+                <div>
+                    <label for="is_active" class="sr-only">有効状態</label>
+                    {{ filter_form.is_active }}
+                </div>
+                <div>
+                    <label for="scope" class="sr-only">スコープ</label>
+                    {{ filter_form.scope }}
+                </div>
+                <div class="flex items-center">
+                    <button type="submit" class="btn btn-primary w-full">
+                        検索
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 応募経路一覧 -->
+    <div class="card">
+        <div class="overflow-x-auto">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th scope="col">順序</th>
+                        <th scope="col">経路名</th>
+                        <th scope="col">タイプ</th>
+                        <th scope="col">スコープ</th>
+                        <th scope="col">URL</th>
+                        <th scope="col">状態</th>
+                        <th scope="col" class="relative">
+                            <span class="sr-only">操作</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for source in sources %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-3 py-4 text-sm text-gray-500">
+                            {{ source.display_order }}
+                        </td>
+                        <td class="px-3 py-4">
+                            <div class="text-sm font-medium text-gray-900">
+                                {{ source.name }}
+                            </div>
+                        </td>
+                        <td class="px-3 py-4 text-sm text-gray-500">
+                            {{ source.get_source_type_display }}
+                        </td>
+                        <td class="px-3 py-4">
+                            {% if source.is_global %}
+                            <span class="badge badge-primary badge-sm">グローバル</span>
+                            {% else %}
+                            <span class="badge badge-secondary badge-sm">テナント固有</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-3 py-4 text-sm text-gray-500">
+                            {% if source.url %}
+                            <a href="{{ source.url }}" target="_blank" class="text-primary-600 hover:text-primary-500 truncate block max-w-xs">
+                                {{ source.url }}
+                            </a>
+                            {% else %}
+                            -
+                            {% endif %}
+                        </td>
+                        <td class="px-3 py-4">
+                            {% if source.is_active %}
+                            <span class="badge badge-success">有効</span>
+                            {% else %}
+                            <span class="badge badge-secondary">無効</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-3 py-4 text-right text-sm font-medium">
+                            {% if not source.is_global %}
+                            <div class="flex items-center justify-end space-x-2">
+                                <a href="{% url 'settings:source_update' pk=source.pk %}"
+                                   class="text-primary-600 hover:text-primary-900">
+                                    編集
+                                </a>
+                                <form method="post" action="{% url 'settings:source_delete' pk=source.pk %}" class="inline"
+                                      hx-post="{% url 'settings:source_delete' pk=source.pk %}"
+                                      hx-confirm="この応募経路を削除しますか？">
+                                    {% csrf_token %}
+                                    <button type="submit" class="text-danger-600 hover:text-danger-900">
+                                        削除
+                                    </button>
+                                </form>
+                            </div>
+                            {% else %}
+                            <span class="text-gray-400 text-xs">編集不可</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="px-6 py-12 text-center">
+                            <div class="empty-state">
+                                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-success-100">
+                                    <svg class="h-8 w-8 text-success-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                    </svg>
+                                </div>
+                                <h3 class="empty-state-title">応募経路がありません</h3>
+                                <p class="empty-state-description">候補者の流入経路を登録しましょう。</p>
+                                <div class="empty-state-action">
+                                    <a href="{% url 'settings:source_create' %}" class="btn btn-primary">
+                                        <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                        </svg>
+                                        応募経路を作成
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ページネーション -->
+    {% if page_obj.has_other_pages %}
+    <nav class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 rounded-lg shadow">
+        <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm text-gray-700">
+                    全 <span class="font-medium">{{ page_obj.paginator.count }}</span> 件中
+                    <span class="font-medium">{{ page_obj.start_index }}</span> -
+                    <span class="font-medium">{{ page_obj.end_index }}</span> 件を表示
+                </p>
+            </div>
+            <div>
+                <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm">
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                        <span class="sr-only">前へ</span>
+                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                    {% endif %}
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <span class="relative z-10 inline-flex items-center bg-primary-600 px-4 py-2 text-sm font-semibold text-white">{{ num }}</span>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?page={{ num }}" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                        <span class="sr-only">次へ</span>
+                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

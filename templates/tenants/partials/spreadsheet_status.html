@@ -1,0 +1,87 @@
+{% comment %}
+スプレッドシート同期ステータス表示
+{% endcomment %}
+
+<div class="bg-white rounded-lg shadow p-6" id="spreadsheet-status">
+    {% if spreadsheet %}
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-medium text-gray-900">
+                スプレッドシート連携
+            </h3>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if spreadsheet.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                {% if spreadsheet.is_active %}有効{% else %}無効{% endif %}
+            </span>
+        </div>
+
+        <dl class="space-y-3">
+            <div class="flex justify-between">
+                <dt class="text-sm text-gray-500">シート名</dt>
+                <dd class="text-sm text-gray-900">{{ spreadsheet.spreadsheet_name|default:"-" }}</dd>
+            </div>
+
+            <div class="flex justify-between">
+                <dt class="text-sm text-gray-500">最終同期</dt>
+                <dd class="text-sm text-gray-900">
+                    {% if spreadsheet.last_synced_at %}
+                        {{ spreadsheet.last_synced_at|date:"Y/m/d H:i" }}
+                    {% else %}
+                        <span class="text-yellow-600">未同期</span>
+                    {% endif %}
+                </dd>
+            </div>
+
+            {% if spreadsheet.sync_errors %}
+            <div class="pt-3 border-t border-gray-200">
+                <dt class="text-sm text-gray-500 mb-2">直近のエラー</dt>
+                <dd class="text-sm">
+                    {% for error in spreadsheet.sync_errors|slice:":3" %}
+                    <div class="bg-red-50 text-red-700 p-2 rounded text-xs mb-1">
+                        <span class="text-gray-500">{{ error.timestamp|slice:":16" }}</span>
+                        {{ error.message|truncatechars:100 }}
+                    </div>
+                    {% endfor %}
+                </dd>
+            </div>
+            {% endif %}
+        </dl>
+
+        <div class="mt-4 flex space-x-3">
+            <a href="{{ spreadsheet.spreadsheet_url }}"
+               target="_blank"
+               class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                </svg>
+                シートを開く
+            </a>
+
+            {% if spreadsheet.is_active %}
+            <form action="{% url 'tenants:tenant_spreadsheet_sync' tenant.pk %}"
+                  method="post"
+                  hx-post="{% url 'tenants:tenant_spreadsheet_sync' tenant.pk %}"
+                  hx-swap="none"
+                  hx-indicator="#sync-indicator">
+                {% csrf_token %}
+                <button type="submit"
+                        class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                    <svg class="w-4 h-4 mr-2 htmx-indicator" id="sync-indicator" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    今すぐ同期
+                </button>
+            </form>
+            {% endif %}
+        </div>
+
+    {% else %}
+        <div class="text-center py-6">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">スプレッドシート未設定</h3>
+            <p class="mt-1 text-sm text-gray-500">
+                スプレッドシートを設定すると、データを自動同期できます。
+            </p>
+        </div>
+    {% endif %}
+</div>

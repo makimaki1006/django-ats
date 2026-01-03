@@ -30,4 +30,12 @@ urlpatterns = [
 
     # テナント切り替え（システム管理者用）
     path('tenant-switch/', views.TenantSwitchView.as_view(), name='tenant_switch'),
+
+    # 監査ログ
+    path('audit-logs/', views.AuditLogListView.as_view(), name='audit_log_list'),
+    path('audit-logs/<uuid:pk>/', views.AuditLogDetailView.as_view(), name='audit_log_detail'),
+
+    # ログイン履歴
+    path('login-history/', views.LoginHistoryListView.as_view(), name='login_history_list'),
+    path('my-login-history/', views.MyLoginHistoryView.as_view(), name='my_login_history'),
 ]

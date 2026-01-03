@@ -1,0 +1,9 @@
+email,name,role,department,phone,is_active
+admin@sakura-kai.jp,管理者 太郎,client_admin,管理部,03-1111-1111,TRUE
+yamamoto.recruit@sakura-kai.jp,山本 次郎,client_recruiter,人事部,03-1111-2222,TRUE
+suzuki.manager@sakura-kai.jp,鈴木 三郎,hiring_manager,介護部,03-1111-3333,TRUE
+tanaka.interview@sakura-kai.jp,田中 四郎,interviewer,介護部,03-1111-4444,TRUE
+sato.nurse@sakura-kai.jp,佐藤 花子,hiring_manager,看護部,03-1111-5555,TRUE
+admin@himawari-fukushi.jp,伊藤 管理者,client_admin,管理部,06-2222-1111,TRUE
+recruit@himawari-fukushi.jp,高橋 採用担当,client_recruiter,人事部,06-2222-2222,TRUE
+admin@medicare-support.jp,渡辺 社長,client_admin,経営企画,052-3333-1111,TRUE

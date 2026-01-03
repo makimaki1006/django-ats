@@ -277,6 +277,116 @@
             </div>
         </div>
 
+        <!-- ペルソナ -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">ペルソナ</h3>
+                <p class="mt-1 text-sm text-gray-500">この求人に紐付ける候補者ペルソナを選択してください</p>
+            </div>
+            <div class="px-4 py-5 sm:p-6">
+                {% if form.personas.field.queryset.exists %}
+                <div class="space-y-3">
+                    {% for persona in form.personas.field.queryset %}
+                    <label class="flex items-start p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer">
+                        <input type="checkbox" name="personas" value="{{ persona.pk }}"
+                               class="h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500 mt-0.5"
+                               {% if persona in form.personas.initial %}checked{% endif %}>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-gray-900">{{ persona.name }}</p>
+                            {% if persona.description %}
+                            <p class="text-xs text-gray-500 mt-0.5">{{ persona.description|truncatewords:20 }}</p>
+                            {% endif %}
+                            <div class="flex items-center mt-1 space-x-2">
+                                {% if persona.is_template %}
+                                <span class="badge badge-primary badge-sm">テンプレート</span>
+                                {% endif %}
+                                {% if persona.age_min or persona.age_max %}
+                                <span class="text-xs text-gray-400">
+                                    {% if persona.age_min and persona.age_max %}{{ persona.age_min }}〜{{ persona.age_max }}歳
+                                    {% elif persona.age_min %}{{ persona.age_min }}歳以上
+                                    {% elif persona.age_max %}{{ persona.age_max }}歳以下
+                                    {% endif %}
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-6">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <p class="mt-2 text-sm text-gray-500">ペルソナがまだ登録されていません</p>
+                    <a href="{% url 'personas:persona_create' %}" class="mt-2 inline-flex items-center text-sm text-primary-600 hover:text-primary-500">
+                        <svg class="-ml-0.5 mr-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        ペルソナを作成
+                    </a>
+                </div>
+                {% endif %}
+                {% if form.personas.errors %}
+                <p class="mt-2 text-sm text-danger-600">{{ form.personas.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- エージェント -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">依頼エージェント</h3>
+                <p class="mt-1 text-sm text-gray-500">この求人を依頼するエージェント会社を選択してください</p>
+            </div>
+            <div class="px-4 py-5 sm:p-6">
+                {% if form.agent_companies.field.queryset.exists %}
+                <div class="space-y-3">
+                    {% for agent in form.agent_companies.field.queryset %}
+                    <label class="flex items-start p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer">
+                        <input type="checkbox" name="agent_companies" value="{{ agent.pk }}"
+                               class="h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500 mt-0.5"
+                               {% if agent in form.agent_companies.initial %}checked{% endif %}>
+                        <div class="ml-3 flex-1">
+                            <div class="flex items-center justify-between">
+                                <p class="text-sm font-medium text-gray-900">{{ agent.name }}</p>
+                                <span class="text-xs text-gray-500">手数料: {{ agent.fee_rate }}%</span>
+                            </div>
+                            {% if agent.contact_person %}
+                            <p class="text-xs text-gray-500 mt-0.5">担当: {{ agent.contact_person }}</p>
+                            {% endif %}
+                            <div class="flex items-center mt-1 space-x-2">
+                                {% if agent.is_preferred %}
+                                <span class="badge badge-warning badge-sm">優先パートナー</span>
+                                {% endif %}
+                                {% if agent.is_global %}
+                                <span class="badge badge-secondary badge-sm">グローバル</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-6">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    <p class="mt-2 text-sm text-gray-500">エージェントがまだ登録されていません</p>
+                    <a href="{% url 'agents:agent_create' %}" class="mt-2 inline-flex items-center text-sm text-primary-600 hover:text-primary-500">
+                        <svg class="-ml-0.5 mr-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        エージェントを作成
+                    </a>
+                </div>
+                {% endif %}
+                {% if form.agent_companies.errors %}
+                <p class="mt-2 text-sm text-danger-600">{{ form.agent_companies.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+
         <!-- 備考 -->
         <div class="bg-white shadow rounded-lg">
             <div class="px-4 py-5 sm:px-6 border-b border-gray-200">

@@ -42,6 +42,12 @@ class ApplicationListView(
     search_fields = ['candidate__name', 'candidate__email', 'job__title']
     paginate_by = 20
 
+    def get_template_names(self):
+        """HTMXリクエストの場合はパーシャルテンプレートを返す"""
+        if self.request.htmx:
+            return ['applications/partials/application_table.html']
+        return [self.template_name]
+
     def get_queryset(self):
         queryset = super().get_queryset()
 
@@ -84,6 +90,14 @@ class ApplicationListView(
             self.request.GET,
             tenant=self.request.tenant
         )
+        # Empty Stateで使用する作成URL
+        context['create_url'] = reverse_lazy('applications:application_create')
+        # 求人リスト（フィルタードロップダウン用）
+        from apps.jobs.models import Job
+        context['jobs'] = Job.objects.filter(
+            tenant=self.request.tenant,
+            status='open'
+        ).only('id', 'title') if self.request.tenant else []
         return context
 
 

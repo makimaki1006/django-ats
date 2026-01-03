@@ -20,10 +20,26 @@ class DashboardView(LoginRequiredMixin, HtmxMixin, TemplateView):
     """ダッシュボードビュー"""
     template_name = 'dashboard/index.html'
 
+    def get_template_names(self):
+        """HTMXパーシャルリクエストの場合はパーシャルテンプレートを返す"""
+        partial = self.request.GET.get('partial')
+        if self.request.htmx and partial == 'stats':
+            return ['dashboard/partials/stats_cards.html']
+        return [self.template_name]
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
         tenant = self.request.tenant
+
+        # パーシャルリクエストの場合は統計のみ返す
+        partial = self.request.GET.get('partial')
+        if self.request.htmx and partial == 'stats':
+            # キャッシュを無効化して最新データを取得
+            cache_key = DASHBOARD_STATS_CACHE_KEY.format(tenant_id=tenant.id if tenant else 'none')
+            cache.delete(cache_key)
+            context.update(self.get_statistics(tenant))
+            return context
 
         # 統計データを取得
         context.update(self.get_statistics(tenant))
@@ -36,6 +52,12 @@ class DashboardView(LoginRequiredMixin, HtmxMixin, TemplateView):
 
         # クイックアクション（ロールに応じて表示）
         context['quick_actions'] = self.get_quick_actions(user)
+
+        # 追加ウィジェット
+        context['funnel_data'] = self.get_funnel_data(tenant)
+        context['source_stats'] = self.get_source_stats(tenant)
+        context['monthly_trend'] = self.get_monthly_trend(tenant)
+        context['performance_metrics'] = self.get_performance_metrics(tenant)
 
         return context
 
@@ -194,6 +216,192 @@ class DashboardView(LoginRequiredMixin, HtmxMixin, TemplateView):
             ])
 
         return actions
+
+    def get_funnel_data(self, tenant):
+        """採用ファネルデータを取得"""
+        from apps.applications.models import Application
+        from django.db.models import Count
+
+        if not tenant:
+            return []
+
+        try:
+            status_counts = Application.objects.filter(
+                tenant=tenant
+            ).values('status').annotate(
+                count=Count('id')
+            ).order_by('status')
+
+            # ファネル順序でソート
+            funnel_order = ['new', 'screening', 'interview', 'offered', 'hired', 'rejected', 'withdrawn']
+            funnel_labels = {
+                'new': '新規応募',
+                'screening': '書類選考',
+                'interview': '面接中',
+                'offered': '内定',
+                'hired': '採用',
+                'rejected': '不採用',
+                'withdrawn': '辞退',
+            }
+
+            funnel_data = []
+            status_dict = {s['status']: s['count'] for s in status_counts}
+            total = sum(status_dict.values()) or 1
+
+            for status in funnel_order:
+                count = status_dict.get(status, 0)
+                funnel_data.append({
+                    'status': status,
+                    'label': funnel_labels.get(status, status),
+                    'count': count,
+                    'percentage': round(count / total * 100, 1),
+                })
+
+            return funnel_data
+        except Exception:
+            return []
+
+    def get_source_stats(self, tenant):
+        """応募経路別統計を取得"""
+        from apps.applications.models import Application
+        from django.db.models import Count
+
+        if not tenant:
+            return []
+
+        try:
+            source_counts = Application.objects.filter(
+                tenant=tenant,
+                source__isnull=False
+            ).values(
+                'source__name'
+            ).annotate(
+                count=Count('id')
+            ).order_by('-count')[:5]
+
+            return [
+                {
+                    'name': s['source__name'],
+                    'count': s['count']
+                }
+                for s in source_counts
+            ]
+        except Exception:
+            return []
+
+    def get_monthly_trend(self, tenant):
+        """月別トレンドデータを取得"""
+        from apps.applications.models import Application
+        from apps.candidates.models import Candidate
+        from django.db.models import Count
+        from django.db.models.functions import TruncMonth
+        from dateutil.relativedelta import relativedelta
+
+        if not tenant:
+            return {'months': [], 'applications': [], 'candidates': []}
+
+        try:
+            # 過去6ヶ月
+            end_date = timezone.now()
+            start_date = end_date - relativedelta(months=5)
+            start_date = start_date.replace(day=1)
+
+            # 応募数
+            app_trend = Application.objects.filter(
+                tenant=tenant,
+                applied_at__gte=start_date
+            ).annotate(
+                month=TruncMonth('applied_at')
+            ).values('month').annotate(
+                count=Count('id')
+            ).order_by('month')
+
+            # 候補者数
+            cand_trend = Candidate.objects.filter(
+                tenant=tenant,
+                created_at__gte=start_date
+            ).annotate(
+                month=TruncMonth('created_at')
+            ).values('month').annotate(
+                count=Count('id')
+            ).order_by('month')
+
+            app_dict = {t['month']: t['count'] for t in app_trend}
+            cand_dict = {t['month']: t['count'] for t in cand_trend}
+
+            months = []
+            applications = []
+            candidates = []
+
+            current = start_date
+            while current <= end_date:
+                month_key = current.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+                months.append(current.strftime('%m月'))
+                applications.append(app_dict.get(month_key, 0))
+                candidates.append(cand_dict.get(month_key, 0))
+                current += relativedelta(months=1)
+
+            return {
+                'months': months,
+                'applications': applications,
+                'candidates': candidates,
+            }
+        except Exception:
+            return {'months': [], 'applications': [], 'candidates': []}
+
+    def get_performance_metrics(self, tenant):
+        """パフォーマンス指標を取得"""
+        from apps.applications.models import Application
+        from apps.interviews.models import Interview
+        from django.db.models import Avg, F
+        from django.db.models.functions import ExtractDay
+
+        if not tenant:
+            return {}
+
+        metrics = {}
+
+        try:
+            # 採用率（hired / total）
+            total_apps = Application.objects.filter(tenant=tenant).count()
+            hired_apps = Application.objects.filter(tenant=tenant, status='hired').count()
+            metrics['hire_rate'] = round(hired_apps / total_apps * 100, 1) if total_apps > 0 else 0
+
+            # 面接通過率
+            total_interviews = Interview.objects.filter(tenant=tenant, result__isnull=False).count()
+            passed_interviews = Interview.objects.filter(tenant=tenant, result='pass').count()
+            metrics['interview_pass_rate'] = round(passed_interviews / total_interviews * 100, 1) if total_interviews > 0 else 0
+
+            # 平均応募処理日数（新規→次ステータス）
+            # 簡易的に今月の応募で計算
+            this_month = timezone.now().replace(day=1)
+            recent_apps = Application.objects.filter(
+                tenant=tenant,
+                applied_at__gte=this_month,
+                status__in=['screening', 'interview', 'offered', 'hired', 'rejected']
+            )
+            if recent_apps.exists():
+                avg_days = recent_apps.annotate(
+                    days=ExtractDay(F('updated_at') - F('applied_at'))
+                ).aggregate(avg=Avg('days'))['avg']
+                metrics['avg_processing_days'] = round(avg_days, 1) if avg_days else 0
+            else:
+                metrics['avg_processing_days'] = 0
+
+            # 内定承諾率
+            offered_apps = Application.objects.filter(tenant=tenant, status='offered').count()
+            hired_from_offered = Application.objects.filter(tenant=tenant, status='hired').count()
+            metrics['offer_acceptance_rate'] = round(hired_from_offered / (offered_apps + hired_from_offered) * 100, 1) if (offered_apps + hired_from_offered) > 0 else 0
+
+        except Exception:
+            metrics = {
+                'hire_rate': 0,
+                'interview_pass_rate': 0,
+                'avg_processing_days': 0,
+                'offer_acceptance_rate': 0,
+            }
+
+        return metrics
 
 
 class HomeView(TemplateView):

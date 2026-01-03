@@ -1,22 +1,31 @@
 """Django ATS - Notifications URLs"""
 from django.urls import path
-from django.views.generic import TemplateView
-from django.contrib.auth.mixins import LoginRequiredMixin
 
-
-class NotificationListView(LoginRequiredMixin, TemplateView):
-    """通知一覧（スタブ）"""
-    template_name = 'notifications/notification_list.html'
-
-
-class NotificationListPartialView(LoginRequiredMixin, TemplateView):
-    """通知一覧パーシャル（スタブ）"""
-    template_name = 'notifications/notification_list_partial.html'
-
+from .views import (
+    NotificationListView,
+    NotificationDropdownView,
+    NotificationUnreadCountView,
+    NotificationMarkReadView,
+    NotificationMarkAllReadView,
+    NotificationDeleteView,
+    NotificationClearAllView,
+)
 
 app_name = 'notifications'
 
 urlpatterns = [
+    # 一覧
     path('', NotificationListView.as_view(), name='notification_list'),
-    path('partial/', NotificationListPartialView.as_view(), name='notification_list_partial'),
+
+    # HTMX用エンドポイント
+    path('dropdown/', NotificationDropdownView.as_view(), name='dropdown'),
+    path('unread-count/', NotificationUnreadCountView.as_view(), name='unread_count'),
+
+    # 既読操作
+    path('<uuid:pk>/mark-read/', NotificationMarkReadView.as_view(), name='mark_read'),
+    path('mark-all-read/', NotificationMarkAllReadView.as_view(), name='mark_all_read'),
+
+    # 削除
+    path('<uuid:pk>/delete/', NotificationDeleteView.as_view(), name='delete'),
+    path('clear-all/', NotificationClearAllView.as_view(), name='clear_all'),
 ]

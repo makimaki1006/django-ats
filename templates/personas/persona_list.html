@@ -3,15 +3,216 @@
 {% block title %}ペルソナ一覧 - Django ATS{% endblock %}
 
 {% block content %}
-<div class="space-y-6">
+<div class="space-y-6 fade-in">
+    <!-- ヘッダー -->
     <div class="sm:flex sm:items-center sm:justify-between">
         <div>
             <h1 class="text-2xl font-bold text-gray-900">ペルソナ一覧</h1>
-            <p class="mt-1 text-sm text-gray-500">求人に紐づくペルソナを管理します</p>
+            <p class="mt-1 text-sm text-gray-500">理想の候補者像（ペルソナ）を管理します</p>
+        </div>
+        <div class="mt-4 sm:mt-0">
+            <a href="{% url 'personas:persona_create' %}"
+               class="btn btn-primary">
+                <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                新規作成
+            </a>
         </div>
     </div>
-    <div class="bg-white shadow rounded-lg p-6">
-        <p class="text-gray-500">この機能は準備中です。</p>
+
+    <!-- フィルター -->
+    <div class="card">
+        <div class="card-body">
+            <form method="get" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                <div>
+                    <label for="q" class="sr-only">検索</label>
+                    {{ filter_form.q }}
+                </div>
+                <div>
+                    <label for="is_active" class="sr-only">有効状態</label>
+                    {{ filter_form.is_active }}
+                </div>
+                <div>
+                    <label for="is_template" class="sr-only">テンプレート</label>
+                    {{ filter_form.is_template }}
+                </div>
+                <div>
+                    <label for="education_level" class="sr-only">学歴</label>
+                    {{ filter_form.education_level }}
+                </div>
+                <div class="flex items-center">
+                    <button type="submit" class="btn btn-primary w-full">
+                        検索
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
+
+    <!-- ペルソナ一覧 -->
+    <div class="card">
+        <div class="overflow-x-auto">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th scope="col">ペルソナ名</th>
+                        <th scope="col">年齢</th>
+                        <th scope="col">経験</th>
+                        <th scope="col">学歴</th>
+                        <th scope="col">紐付け求人</th>
+                        <th scope="col">状態</th>
+                        <th scope="col" class="relative">
+                            <span class="sr-only">操作</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for persona in personas %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-3 py-4">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-10 w-10">
+                                    <div class="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
+                                        <svg class="h-5 w-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">
+                                        <a href="{% url 'personas:persona_detail' pk=persona.pk %}" class="hover:text-primary-600">
+                                            {{ persona.name }}
+                                        </a>
+                                    </div>
+                                    <div class="text-sm text-gray-500">
+                                        {% if persona.is_template %}
+                                        <span class="badge badge-primary badge-sm">テンプレート</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-3 py-4 text-sm text-gray-500">
+                            {{ persona.age_range_display }}
+                        </td>
+                        <td class="px-3 py-4 text-sm text-gray-500">
+                            {{ persona.experience_range_display }}
+                        </td>
+                        <td class="px-3 py-4 text-sm text-gray-500">
+                            {{ persona.get_education_level_display }}
+                        </td>
+                        <td class="px-3 py-4 text-sm text-gray-500">
+                            {{ persona.job_count }}件
+                        </td>
+                        <td class="px-3 py-4">
+                            {% if persona.is_active %}
+                            <span class="badge badge-success">有効</span>
+                            {% else %}
+                            <span class="badge badge-secondary">無効</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-3 py-4 text-right text-sm font-medium">
+                            <div class="flex items-center justify-end space-x-2">
+                                <a href="{% url 'personas:persona_update' pk=persona.pk %}"
+                                   class="text-primary-600 hover:text-primary-900">
+                                    編集
+                                </a>
+                                <form method="post" action="{% url 'personas:persona_duplicate' pk=persona.pk %}" class="inline"
+                                      hx-post="{% url 'personas:persona_duplicate' pk=persona.pk %}"
+                                      hx-confirm="このペルソナを複製しますか？">
+                                    {% csrf_token %}
+                                    <button type="submit" class="text-secondary-600 hover:text-secondary-900">
+                                        複製
+                                    </button>
+                                </form>
+                                <form method="post" action="{% url 'personas:persona_delete' pk=persona.pk %}" class="inline"
+                                      hx-post="{% url 'personas:persona_delete' pk=persona.pk %}"
+                                      hx-confirm="このペルソナを削除しますか？この操作は取り消せません。">
+                                    {% csrf_token %}
+                                    <button type="submit" class="text-danger-600 hover:text-danger-900">
+                                        削除
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="px-6 py-12 text-center">
+                            <div class="empty-state">
+                                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-primary-100">
+                                    <svg class="h-8 w-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <h3 class="empty-state-title">ペルソナがありません</h3>
+                                <p class="empty-state-description">理想の候補者像を定義して採用活動を効率化しましょう。</p>
+                                <div class="empty-state-action">
+                                    <a href="{% url 'personas:persona_create' %}" class="btn btn-primary">
+                                        <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                        </svg>
+                                        ペルソナを作成
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ページネーション -->
+    {% if page_obj.has_other_pages %}
+    <nav class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 rounded-lg shadow">
+        <div class="flex flex-1 justify-between sm:hidden">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-secondary">前へ</a>
+            {% endif %}
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="btn btn-secondary ml-3">次へ</a>
+            {% endif %}
+        </div>
+        <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm text-gray-700">
+                    全 <span class="font-medium">{{ page_obj.paginator.count }}</span> 件中
+                    <span class="font-medium">{{ page_obj.start_index }}</span> -
+                    <span class="font-medium">{{ page_obj.end_index }}</span> 件を表示
+                </p>
+            </div>
+            <div>
+                <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm">
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                        <span class="sr-only">前へ</span>
+                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                    {% endif %}
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <span class="relative z-10 inline-flex items-center bg-primary-600 px-4 py-2 text-sm font-semibold text-white">{{ num }}</span>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?page={{ num }}" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                        <span class="sr-only">次へ</span>
+                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
 </div>
 {% endblock %}

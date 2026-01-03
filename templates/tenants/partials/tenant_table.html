@@ -1,0 +1,90 @@
+<!-- テナント一覧テーブル（HTMX対応） -->
+<table class="min-w-full divide-y divide-gray-300">
+    <thead class="bg-gray-50">
+        <tr>
+            <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">テナント</th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">プラン</th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">ユーザー数</th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">ステータス</th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">作成日</th>
+            <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                <span class="sr-only">操作</span>
+            </th>
+        </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-200 bg-white">
+        {% for tenant in tenants %}
+        <tr class="hover:bg-gray-50">
+            <td class="whitespace-nowrap py-4 pl-4 pr-3 sm:pl-6">
+                <div class="flex items-center">
+                    {% if tenant.logo_url %}
+                    <div class="h-10 w-10 flex-shrink-0">
+                        <img class="h-10 w-10 rounded-full object-cover" src="{{ tenant.logo_url }}" alt="{{ tenant.name }}">
+                    </div>
+                    {% else %}
+                    <div class="h-10 w-10 flex-shrink-0 rounded-full bg-primary-100 flex items-center justify-center">
+                        <span class="text-primary-600 font-medium">{{ tenant.name|slice:":1" }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="ml-4">
+                        <div class="font-medium text-gray-900">
+                            <a href="{% url 'tenants:tenant_detail' pk=tenant.pk %}" class="hover:text-primary-600">
+                                {{ tenant.name }}
+                            </a>
+                        </div>
+                        <div class="text-gray-500 text-xs">{{ tenant.code }}</div>
+                    </div>
+                </div>
+            </td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium
+                    {% if tenant.plan == 'enterprise' %}bg-purple-50 text-purple-700 ring-1 ring-inset ring-purple-700/10
+                    {% elif tenant.plan == 'professional' %}bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-700/10
+                    {% elif tenant.plan == 'starter' %}bg-green-50 text-green-700 ring-1 ring-inset ring-green-700/10
+                    {% else %}bg-gray-50 text-gray-600 ring-1 ring-inset ring-gray-500/10{% endif %}">
+                    {{ tenant.get_plan_display }}
+                </span>
+                {% if tenant.is_trial %}
+                <span class="ml-1 inline-flex items-center rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-700 ring-1 ring-inset ring-yellow-700/10">
+                    トライアル中
+                </span>
+                {% endif %}
+            </td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                {{ tenant.user_count }} / {{ tenant.max_users }}
+            </td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm">
+                {% if tenant.is_active %}
+                <span class="inline-flex items-center rounded-full bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                    有効
+                </span>
+                {% else %}
+                <span class="inline-flex items-center rounded-full bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20">
+                    無効
+                </span>
+                {% endif %}
+            </td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                {{ tenant.created_at|date:"Y/m/d" }}
+            </td>
+            <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                <a href="{% url 'tenants:tenant_detail' pk=tenant.pk %}" class="text-primary-600 hover:text-primary-900 mr-3">詳細</a>
+                <a href="{% url 'tenants:tenant_update' pk=tenant.pk %}" class="text-gray-600 hover:text-gray-900">編集</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6" class="py-10 text-center text-gray-500">
+                テナントが見つかりませんでした。
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- ページネーション -->
+{% if is_paginated %}
+<div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+    {% include "components/pagination.html" %}
+</div>
+{% endif %}

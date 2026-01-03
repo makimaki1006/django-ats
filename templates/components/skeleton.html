@@ -1,0 +1,128 @@
+{% comment %}
+スケルトンローダーコンポーネント
+使用方法: {% include "components/skeleton.html" with type="card" %}
+
+サポートするタイプ:
+- card: カード型スケルトン
+- table-row: テーブル行スケルトン
+- stat-card: 統計カードスケルトン
+- list-item: リストアイテムスケルトン
+- avatar: アバタースケルトン
+- text: テキストスケルトン
+{% endcomment %}
+
+{% if type == "card" %}
+<!-- カード型スケルトン -->
+<div class="card animate-pulse">
+    <div class="card-body">
+        <div class="skeleton h-4 w-1/3 mb-4"></div>
+        <div class="skeleton h-8 w-1/2 mb-2"></div>
+        <div class="skeleton h-3 w-2/3"></div>
+    </div>
+</div>
+
+{% elif type == "stat-card" %}
+<!-- 統計カードスケルトン -->
+<div class="stat-card animate-pulse">
+    <div class="px-4 py-5 sm:p-6">
+        <div class="flex items-center">
+            <div class="skeleton h-12 w-12 rounded-lg"></div>
+            <div class="ml-4 flex-1">
+                <div class="skeleton h-3 w-20 mb-2"></div>
+                <div class="skeleton h-6 w-12"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% elif type == "table-row" %}
+<!-- テーブル行スケルトン -->
+<tr class="animate-pulse">
+    <td class="px-3 py-4">
+        <div class="flex items-center">
+            <div class="skeleton h-10 w-10 rounded-full"></div>
+            <div class="ml-4">
+                <div class="skeleton h-4 w-24 mb-1"></div>
+                <div class="skeleton h-3 w-32"></div>
+            </div>
+        </div>
+    </td>
+    <td class="px-3 py-4"><div class="skeleton h-4 w-16"></div></td>
+    <td class="px-3 py-4"><div class="skeleton h-4 w-20"></div></td>
+    <td class="px-3 py-4"><div class="skeleton h-4 w-24"></div></td>
+    <td class="px-3 py-4">
+        <div class="flex space-x-2">
+            <div class="skeleton h-8 w-12 rounded"></div>
+            <div class="skeleton h-8 w-12 rounded"></div>
+        </div>
+    </td>
+</tr>
+
+{% elif type == "list-item" %}
+<!-- リストアイテムスケルトン -->
+<div class="px-4 py-4 animate-pulse">
+    <div class="flex items-center space-x-4">
+        <div class="skeleton h-10 w-10 rounded-full"></div>
+        <div class="flex-1">
+            <div class="skeleton h-4 w-3/4 mb-2"></div>
+            <div class="skeleton h-3 w-1/2"></div>
+        </div>
+        <div class="skeleton h-6 w-16 rounded-full"></div>
+    </div>
+</div>
+
+{% elif type == "avatar" %}
+<!-- アバタースケルトン -->
+<div class="skeleton h-10 w-10 rounded-full animate-pulse"></div>
+
+{% elif type == "text" %}
+<!-- テキストスケルトン -->
+<div class="space-y-2 animate-pulse">
+    <div class="skeleton h-4 w-full"></div>
+    <div class="skeleton h-4 w-5/6"></div>
+    <div class="skeleton h-4 w-4/6"></div>
+</div>
+
+{% elif type == "activity" %}
+<!-- アクティビティカードスケルトン -->
+<div class="card animate-pulse">
+    <div class="card-header">
+        <div class="skeleton h-5 w-32"></div>
+    </div>
+    <div class="card-body divide-y divide-gray-200">
+        {% for i in "123" %}
+        <div class="py-4 first:pt-0 last:pb-0">
+            <div class="flex items-center space-x-4">
+                <div class="skeleton h-10 w-10 rounded-full"></div>
+                <div class="flex-1">
+                    <div class="skeleton h-4 w-3/4 mb-2"></div>
+                    <div class="skeleton h-3 w-1/2"></div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% elif type == "dashboard-stats" %}
+<!-- ダッシュボード統計スケルトン -->
+<div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    {% for i in "1234" %}
+    <div class="stat-card animate-pulse">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="flex items-center">
+                <div class="skeleton h-12 w-12 rounded-lg"></div>
+                <div class="ml-4 flex-1">
+                    <div class="skeleton h-3 w-20 mb-2"></div>
+                    <div class="skeleton h-6 w-12"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+<!-- デフォルト: シンプルスケルトン -->
+<div class="skeleton h-4 w-full animate-pulse"></div>
+{% endif %}

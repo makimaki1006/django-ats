@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}{% if form.instance.pk %}スプレッドシート連携設定{% else %}スプレッドシート連携{% endif %} - Django ATS{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-6 fade-in">
+    <!-- ページヘッダー -->
+    <div>
+        <nav class="flex mb-2" aria-label="パンくずリスト">
+            <ol class="inline-flex items-center space-x-1 text-sm text-gray-500">
+                <li><a href="{% url 'settings:index' %}" class="hover:text-primary-600">設定</a></li>
+                <li><span class="mx-2">/</span></li>
+                {% if form.instance.pk %}
+                <li><a href="{% url 'settings:spreadsheet_detail' %}" class="hover:text-primary-600">スプレッドシート連携</a></li>
+                <li><span class="mx-2">/</span></li>
+                <li class="text-gray-900">設定編集</li>
+                {% else %}
+                <li class="text-gray-900">スプレッドシート連携</li>
+                {% endif %}
+            </ol>
+        </nav>
+        <h1 class="text-2xl font-bold text-gray-900">
+            {% if form.instance.pk %}スプレッドシート連携設定{% else %}スプレッドシートを連携{% endif %}
+        </h1>
+        <p class="mt-1 text-sm text-gray-500">
+            Google Spreadsheetと連携して、データの双方向同期を行います
+        </p>
+    </div>
+
+    <!-- セットアップガイド（新規のみ） -->
+    {% if not form.instance.pk %}
+    <div class="card bg-primary-50 border-primary-200">
+        <div class="card-body">
+            <h3 class="font-medium text-primary-900 mb-3">セットアップ手順</h3>
+            <ol class="list-decimal list-inside space-y-2 text-sm text-primary-800">
+                <li>Google Cloud Consoleでプロジェクトを作成（または既存を使用）</li>
+                <li>Google Sheets APIとGoogle Drive APIを有効化</li>
+                <li>サービスアカウントを作成し、JSONキーをダウンロード</li>
+                <li>連携したいスプレッドシートを作成または開く</li>
+                <li>スプレッドシートの共有設定で、サービスアカウントのメールアドレスに編集権限を付与</li>
+                <li>以下のフォームにスプレッドシートURLと認証情報を入力</li>
+            </ol>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- フォーム -->
+    <form method="post" class="card">
+        {% csrf_token %}
+        <div class="card-body space-y-6">
+
+            {% if form.non_field_errors %}
+            <div class="p-4 bg-danger-50 border border-danger-200 rounded-lg">
+                {% for error in form.non_field_errors %}
+                <p class="text-sm text-danger-800">{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- スプレッドシートURL -->
+            <div>
+                <label for="id_spreadsheet_url" class="form-label">
+                    スプレッドシートURL <span class="text-danger-500">*</span>
+                </label>
+                {{ form.spreadsheet_url }}
+                {% if form.spreadsheet_url.help_text %}
+                <p class="form-help">{{ form.spreadsheet_url.help_text }}</p>
+                {% endif %}
+                {% if form.spreadsheet_url.errors %}
+                <p class="form-error">{{ form.spreadsheet_url.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- スプレッドシート名（任意） -->
+            <div>
+                <label for="id_spreadsheet_name" class="form-label">
+                    表示名（任意）
+                </label>
+                {{ form.spreadsheet_name }}
+                <p class="form-help">管理しやすい名前を付けてください。空欄の場合はシート名を自動取得します。</p>
+            </div>
+
+            <!-- 認証情報 -->
+            <div>
+                <label for="id_credentials_json" class="form-label">
+                    サービスアカウント認証情報（JSON） <span class="text-danger-500">*</span>
+                </label>
+                {{ form.credentials_json }}
+                {% if form.credentials_json.help_text %}
+                <p class="form-help">{{ form.credentials_json.help_text }}</p>
+                {% endif %}
+                {% if form.credentials_json.errors %}
+                <p class="form-error">{{ form.credentials_json.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <hr class="my-6">
+
+            <!-- 同期対象 -->
+            <div>
+                <h4 class="font-medium text-gray-900 mb-3">同期対象データ</h4>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <label class="flex items-center gap-2">
+                        {{ form.sync_candidates }}
+                        <span class="text-sm">候補者</span>
+                    </label>
+                    <label class="flex items-center gap-2">
+                        {{ form.sync_jobs }}
+                        <span class="text-sm">求人</span>
+                    </label>
+                    <label class="flex items-center gap-2">
+                        {{ form.sync_applications }}
+                        <span class="text-sm">応募</span>
+                    </label>
+                    <label class="flex items-center gap-2">
+                        {{ form.sync_interviews }}
+                        <span class="text-sm">面接</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 同期設定 -->
+            <div>
+                <h4 class="font-medium text-gray-900 mb-3">同期設定</h4>
+                <div class="space-y-4">
+                    <label class="flex items-center gap-2">
+                        {{ form.auto_sync_enabled }}
+                        <span class="text-sm">自動同期を有効にする</span>
+                    </label>
+                    {% if form.auto_sync_enabled.help_text %}
+                    <p class="text-xs text-gray-500 ml-6">{{ form.auto_sync_enabled.help_text }}</p>
+                    {% endif %}
+
+                    <div class="flex items-center gap-2">
+                        <label for="id_sync_interval_minutes" class="text-sm">同期間隔:</label>
+                        {{ form.sync_interval_minutes }}
+                        <span class="text-sm text-gray-500">分</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 有効/無効 -->
+            <div>
+                <label class="flex items-center gap-2">
+                    {{ form.is_active }}
+                    <span class="text-sm">連携を有効にする</span>
+                </label>
+            </div>
+
+        </div>
+
+        <!-- フッター -->
+        <div class="card-footer flex justify-between">
+            {% if form.instance.pk %}
+            <a href="{% url 'settings:spreadsheet_detail' %}" class="btn btn-secondary">
+                キャンセル
+            </a>
+            {% else %}
+            <a href="{% url 'settings:index' %}" class="btn btn-secondary">
+                キャンセル
+            </a>
+            {% endif %}
+            <button type="submit" class="btn btn-primary">
+                {% if form.instance.pk %}更新{% else %}連携を開始{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

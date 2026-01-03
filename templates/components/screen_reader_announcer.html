@@ -1,0 +1,77 @@
+{# スクリーンリーダー用アナウンサーコンポーネント #}
+{# 動的コンテンツの変更をスクリーンリーダーに通知する #}
+
+{# ライブリージョン: 重要なアナウンス（即座に読み上げ） #}
+<div id="sr-announcer-assertive"
+     role="alert"
+     aria-live="assertive"
+     aria-atomic="true"
+     class="sr-only">
+</div>
+
+{# ライブリージョン: 通常のアナウンス（ユーザーの操作が終わったら読み上げ） #}
+<div id="sr-announcer-polite"
+     aria-live="polite"
+     aria-atomic="true"
+     class="sr-only">
+</div>
+
+{# アナウンス用JavaScript #}
+<script>
+/**
+ * スクリーンリーダーにメッセージをアナウンスする
+ * @param {string} message - アナウンスするメッセージ
+ * @param {string} priority - 'assertive'（即座）または 'polite'（通常）
+ */
+function announceToScreenReader(message, priority = 'polite') {
+    const announcerId = priority === 'assertive'
+        ? 'sr-announcer-assertive'
+        : 'sr-announcer-polite';
+    const announcer = document.getElementById(announcerId);
+
+    if (announcer) {
+        // 一度クリアしてから設定することで、同じメッセージでも再読み上げされる
+        announcer.textContent = '';
+
+        // 少し遅延させてから設定
+        setTimeout(() => {
+            announcer.textContent = message;
+        }, 100);
+
+        // メッセージをクリア（次のアナウンスのため）
+        setTimeout(() => {
+            announcer.textContent = '';
+        }, 1000);
+    }
+}
+
+// HTMXイベントと連携
+document.body.addEventListener('htmx:afterSwap', function(evt) {
+    // 検索結果の更新をアナウンス
+    const target = evt.target;
+    if (target.id === 'list-container') {
+        const count = target.querySelectorAll('tbody tr').length;
+        if (count > 0) {
+            announceToScreenReader(`${count}件の結果が見つかりました`, 'polite');
+        } else {
+            announceToScreenReader('結果が見つかりませんでした', 'polite');
+        }
+    }
+});
+
+// フォーム送信成功時のアナウンス
+document.body.addEventListener('htmx:afterRequest', function(evt) {
+    if (evt.detail.successful && evt.detail.xhr.status >= 200 && evt.detail.xhr.status < 300) {
+        // 成功メッセージがあれば読み上げ
+        const successMessage = evt.detail.target?.querySelector('.alert-success');
+        if (successMessage) {
+            announceToScreenReader(successMessage.textContent, 'polite');
+        }
+    }
+});
+
+// エラー時のアナウンス
+document.body.addEventListener('htmx:responseError', function(evt) {
+    announceToScreenReader('エラーが発生しました。もう一度お試しください。', 'assertive');
+});
+</script>

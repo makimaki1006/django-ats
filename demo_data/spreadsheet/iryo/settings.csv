@@ -1,0 +1,8 @@
+key,value,description
+company_name,医療法人青空会,会社名
+tenant_code,aozora-kai,テナントコード
+timezone,Asia/Tokyo,タイムゾーン
+date_format,YYYY-MM-DD,日付形式
+currency,JPY,通貨
+default_interview_duration,60,デフォルト面接時間（分）
+notification_email,jinji@aozora-hospital.or.jp,通知先メールアドレス

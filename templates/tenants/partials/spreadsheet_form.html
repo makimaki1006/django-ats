@@ -1,0 +1,67 @@
+<!-- スプレッドシート接続フォーム（HTMX対応） -->
+<form hx-post="{% url 'tenants:tenant_spreadsheet' pk=tenant.pk %}"
+      hx-swap="outerHTML"
+      class="space-y-4">
+    {% csrf_token %}
+
+    <div>
+        <label for="id_spreadsheet_id" class="block text-sm font-medium text-gray-700">
+            スプレッドシートID <span class="text-red-500">*</span>
+        </label>
+        <input type="text" name="spreadsheet_id" id="id_spreadsheet_id"
+               value="{{ form.spreadsheet_id.value|default:'' }}"
+               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm {% if form.spreadsheet_id.errors %}border-red-300{% endif %}"
+               placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"
+               required>
+        <p class="mt-1 text-xs text-gray-500">URLまたはIDを入力</p>
+        {% if form.spreadsheet_id.errors %}
+        <p class="mt-1 text-sm text-red-600">{{ form.spreadsheet_id.errors.0 }}</p>
+        {% endif %}
+    </div>
+
+    <div>
+        <label for="id_spreadsheet_name" class="block text-sm font-medium text-gray-700">
+            シート名
+        </label>
+        <input type="text" name="spreadsheet_name" id="id_spreadsheet_name"
+               value="{{ form.spreadsheet_name.value|default:'' }}"
+               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+               placeholder="採用管理シート">
+        {% if form.spreadsheet_name.errors %}
+        <p class="mt-1 text-sm text-red-600">{{ form.spreadsheet_name.errors.0 }}</p>
+        {% endif %}
+    </div>
+
+    <div class="flex items-center">
+        <input type="checkbox" name="is_active" id="id_is_active"
+               {% if form.is_active.value %}checked{% endif %}
+               class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+        <label for="id_is_active" class="ml-2 block text-sm text-gray-900">
+            有効
+        </label>
+    </div>
+
+    <div class="flex space-x-2">
+        <button type="submit"
+                class="inline-flex items-center rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500">
+            保存
+        </button>
+        <button type="button"
+                hx-get="{% url 'tenants:tenant_detail' pk=tenant.pk %}"
+                hx-select="#spreadsheet-form"
+                hx-target="#spreadsheet-form"
+                hx-swap="innerHTML"
+                class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+            キャンセル
+        </button>
+        {% if spreadsheet %}
+        <button type="button"
+                hx-post="{% url 'tenants:tenant_spreadsheet_delete' pk=tenant.pk %}"
+                hx-confirm="スプレッドシート接続を削除しますか？"
+                hx-swap="none"
+                class="inline-flex items-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500">
+            削除
+        </button>
+        {% endif %}
+    </div>
+</form>

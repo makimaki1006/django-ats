@@ -1,0 +1,28 @@
+{#
+  フォームセクション見出しコンポーネント
+
+  使用方法:
+  {% include "components/form_section.html" with title="基本情報" description="候補者の基本的な情報を入力してください" %}
+
+  パラメータ:
+  - title: セクションタイトル (必須)
+  - description: 説明文 (オプション)
+  - icon: アイコンSVG (オプション)
+#}
+<div class="bg-white shadow rounded-lg p-6">
+    <div class="{% if description %}mb-6{% else %}mb-4{% endif %} border-b border-gray-200 pb-4">
+        <h2 class="text-lg font-medium text-gray-900 flex items-center">
+            {% if icon %}
+            <span class="mr-2 text-gray-400" aria-hidden="true">{{ icon|safe }}</span>
+            {% endif %}
+            {{ title }}
+        </h2>
+        {% if description %}
+        <p class="mt-1 text-sm text-gray-500">{{ description }}</p>
+        {% endif %}
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        {{ content }}
+    </div>
+</div>

@@ -1,0 +1,13 @@
+name,source_type,url,is_active,display_order
+マイナビ介護,job_board,https://kaigojob.mynavi.jp/,TRUE,1
+リクナビNEXT医療・介護,job_board,https://next.rikunabi.com/,TRUE,2
+ジョブメドレー,job_board,https://job-medley.com/,TRUE,3
+Indeed,job_board,https://jp.indeed.com/,TRUE,4
+ハローワーク,public,https://www.hellowork.mhlw.go.jp/,TRUE,5
+自社採用サイト,direct,,TRUE,6
+社員紹介,referral,,TRUE,7
+人材紹介会社,agent,,TRUE,8
+SNS（Facebook/Instagram）,social,,TRUE,9
+合同企業説明会,event,,TRUE,10
+大学・専門学校,school,,TRUE,11
+その他,other,,TRUE,99

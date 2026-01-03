@@ -1,0 +1,43 @@
+{#
+  フォームエラー表示コンポーネント
+
+  使用方法:
+  {% include "components/form_errors.html" with form=form %}
+
+  パラメータ:
+  - form: フォームオブジェクト (必須)
+  - title: エラータイトル (オプション、デフォルト: "入力内容にエラーがあります")
+#}
+{% if form.errors %}
+<div class="rounded-lg bg-danger-50 p-4 mb-6" role="alert" aria-labelledby="form-errors-title">
+    <div class="flex">
+        <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-danger-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+            </svg>
+        </div>
+        <div class="ml-3 flex-1">
+            <h3 id="form-errors-title" class="text-sm font-medium text-danger-800">
+                {% if title %}{{ title }}{% else %}入力内容にエラーがあります{% endif %}
+            </h3>
+            <div class="mt-2 text-sm text-danger-700">
+                <ul class="list-disc list-inside space-y-1">
+                    {# Non-field errors #}
+                    {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+
+                    {# Field errors #}
+                    {% for field in form %}
+                    {% for error in field.errors %}
+                    <li>
+                        <strong>{{ field.label }}</strong>: {{ error }}
+                    </li>
+                    {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}

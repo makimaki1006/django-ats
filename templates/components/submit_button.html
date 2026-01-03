@@ -1,0 +1,70 @@
+{#
+  送信ボタンコンポーネント（ローディング状態付き）
+
+  使用方法:
+  {% include "components/submit_button.html" with text="保存" loading_text="保存中..." %}
+
+  パラメータ:
+  - text: ボタンテキスト (必須)
+  - loading_text: ローディング中のテキスト (オプション、デフォルト: "処理中...")
+  - type: ボタンタイプ (オプション、デフォルト: "primary")
+      - "primary": 青色の主要ボタン
+      - "success": 緑色の成功ボタン
+      - "danger": 赤色の削除ボタン
+  - icon: ボタンアイコン (オプション)
+  - disabled: 初期状態で無効化 (オプション)
+  - full_width: 幅を100%に (オプション)
+  - form_id: 関連するフォームのID (オプション、htmxを使用する場合)
+#}
+
+{% with btn_id=text|slugify %}
+<button type="submit"
+        id="submit-btn-{{ btn_id }}"
+        {% if form_id %}form="{{ form_id }}"{% endif %}
+        {% if disabled %}disabled{% endif %}
+        class="
+            inline-flex items-center justify-center
+            px-4 py-2 border border-transparent rounded-md shadow-sm
+            text-sm font-medium
+            focus:outline-none focus:ring-2 focus:ring-offset-2
+            disabled:opacity-50 disabled:cursor-not-allowed
+            transition-all duration-200
+            {% if full_width %}w-full{% endif %}
+            {% if type == 'success' %}
+                text-white bg-success-600 hover:bg-success-700 focus:ring-success-500
+            {% elif type == 'danger' %}
+                text-white bg-danger-600 hover:bg-danger-700 focus:ring-danger-500
+            {% else %}
+                text-white bg-blue-600 hover:bg-blue-700 focus:ring-blue-500
+            {% endif %}
+        "
+        hx-indicator="#submit-spinner-{{ btn_id }}"
+        onclick="this.classList.add('htmx-request'); this.disabled = true;">
+
+    {# スピナー（ローディング中に表示） #}
+    <span id="submit-spinner-{{ btn_id }}" class="htmx-indicator mr-2">
+        <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+    </span>
+
+    {# アイコン（ローディング中は非表示） #}
+    {% if icon %}
+    <span class="mr-2 htmx-hide-indicator">
+        {{ icon|safe }}
+    </span>
+    {% endif %}
+
+    {# ボタンテキスト #}
+    <span class="btn-text">{{ text }}</span>
+    <span class="btn-loading-text htmx-indicator">{% if loading_text %}{{ loading_text }}{% else %}処理中...{% endif %}</span>
+</button>
+
+<style>
+    #submit-btn-{{ btn_id }} .btn-loading-text { display: none; }
+    #submit-btn-{{ btn_id }}.htmx-request .btn-text { display: none; }
+    #submit-btn-{{ btn_id }}.htmx-request .btn-loading-text { display: inline; }
+    #submit-btn-{{ btn_id }}.htmx-request .htmx-hide-indicator { display: none; }
+</style>
+{% endwith %}

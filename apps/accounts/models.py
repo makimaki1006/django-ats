@@ -352,3 +352,132 @@ class Profile(TenantBaseModel):
         """通知設定を保存"""
         self.notification_settings[key] = value
         self.save(update_fields=['notification_settings', 'updated_at'])
+
+
+class LoginHistory(models.Model):
+    """ログイン履歴モデル
+
+    ユーザーのログイン試行を記録。
+    成功・失敗を含む全ての試行を保存。
+
+    Attributes:
+        user: ログイン対象ユーザー
+        email_attempted: 試行されたメールアドレス（失敗時もログ）
+        timestamp: ログイン試行日時
+        success: 成功フラグ
+        ip_address: IPアドレス
+        user_agent: ユーザーエージェント
+        failure_reason: 失敗理由
+        location: 推定ロケーション（オプション）
+    """
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+    user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='login_history',
+        verbose_name='ユーザー'
+    )
+    email_attempted = models.EmailField(
+        verbose_name='試行メールアドレス'
+    )
+    timestamp = models.DateTimeField(
+        auto_now_add=True,
+        db_index=True,
+        verbose_name='日時'
+    )
+    success = models.BooleanField(
+        default=True,
+        db_index=True,
+        verbose_name='成功'
+    )
+    ip_address = models.GenericIPAddressField(
+        null=True,
+        blank=True,
+        verbose_name='IPアドレス'
+    )
+    user_agent = models.TextField(
+        blank=True,
+        verbose_name='ユーザーエージェント'
+    )
+    failure_reason = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name='失敗理由'
+    )
+    location = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name='ロケーション'
+    )
+
+    class Meta:
+        verbose_name = 'ログイン履歴'
+        verbose_name_plural = 'ログイン履歴'
+        ordering = ['-timestamp']
+        indexes = [
+            models.Index(fields=['user', 'timestamp']),
+            models.Index(fields=['email_attempted', 'timestamp']),
+        ]
+
+    def __str__(self):
+        status = '成功' if self.success else '失敗'
+        return f"{self.email_attempted} - {status} - {self.timestamp}"
+
+    @classmethod
+    def log_login(cls, email, success, request=None, user=None, failure_reason=''):
+        """ログイン試行を記録
+
+        Args:
+            email: 試行されたメールアドレス
+            success: 成功フラグ
+            request: HttpRequestオブジェクト
+            user: ユーザーオブジェクト（成功時）
+            failure_reason: 失敗理由
+        """
+        ip_address = None
+        user_agent = ''
+
+        if request:
+            x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+            if x_forwarded_for:
+                ip_address = x_forwarded_for.split(',')[0].strip()
+            else:
+                ip_address = request.META.get('REMOTE_ADDR')
+            user_agent = request.META.get('HTTP_USER_AGENT', '')[:500]
+
+        return cls.objects.create(
+            user=user,
+            email_attempted=email,
+            success=success,
+            ip_address=ip_address,
+            user_agent=user_agent,
+            failure_reason=failure_reason,
+        )
+
+    @classmethod
+    def get_recent_failures(cls, email, hours=24, threshold=5):
+        """最近のログイン失敗回数を取得
+
+        Args:
+            email: メールアドレス
+            hours: 確認する期間（時間）
+            threshold: 閾値
+
+        Returns:
+            int: 失敗回数
+        """
+        from django.utils import timezone
+        from datetime import timedelta
+
+        since = timezone.now() - timedelta(hours=hours)
+        return cls.objects.filter(
+            email_attempted=email,
+            success=False,
+            timestamp__gte=since
+        ).count()

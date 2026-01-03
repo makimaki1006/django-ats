@@ -1,6 +1,6 @@
 {% load static %}
 <!-- トップナビゲーションバー -->
-<div class="sticky top-0 z-10 flex-shrink-0 flex h-16 bg-white shadow">
+<div x-data class="sticky top-0 z-10 flex-shrink-0 flex h-16 bg-white shadow">
     <!-- モバイルメニューボタン -->
     <button type="button"
             class="md:hidden px-4 border-r border-gray-200 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500"
@@ -42,10 +42,10 @@
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                     </svg>
-                    <!-- 未読バッジ -->
-                    {% if unread_notifications_count %}
-                    <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-danger-400 ring-2 ring-white"></span>
-                    {% endif %}
+                    <!-- 未読バッジ（htmxで動的ロード） -->
+                    <span hx-get="{% url 'notifications:unread_count' %}"
+                          hx-trigger="load, every 60s"
+                          hx-swap="innerHTML"></span>
                 </button>
 
                 <!-- 通知ドロップダウン -->
@@ -64,7 +64,7 @@
                     </div>
                     <div class="max-h-96 overflow-y-auto">
                         <!-- 通知リスト（htmxでロード） -->
-                        <div hx-get="{% url 'notifications:notification_list_partial' %}"
+                        <div hx-get="{% url 'notifications:dropdown' %}"
                              hx-trigger="revealed"
                              hx-swap="innerHTML">
                             <div class="px-4 py-3 text-sm text-gray-500">読み込み中...</div>

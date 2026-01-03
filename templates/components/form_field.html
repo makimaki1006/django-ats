@@ -1,0 +1,63 @@
+{#
+  統一フォームフィールドコンポーネント
+
+  使用方法:
+  {% include "components/form_field.html" with field=form.name required=True %}
+  {% include "components/form_field.html" with field=form.email label="メール" help_text="会社メールを入力" %}
+
+  パラメータ:
+  - field: フォームフィールド (必須)
+  - label: カスタムラベル (オプション、未指定時はfield.labelを使用)
+  - required: 必須マーク表示 (オプション、デフォルト: False)
+  - help_text: ヘルプテキスト (オプション)
+  - class: 追加のCSSクラス (オプション)
+  - wrapper_class: ラッパーdivの追加クラス (オプション)
+#}
+<div class="{% if wrapper_class %}{{ wrapper_class }}{% endif %}">
+    <label for="{{ field.id_for_label }}"
+           class="block text-sm font-medium text-gray-700">
+        {% if label %}{{ label }}{% else %}{{ field.label }}{% endif %}
+        {% if required or field.field.required %}
+        <span class="text-danger-500" aria-hidden="true">*</span>
+        <span class="sr-only">(必須)</span>
+        {% endif %}
+    </label>
+
+    <div class="mt-1">
+        {% if field.field.widget.input_type == 'checkbox' %}
+        {# チェックボックスは特別扱い #}
+        <div class="flex items-center">
+            {{ field }}
+            <span class="ml-2 text-sm text-gray-600">
+                {% if help_text %}{{ help_text }}{% elif field.help_text %}{{ field.help_text }}{% endif %}
+            </span>
+        </div>
+        {% else %}
+        {# 通常のフィールド #}
+        {{ field }}
+        {% endif %}
+    </div>
+
+    {# ヘルプテキスト（チェックボックス以外） #}
+    {% if field.field.widget.input_type != 'checkbox' %}
+    {% if help_text or field.help_text %}
+    <p class="mt-1 text-sm text-gray-500" id="{{ field.id_for_label }}_help">
+        {% if help_text %}{{ help_text }}{% else %}{{ field.help_text }}{% endif %}
+    </p>
+    {% endif %}
+    {% endif %}
+
+    {# エラーメッセージ #}
+    {% if field.errors %}
+    <div class="mt-1" role="alert" aria-live="polite">
+        {% for error in field.errors %}
+        <p class="text-sm text-danger-600 flex items-center">
+            <svg class="h-4 w-4 mr-1 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
+            {{ error }}
+        </p>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>

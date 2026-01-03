@@ -3,15 +3,230 @@
 {% block title %}エージェント一覧 - Django ATS{% endblock %}
 
 {% block content %}
-<div class="space-y-6">
+<div class="space-y-6 fade-in">
+    <!-- ヘッダー -->
     <div class="sm:flex sm:items-center sm:justify-between">
         <div>
             <h1 class="text-2xl font-bold text-gray-900">エージェント一覧</h1>
-            <p class="mt-1 text-sm text-gray-500">エージェント会社を管理します</p>
+            <p class="mt-1 text-sm text-gray-500">人材紹介会社（エージェント）を管理します</p>
+        </div>
+        <div class="mt-4 sm:mt-0">
+            <a href="{% url 'agents:agent_create' %}"
+               class="btn btn-primary">
+                <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                新規登録
+            </a>
         </div>
     </div>
-    <div class="bg-white shadow rounded-lg p-6">
-        <p class="text-gray-500">この機能は準備中です。</p>
+
+    <!-- フィルター -->
+    <div class="card">
+        <div class="card-body">
+            <form method="get" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                <div>
+                    <label for="q" class="sr-only">検索</label>
+                    {{ filter_form.q }}
+                </div>
+                <div>
+                    <label for="is_active" class="sr-only">有効状態</label>
+                    {{ filter_form.is_active }}
+                </div>
+                <div>
+                    <label for="is_preferred" class="sr-only">優先パートナー</label>
+                    {{ filter_form.is_preferred }}
+                </div>
+                <div>
+                    <label for="scope" class="sr-only">スコープ</label>
+                    {{ filter_form.scope }}
+                </div>
+                <div class="flex items-center">
+                    <button type="submit" class="btn btn-primary w-full">
+                        検索
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
+
+    <!-- エージェント一覧 -->
+    <div class="card">
+        <div class="overflow-x-auto">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th scope="col">会社名</th>
+                        <th scope="col">担当者</th>
+                        <th scope="col">手数料率</th>
+                        <th scope="col">紹介数</th>
+                        <th scope="col">採用率</th>
+                        <th scope="col">状態</th>
+                        <th scope="col" class="relative">
+                            <span class="sr-only">操作</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for agent in agents %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-3 py-4">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-10 w-10">
+                                    <div class="h-10 w-10 rounded-full bg-secondary-100 flex items-center justify-center">
+                                        <svg class="h-5 w-5 text-secondary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">
+                                        <a href="{% url 'agents:agent_detail' pk=agent.pk %}" class="hover:text-primary-600">
+                                            {{ agent.name }}
+                                        </a>
+                                    </div>
+                                    <div class="text-xs text-gray-500">
+                                        {{ agent.code }}
+                                        {% if agent.is_preferred %}
+                                        <span class="badge badge-warning badge-sm ml-1">優先</span>
+                                        {% endif %}
+                                        {% if agent.is_global %}
+                                        <span class="badge badge-secondary badge-sm ml-1">グローバル</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-3 py-4 text-sm text-gray-500">
+                            {% if agent.contact_person %}
+                            {{ agent.contact_person }}<br>
+                            <span class="text-xs">{{ agent.contact_email }}</span>
+                            {% else %}
+                            -
+                            {% endif %}
+                        </td>
+                        <td class="px-3 py-4 text-sm text-gray-500">
+                            {{ agent.fee_rate }}%
+                        </td>
+                        <td class="px-3 py-4 text-sm text-gray-500">
+                            {{ agent.total_candidates }}名
+                        </td>
+                        <td class="px-3 py-4 text-sm text-gray-500">
+                            {% if agent.total_candidates > 0 %}
+                            <span class="{% if agent.placement_rate >= 20 %}text-success-600{% elif agent.placement_rate >= 10 %}text-warning-600{% else %}text-gray-500{% endif %}">
+                                {{ agent.placement_rate }}%
+                            </span>
+                            {% else %}
+                            -
+                            {% endif %}
+                        </td>
+                        <td class="px-3 py-4">
+                            {% if agent.is_active %}
+                            <span class="badge badge-success">有効</span>
+                            {% else %}
+                            <span class="badge badge-secondary">無効</span>
+                            {% endif %}
+                            {% if not agent.is_contract_active %}
+                            <span class="badge badge-danger badge-sm ml-1">契約外</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-3 py-4 text-right text-sm font-medium">
+                            {% if not agent.is_global %}
+                            <div class="flex items-center justify-end space-x-2">
+                                <a href="{% url 'agents:agent_update' pk=agent.pk %}"
+                                   class="text-primary-600 hover:text-primary-900">
+                                    編集
+                                </a>
+                                <form method="post" action="{% url 'agents:agent_delete' pk=agent.pk %}" class="inline"
+                                      hx-post="{% url 'agents:agent_delete' pk=agent.pk %}"
+                                      hx-confirm="このエージェントを削除しますか？この操作は取り消せません。">
+                                    {% csrf_token %}
+                                    <button type="submit" class="text-danger-600 hover:text-danger-900">
+                                        削除
+                                    </button>
+                                </form>
+                            </div>
+                            {% else %}
+                            <span class="text-gray-400 text-xs">編集不可</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="px-6 py-12 text-center">
+                            <div class="empty-state">
+                                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-secondary-100">
+                                    <svg class="h-8 w-8 text-secondary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                    </svg>
+                                </div>
+                                <h3 class="empty-state-title">エージェントがありません</h3>
+                                <p class="empty-state-description">人材紹介会社を登録して候補者の紹介元を管理しましょう。</p>
+                                <div class="empty-state-action">
+                                    <a href="{% url 'agents:agent_create' %}" class="btn btn-primary">
+                                        <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                        </svg>
+                                        エージェントを登録
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ページネーション -->
+    {% if page_obj.has_other_pages %}
+    <nav class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 rounded-lg shadow">
+        <div class="flex flex-1 justify-between sm:hidden">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-secondary">前へ</a>
+            {% endif %}
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="btn btn-secondary ml-3">次へ</a>
+            {% endif %}
+        </div>
+        <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm text-gray-700">
+                    全 <span class="font-medium">{{ page_obj.paginator.count }}</span> 件中
+                    <span class="font-medium">{{ page_obj.start_index }}</span> -
+                    <span class="font-medium">{{ page_obj.end_index }}</span> 件を表示
+                </p>
+            </div>
+            <div>
+                <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm">
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                        <span class="sr-only">前へ</span>
+                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                    {% endif %}
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <span class="relative z-10 inline-flex items-center bg-primary-600 px-4 py-2 text-sm font-semibold text-white">{{ num }}</span>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?page={{ num }}" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                        <span class="sr-only">次へ</span>
+                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
 </div>
 {% endblock %}

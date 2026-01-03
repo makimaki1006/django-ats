@@ -1,0 +1,13 @@
+candidate_email,job_code,interview_type,interview_round,scheduled_at,duration_minutes,location,interviewer_name,status,result,evaluation_score,feedback,internal_notes
+yamada.taro@example.com,JOB-2024-001,in_person,1,2024-12-15 10:00,60,さくら苑 会議室A,採用担当 山本,completed,passed,4,介護福祉士としての経験が豊富で、認知症ケアへの理解も深い。チームワークを大切にする姿勢が好印象。,年収380万で提示予定。施設長との最終面接へ
+yamada.taro@example.com,JOB-2024-001,in_person,2,2024-12-22 14:00,45,さくら苑 施設長室,施設長 鈴木,scheduled,pending,,,最終面接。施設見学も実施予定
+suzuki.hanako@example.com,JOB-2024-002,in_person,1,2024-11-20 13:00,60,ひまわりガーデン 会議室,看護部長 田中,completed,passed,5,臨床経験豊富で医療的な判断力が高い。施設看護への理解もあり即戦力。,内定提示済み
+sato.kenichi@example.com,JOB-2024-003,video,1,2024-12-20 15:00,60,Google Meet,管理者 佐藤,scheduled,pending,,,オンライン面接。主任ケアマネとしての実績を詳しく聞く
+tanaka.misaki@example.com,JOB-2024-004,in_person,1,2024-12-10 11:00,60,リハビリ室,リハ部長 木村,completed,passed,4,回復期での経験が豊富。在宅復帰支援への熱意を感じた。,技術面接を追加実施予定
+tanaka.misaki@example.com,JOB-2024-004,technical,2,2024-12-26 10:00,90,リハビリ室,PT主任 中村,scheduled,pending,,,実技試験と症例検討を実施
+nakamura.ayaka@example.com,JOB-2024-007,in_person,1,2024-12-12 14:00,45,グループホーム 事務室,管理者 高橋,completed,passed,4,准看護師として6年の経験あり。認知症への理解も深い。正看取得意欲も評価。,施設見学を経て最終判断
+morita.mariko@example.com,JOB-2024-003,video,1,2024-12-08 10:00,60,Zoom,管理者 佐藤,completed,passed,4,居宅での8年の経験は十分。医療連携の実績も豊富で頼もしい。,最終面接へ進める
+morita.mariko@example.com,JOB-2024-003,in_person,2,2024-12-25 13:00,45,本社 会議室,理事長 伊藤,scheduled,pending,,,最終面接。理事長面談
+fujita.miho@example.com,JOB-2024-005,in_person,1,2024-12-18 15:00,45,デイサービスさくらの里,施設長 渡辺,completed,hold,3,新卒だがアルバイト経験あり。人柄は好印象だが実務能力は未知数。,ポテンシャル採用として検討中。他候補者との比較が必要
+watanabe.makoto@example.com,JOB-2024-001,in_person,1,2024-12-28 10:00,60,さくら苑 会議室A,採用担当 山本,scheduled,pending,,,一次面接予定。希望年収について要確認
+ishii.daiki@example.com,JOB-2024-001,video,1,2024-12-27 14:00,45,Google Meet,採用担当 山本,scheduled,pending,,,オンラインでの一次面接。GH→特養への転職理由を確認

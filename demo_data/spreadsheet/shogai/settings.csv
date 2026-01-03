@@ -1,0 +1,8 @@
+key,value,description
+company_name,NPO法人ひまわり,会社名
+tenant_code,himawari-npo,テナントコード
+timezone,Asia/Tokyo,タイムゾーン
+date_format,YYYY-MM-DD,日付形式
+currency,JPY,通貨
+default_interview_duration,60,デフォルト面接時間（分）
+notification_email,saiyou@himawari-npo.or.jp,通知先メールアドレス

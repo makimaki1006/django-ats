@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+
+{% block title %}{% if object %}ペルソナ編集{% else %}ペルソナ作成{% endif %} - Django ATS{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto fade-in">
+    <!-- ヘッダー -->
+    <div class="mb-8">
+        <nav class="flex mb-4" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                <li>
+                    <a href="{% url 'personas:persona_list' %}" class="text-sm font-medium text-gray-500 hover:text-gray-700">
+                        ペルソナ一覧
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="ml-1 text-sm font-medium text-gray-700">
+                            {% if object %}{{ object.name }}{% else %}新規作成{% endif %}
+                        </span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+        <h1 class="text-2xl font-bold text-gray-900">{% if object %}ペルソナ編集{% else %}ペルソナ作成{% endif %}</h1>
+    </div>
+
+    <!-- フォーム -->
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="rounded-md bg-danger-50 p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-danger-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    {% for error in form.non_field_errors %}
+                    <p class="text-sm text-danger-700">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- 基本情報 -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="text-lg font-medium text-gray-900">基本情報</h2>
+            </div>
+            <div class="card-body">
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div class="sm:col-span-2">
+                        <label for="id_name" class="block text-sm font-medium text-gray-700">
+                            ペルソナ名 <span class="text-danger-500">*</span>
+                        </label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                        <p class="mt-1 text-sm text-danger-600">{{ form.name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label for="id_description" class="block text-sm font-medium text-gray-700">詳細説明</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                        <p class="mt-1 text-sm text-danger-600">{{ form.description.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <div class="flex items-center">
+                            {{ form.is_template }}
+                            <label for="id_is_template" class="ml-2 block text-sm text-gray-900">テンプレートとして保存</label>
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500">テンプレートは他の求人で再利用できます</p>
+                    </div>
+                    <div>
+                        <div class="flex items-center">
+                            {{ form.is_active }}
+                            <label for="id_is_active" class="ml-2 block text-sm text-gray-900">有効</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 年齢・経験要件 -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="text-lg font-medium text-gray-900">年齢・経験要件</h2>
+            </div>
+            <div class="card-body">
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                    <div>
+                        <label for="id_age_min" class="block text-sm font-medium text-gray-700">最小年齢</label>
+                        {{ form.age_min }}
+                        {% if form.age_min.errors %}
+                        <p class="mt-1 text-sm text-danger-600">{{ form.age_min.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label for="id_age_max" class="block text-sm font-medium text-gray-700">最大年齢</label>
+                        {{ form.age_max }}
+                        {% if form.age_max.errors %}
+                        <p class="mt-1 text-sm text-danger-600">{{ form.age_max.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label for="id_experience_years_min" class="block text-sm font-medium text-gray-700">最小経験年数</label>
+                        {{ form.experience_years_min }}
+                        {% if form.experience_years_min.errors %}
+                        <p class="mt-1 text-sm text-danger-600">{{ form.experience_years_min.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label for="id_experience_years_max" class="block text-sm font-medium text-gray-700">最大経験年数</label>
+                        {{ form.experience_years_max }}
+                        {% if form.experience_years_max.errors %}
+                        <p class="mt-1 text-sm text-danger-600">{{ form.experience_years_max.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- スキル・学歴要件 -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="text-lg font-medium text-gray-900">スキル・学歴要件</h2>
+            </div>
+            <div class="card-body">
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <label for="id_required_skills_text" class="block text-sm font-medium text-gray-700">必須スキル</label>
+                        {{ form.required_skills_text }}
+                        <p class="mt-1 text-xs text-gray-500">{{ form.required_skills_text.help_text }}</p>
+                    </div>
+                    <div>
+                        <label for="id_preferred_skills_text" class="block text-sm font-medium text-gray-700">歓迎スキル</label>
+                        {{ form.preferred_skills_text }}
+                        <p class="mt-1 text-xs text-gray-500">{{ form.preferred_skills_text.help_text }}</p>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label for="id_education_level" class="block text-sm font-medium text-gray-700">学歴要件</label>
+                        {{ form.education_level }}
+                        {% if form.education_level.errors %}
+                        <p class="mt-1 text-sm text-danger-600">{{ form.education_level.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 人物像 -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="text-lg font-medium text-gray-900">人物像</h2>
+            </div>
+            <div class="card-body">
+                <div class="grid grid-cols-1 gap-6">
+                    <div>
+                        <label for="id_personality_traits_text" class="block text-sm font-medium text-gray-700">人物像・性格</label>
+                        {{ form.personality_traits_text }}
+                        <p class="mt-1 text-xs text-gray-500">{{ form.personality_traits_text.help_text }}</p>
+                    </div>
+                    <div>
+                        <label for="id_work_style" class="block text-sm font-medium text-gray-700">働き方</label>
+                        {{ form.work_style }}
+                        {% if form.work_style.errors %}
+                        <p class="mt-1 text-sm text-danger-600">{{ form.work_style.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label for="id_motivation" class="block text-sm font-medium text-gray-700">志向性</label>
+                        {{ form.motivation }}
+                        {% if form.motivation.errors %}
+                        <p class="mt-1 text-sm text-danger-600">{{ form.motivation.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 備考 -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="text-lg font-medium text-gray-900">備考</h2>
+            </div>
+            <div class="card-body">
+                <div>
+                    <label for="id_notes" class="block text-sm font-medium text-gray-700">備考</label>
+                    {{ form.notes }}
+                    {% if form.notes.errors %}
+                    <p class="mt-1 text-sm text-danger-600">{{ form.notes.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- ボタン -->
+        <div class="flex justify-end space-x-3">
+            <a href="{% url 'personas:persona_list' %}" class="btn btn-secondary">
+                キャンセル
+            </a>
+            <button type="submit" class="btn btn-primary">
+                {% if object %}更新{% else %}作成{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

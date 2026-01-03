@@ -5,10 +5,12 @@
 設計ポイント:
 - StatusSetting: テナント固有のステータス設定
 - ApplicationSource: 応募経路マスター
+- SpreadsheetConnection: スプレッドシート連携設定
 - 表示順序（display_order）で並び替え可能
 """
 
 from django.db import models
+from django.utils import timezone
 
 from apps.core.models import BaseModel, TenantBaseModel
 
@@ -250,3 +252,155 @@ class EmailTemplate(TenantBaseModel):
             'subject': subject_template.render(ctx),
             'body': body_template.render(ctx),
         }
+
+
+class SyncStatusChoices(models.TextChoices):
+    """同期ステータス"""
+    PENDING = 'pending', '未接続'
+    CONNECTED = 'connected', '接続済み'
+    SYNCING = 'syncing', '同期中'
+    ERROR = 'error', 'エラー'
+
+
+class SpreadsheetConnection(TenantBaseModel):
+    """スプレッドシート連携設定モデル
+
+    Google Spreadsheetとの双方向同期設定を管理。
+
+    Attributes:
+        spreadsheet_id: Google SpreadsheetのID
+        spreadsheet_url: スプレッドシートのURL
+        spreadsheet_name: スプレッドシート名（表示用）
+        credentials_json: サービスアカウント認証情報（暗号化推奨）
+        is_active: 連携有効フラグ
+        sync_status: 同期ステータス
+        last_synced_at: 最終同期日時
+        last_sync_error: 最終エラーメッセージ
+        sync_candidates: 候補者データを同期するか
+        sync_jobs: 求人データを同期するか
+        sync_applications: 応募データを同期するか
+        sync_interviews: 面接データを同期するか
+    """
+
+    spreadsheet_id = models.CharField(
+        max_length=255,
+        verbose_name='スプレッドシートID',
+        help_text='GoogleスプレッドシートのID（URLから取得）'
+    )
+
+    spreadsheet_url = models.URLField(
+        blank=True,
+        verbose_name='スプレッドシートURL',
+        help_text='https://docs.google.com/spreadsheets/d/xxxxx/edit'
+    )
+
+    spreadsheet_name = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name='スプレッドシート名',
+        help_text='識別用の名前'
+    )
+
+    credentials_json = models.TextField(
+        blank=True,
+        verbose_name='認証情報（JSON）',
+        help_text='Google Cloud サービスアカウントのJSONキー'
+    )
+
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name='連携有効'
+    )
+
+    sync_status = models.CharField(
+        max_length=20,
+        choices=SyncStatusChoices.choices,
+        default=SyncStatusChoices.PENDING,
+        verbose_name='同期ステータス'
+    )
+
+    last_synced_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='最終同期日時'
+    )
+
+    last_sync_error = models.TextField(
+        blank=True,
+        verbose_name='最終エラー'
+    )
+
+    # 同期対象設定
+    sync_candidates = models.BooleanField(
+        default=True,
+        verbose_name='候補者を同期'
+    )
+
+    sync_jobs = models.BooleanField(
+        default=True,
+        verbose_name='求人を同期'
+    )
+
+    sync_applications = models.BooleanField(
+        default=True,
+        verbose_name='応募を同期'
+    )
+
+    sync_interviews = models.BooleanField(
+        default=True,
+        verbose_name='面接を同期'
+    )
+
+    # 同期設定
+    auto_sync_enabled = models.BooleanField(
+        default=True,
+        verbose_name='自動同期有効',
+        help_text='アプリ側の変更を自動的にスプレッドシートに反映'
+    )
+
+    sync_interval_minutes = models.PositiveIntegerField(
+        default=5,
+        verbose_name='同期間隔（分）',
+        help_text='スプレッドシートからの変更を取り込む間隔'
+    )
+
+    class Meta:
+        verbose_name = 'スプレッドシート連携'
+        verbose_name_plural = 'スプレッドシート連携'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['tenant', 'spreadsheet_id'],
+                name='unique_spreadsheet_per_tenant'
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.spreadsheet_name or self.spreadsheet_id}"
+
+    @property
+    def is_connected(self):
+        """接続済みかどうか"""
+        return self.sync_status == SyncStatusChoices.CONNECTED
+
+    @property
+    def has_error(self):
+        """エラー状態かどうか"""
+        return self.sync_status == SyncStatusChoices.ERROR
+
+    def mark_synced(self):
+        """同期完了をマーク"""
+        self.sync_status = SyncStatusChoices.CONNECTED
+        self.last_synced_at = timezone.now()
+        self.last_sync_error = ''
+        self.save(update_fields=['sync_status', 'last_synced_at', 'last_sync_error'])
+
+    def mark_error(self, error_message):
+        """エラーをマーク"""
+        self.sync_status = SyncStatusChoices.ERROR
+        self.last_sync_error = str(error_message)
+        self.save(update_fields=['sync_status', 'last_sync_error'])
+
+    def mark_syncing(self):
+        """同期中をマーク"""
+        self.sync_status = SyncStatusChoices.SYNCING
+        self.save(update_fields=['sync_status'])

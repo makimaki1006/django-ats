@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block title %}ステータス設定一覧 - Django ATS{% endblock %}
+
+{% block content %}
+<div class="space-y-6 fade-in">
+    <!-- ヘッダー -->
+    <div class="sm:flex sm:items-center sm:justify-between">
+        <div>
+            <nav class="flex mb-2" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li>
+                        <a href="{% url 'settings:index' %}" class="text-sm font-medium text-gray-500 hover:text-gray-700">
+                            設定
+                        </a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="ml-1 text-sm font-medium text-gray-700">ステータス設定</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+            <h1 class="text-2xl font-bold text-gray-900">ステータス設定</h1>
+            <p class="mt-1 text-sm text-gray-500">選考プロセスのステータスを管理します</p>
+        </div>
+        <div class="mt-4 sm:mt-0">
+            <a href="{% url 'settings:status_create' %}" class="btn btn-primary">
+                <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                新規作成
+            </a>
+        </div>
+    </div>
+
+    <!-- フィルター -->
+    <div class="card">
+        <div class="card-body">
+            <form method="get" class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div>
+                    <label for="category" class="sr-only">カテゴリ</label>
+                    {{ filter_form.category }}
+                </div>
+                <div>
+                    <label for="is_active" class="sr-only">有効状態</label>
+                    {{ filter_form.is_active }}
+                </div>
+                <div class="flex items-center">
+                    <button type="submit" class="btn btn-primary w-full">
+                        検索
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- カテゴリ別タブ -->
+    <div class="card">
+        <div class="border-b border-gray-200">
+            <nav class="-mb-px flex space-x-8 px-6" aria-label="Tabs">
+                {% for category_code, category_name in category_choices %}
+                <a href="?category={{ category_code }}"
+                   class="{% if request.GET.category == category_code %}border-primary-500 text-primary-600{% else %}border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300{% endif %} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                    {{ category_name }}
+                </a>
+                {% endfor %}
+            </nav>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th scope="col">順序</th>
+                        <th scope="col">ステータス名</th>
+                        <th scope="col">コード</th>
+                        <th scope="col">カテゴリ</th>
+                        <th scope="col">色</th>
+                        <th scope="col">状態</th>
+                        <th scope="col" class="relative">
+                            <span class="sr-only">操作</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for status in statuses %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-3 py-4 text-sm text-gray-500">
+                            {{ status.display_order }}
+                        </td>
+                        <td class="px-3 py-4">
+                            <div class="flex items-center">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-{{ status.color }}-100 text-{{ status.color }}-800">
+                                    {{ status.name }}
+                                </span>
+                                {% if status.is_terminal %}
+                                <span class="ml-2 badge badge-secondary badge-sm">終了</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="px-3 py-4 text-sm text-gray-500 font-mono">
+                            {{ status.code }}
+                        </td>
+                        <td class="px-3 py-4 text-sm text-gray-500">
+                            {{ status.get_category_display }}
+                        </td>
+                        <td class="px-3 py-4">
+                            <span class="inline-block w-6 h-6 rounded bg-{{ status.color }}-500"></span>
+                        </td>
+                        <td class="px-3 py-4">
+                            {% if status.is_active %}
+                            <span class="badge badge-success">有効</span>
+                            {% else %}
+                            <span class="badge badge-secondary">無効</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-3 py-4 text-right text-sm font-medium">
+                            <div class="flex items-center justify-end space-x-2">
+                                <a href="{% url 'settings:status_update' pk=status.pk %}"
+                                   class="text-primary-600 hover:text-primary-900">
+                                    編集
+                                </a>
+                                <form method="post" action="{% url 'settings:status_delete' pk=status.pk %}" class="inline"
+                                      hx-post="{% url 'settings:status_delete' pk=status.pk %}"
+                                      hx-confirm="このステータスを削除しますか？">
+                                    {% csrf_token %}
+                                    <button type="submit" class="text-danger-600 hover:text-danger-900">
+                                        削除
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="px-6 py-12 text-center">
+                            <div class="empty-state">
+                                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-primary-100">
+                                    <svg class="h-8 w-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                                    </svg>
+                                </div>
+                                <h3 class="empty-state-title">ステータスがありません</h3>
+                                <p class="empty-state-description">選考プロセスのステータスを作成しましょう。</p>
+                                <div class="empty-state-action">
+                                    <a href="{% url 'settings:status_create' %}" class="btn btn-primary">
+                                        <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                        </svg>
+                                        ステータスを作成
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ページネーション -->
+    {% if page_obj.has_other_pages %}
+    <nav class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 rounded-lg shadow">
+        <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm text-gray-700">
+                    全 <span class="font-medium">{{ page_obj.paginator.count }}</span> 件中
+                    <span class="font-medium">{{ page_obj.start_index }}</span> -
+                    <span class="font-medium">{{ page_obj.end_index }}</span> 件を表示
+                </p>
+            </div>
+            <div>
+                <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm">
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                        <span class="sr-only">前へ</span>
+                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                    {% endif %}
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <span class="relative z-10 inline-flex items-center bg-primary-600 px-4 py-2 text-sm font-semibold text-white">{{ num }}</span>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?page={{ num }}" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                        <span class="sr-only">次へ</span>
+                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}
