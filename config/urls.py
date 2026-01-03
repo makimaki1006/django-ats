@@ -5,9 +5,22 @@ Django ATS URL Configuration
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.http import JsonResponse
 from django.urls import include, path
 
+
+def health_check(request):
+    """ヘルスチェックエンドポイント（Render.com用）"""
+    return JsonResponse({
+        'status': 'healthy',
+        'service': 'django-ats',
+    })
+
+
 urlpatterns = [
+    # ヘルスチェック（認証不要）
+    path('health/', health_check, name='health_check'),
+
     path('admin/', admin.site.urls),
 
     # django-allauth
