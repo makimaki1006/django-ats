@@ -1,8 +1,8 @@
-{#
+{% comment %}
   Empty State コンポーネント
 
   使用方法:
-  {% include "components/empty_state.html" with title="候補者がいません" message="最初の候補者を登録しましょう" action_url=create_url action_text="候補者を登録" %}
+  include "components/empty_state.html" with title="候補者がいません" message="最初の候補者を登録しましょう" action_url=create_url action_text="候補者を登録"
 
   パラメータ:
   - title: タイトル (必須)
@@ -12,7 +12,7 @@
   - action_text: CTAボタンのテキスト (オプション)
   - secondary_action_url: セカンダリボタンのURL (オプション)
   - secondary_action_text: セカンダリボタンのテキスト (オプション)
-#}
+{% endcomment %}
 <div class="text-center py-12">
     {# アイコン #}
     <div class="mx-auto h-12 w-12 text-gray-400">

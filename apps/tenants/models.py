@@ -164,7 +164,23 @@ class TenantSpreadsheet(BaseModel):
     spreadsheet_name = models.CharField(
         max_length=255,
         blank=True,
-        verbose_name='スプレッドシート名',
+        verbose_name='業務用スプレッドシート名',
+        help_text='管理用の表示名'
+    )
+
+    admin_spreadsheet_id = models.CharField(
+        max_length=255,
+        blank=True,
+        default='',
+        verbose_name='管理用スプレッドシートID',
+        help_text='ユーザー・パスワード管理用（コンサルタントのみ閲覧可）'
+    )
+
+    admin_spreadsheet_name = models.CharField(
+        max_length=255,
+        blank=True,
+        default='',
+        verbose_name='管理用スプレッドシート名',
         help_text='管理用の表示名'
     )
 

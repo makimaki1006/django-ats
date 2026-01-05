@@ -1,9 +1,9 @@
-{#
+{% comment %}
   統一フォームフィールドコンポーネント
 
   使用方法:
-  {% include "components/form_field.html" with field=form.name required=True %}
-  {% include "components/form_field.html" with field=form.email label="メール" help_text="会社メールを入力" %}
+  include "components/form_field.html" with field=form.name required=True
+  include "components/form_field.html" with field=form.email label="メール" help_text="会社メールを入力"
 
   パラメータ:
   - field: フォームフィールド (必須)
@@ -12,7 +12,7 @@
   - help_text: ヘルプテキスト (オプション)
   - class: 追加のCSSクラス (オプション)
   - wrapper_class: ラッパーdivの追加クラス (オプション)
-#}
+{% endcomment %}
 <div class="{% if wrapper_class %}{{ wrapper_class }}{% endif %}">
     <label for="{{ field.id_for_label }}"
            class="block text-sm font-medium text-gray-700">

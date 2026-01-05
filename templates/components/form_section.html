@@ -1,14 +1,14 @@
-{#
+{% comment %}
   フォームセクション見出しコンポーネント
 
   使用方法:
-  {% include "components/form_section.html" with title="基本情報" description="候補者の基本的な情報を入力してください" %}
+  include "components/form_section.html" with title="基本情報" description="候補者の基本的な情報を入力してください"
 
   パラメータ:
   - title: セクションタイトル (必須)
   - description: 説明文 (オプション)
   - icon: アイコンSVG (オプション)
-#}
+{% endcomment %}
 <div class="bg-white shadow rounded-lg p-6">
     <div class="{% if description %}mb-6{% else %}mb-4{% endif %} border-b border-gray-200 pb-4">
         <h2 class="text-lg font-medium text-gray-900 flex items-center">

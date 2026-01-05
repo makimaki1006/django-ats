@@ -1,13 +1,13 @@
-{#
+{% comment %}
   フォームエラー表示コンポーネント
 
   使用方法:
-  {% include "components/form_errors.html" with form=form %}
+  include "components/form_errors.html" with form=form
 
   パラメータ:
   - form: フォームオブジェクト (必須)
   - title: エラータイトル (オプション、デフォルト: "入力内容にエラーがあります")
-#}
+{% endcomment %}
 {% if form.errors %}
 <div class="rounded-lg bg-danger-50 p-4 mb-6" role="alert" aria-labelledby="form-errors-title">
     <div class="flex">

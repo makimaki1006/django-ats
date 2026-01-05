@@ -1,8 +1,8 @@
-{#
+{% comment %}
   送信ボタンコンポーネント（ローディング状態付き）
 
   使用方法:
-  {% include "components/submit_button.html" with text="保存" loading_text="保存中..." %}
+  include "components/submit_button.html" with text="保存" loading_text="保存中..."
 
   パラメータ:
   - text: ボタンテキスト (必須)
@@ -15,7 +15,7 @@
   - disabled: 初期状態で無効化 (オプション)
   - full_width: 幅を100%に (オプション)
   - form_id: 関連するフォームのID (オプション、htmxを使用する場合)
-#}
+{% endcomment %}
 
 {% with btn_id=text|slugify %}
 <button type="submit"
