@@ -6,7 +6,7 @@ databases:
     databaseName: django_ats
     user: django_ats
     region: singapore
-    plan: starter
+    plan: free
     ipAllowList: []
 
 services:
