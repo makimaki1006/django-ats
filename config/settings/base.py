@@ -143,12 +143,11 @@ AUTHENTICATION_BACKENDS = [
 
 # カスタムアダプター（メールのみで認証）
 ACCOUNT_ADAPTER = 'apps.accounts.adapters.CustomAccountAdapter'
-ACCOUNT_USER_MODEL_USERNAME_FIELD = None  # usernameフィールドを使用しない
-ACCOUNT_USERNAME_REQUIRED = False  # メール認証のためusernameは不要
 
-# allauth設定（Django 6.0互換形式）
-ACCOUNT_LOGIN_METHODS = {'email'}
-ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
+# allauth設定（65.x新API形式）
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None  # usernameフィールドを使用しない
+ACCOUNT_LOGIN_METHODS = {'email'}  # メールアドレスで認証
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']  # 必須フィールド
 ACCOUNT_EMAIL_VERIFICATION = 'optional'
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
