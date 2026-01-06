@@ -144,10 +144,11 @@ AUTHENTICATION_BACKENDS = [
 # カスタムアダプター（メールのみで認証）
 ACCOUNT_ADAPTER = 'apps.accounts.adapters.CustomAccountAdapter'
 
-# allauth設定（65.x新API形式）
+# allauth設定
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None  # usernameフィールドを使用しない
-ACCOUNT_LOGIN_METHODS = {'email'}  # メールアドレスで認証
-ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']  # 必須フィールド
+ACCOUNT_USERNAME_REQUIRED = False  # username不要（ACCOUNT_USER_MODEL_USERNAME_FIELD=Noneの場合は必須）
+ACCOUNT_AUTHENTICATION_METHOD = 'email'  # メールアドレスで認証
+ACCOUNT_EMAIL_REQUIRED = True  # メールアドレス必須
 ACCOUNT_EMAIL_VERIFICATION = 'optional'
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
