@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}ユーザースプレッドシート同期{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">ユーザースプレッドシート同期</h1>
+        <p class="mt-2 text-gray-600">管理用スプレッドシートからユーザーを一括インポート/エクスポートできます。</p>
+    </div>
+
+    {% if messages %}
+    <div class="mb-6">
+        {% for message in messages %}
+        <div class="p-4 rounded-md {% if message.tags == 'error' %}bg-red-50 text-red-800{% elif message.tags == 'success' %}bg-green-50 text-green-800{% else %}bg-blue-50 text-blue-800{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if not has_admin_spreadsheet %}
+    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm text-yellow-700">
+                    管理用スプレッドシートが設定されていません。
+                    <a href="{% url 'settings_app:index' %}" class="font-medium underline">設定画面</a>から管理用スプレッドシートIDを設定してください。
+                </p>
+            </div>
+        </div>
+    </div>
+    {% else %}
+
+    <!-- スプレッドシート情報 -->
+    <div class="bg-white shadow rounded-lg p-6 mb-6">
+        <h2 class="text-lg font-medium text-gray-900 mb-4">スプレッドシート情報</h2>
+        <dl class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+                <dt class="text-sm font-medium text-gray-500">業務用スプレッドシート</dt>
+                <dd class="mt-1 text-sm text-gray-900">
+                    {% if spreadsheet.spreadsheet_url %}
+                    <a href="{{ spreadsheet.spreadsheet_url }}" target="_blank" class="text-indigo-600 hover:text-indigo-800">
+                        {{ spreadsheet.spreadsheet_name|default:"開く" }}
+                        <svg class="inline-block w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                    </a>
+                    {% else %}
+                    <span class="text-gray-400">未設定</span>
+                    {% endif %}
+                </dd>
+            </div>
+            <div>
+                <dt class="text-sm font-medium text-gray-500">管理用スプレッドシート</dt>
+                <dd class="mt-1 text-sm text-gray-900">
+                    {% if spreadsheet.admin_spreadsheet_url %}
+                    <a href="{{ spreadsheet.admin_spreadsheet_url }}" target="_blank" class="text-indigo-600 hover:text-indigo-800">
+                        {{ spreadsheet.admin_spreadsheet_name|default:"開く" }}
+                        <svg class="inline-block w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                    </a>
+                    {% else %}
+                    <span class="text-gray-400">未設定</span>
+                    {% endif %}
+                </dd>
+            </div>
+            <div>
+                <dt class="text-sm font-medium text-gray-500">最終同期日時</dt>
+                <dd class="mt-1 text-sm text-gray-900">
+                    {{ spreadsheet.last_synced_at|date:"Y/m/d H:i"|default:"未同期" }}
+                </dd>
+            </div>
+        </dl>
+    </div>
+
+    <!-- 同期アクション -->
+    <div class="bg-white shadow rounded-lg p-6">
+        <h2 class="text-lg font-medium text-gray-900 mb-4">同期アクション</h2>
+
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+            <!-- Pull: スプレッドシート → アプリ -->
+            <div class="border rounded-lg p-4">
+                <h3 class="font-medium text-gray-900 mb-2">インポート（Pull）</h3>
+                <p class="text-sm text-gray-600 mb-4">
+                    管理用スプレッドシートの「ユーザー」シートからユーザーを取り込みます。
+                    新規ユーザーは作成、既存ユーザーは更新されます。
+                </p>
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="pull">
+                    <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                        </svg>
+                        スプレッドシートから取り込み
+                    </button>
+                </form>
+            </div>
+
+            <!-- Push: アプリ → スプレッドシート -->
+            <div class="border rounded-lg p-4">
+                <h3 class="font-medium text-gray-900 mb-2">エクスポート（Push）</h3>
+                <p class="text-sm text-gray-600 mb-4">
+                    現在のユーザー一覧を管理用スプレッドシートの「ユーザー」シートに反映します。
+                    ※パスワードは空欄で出力されます。
+                </p>
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="push">
+                    <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        スプレッドシートに反映
+                    </button>
+                </form>
+            </div>
+
+            <!-- Sync: 双方向 -->
+            <div class="border rounded-lg p-4">
+                <h3 class="font-medium text-gray-900 mb-2">双方向同期</h3>
+                <p class="text-sm text-gray-600 mb-4">
+                    スプレッドシートからの取り込み後、アプリの最新状態をスプレッドシートに反映します。
+                </p>
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="sync">
+                    <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        双方向同期
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- スプレッドシートのフォーマット説明 -->
+    <div class="bg-white shadow rounded-lg p-6 mt-6">
+        <h2 class="text-lg font-medium text-gray-900 mb-4">スプレッドシートフォーマット</h2>
+        <p class="text-sm text-gray-600 mb-4">
+            管理用スプレッドシートに「ユーザー」という名前のシートを作成し、以下の列を設定してください。
+        </p>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">列名</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">必須</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">説明</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">例</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200 text-sm">
+                    <tr>
+                        <td class="px-4 py-2 font-medium">email</td>
+                        <td class="px-4 py-2"><span class="text-red-600">必須</span></td>
+                        <td class="px-4 py-2">メールアドレス（ログインID）</td>
+                        <td class="px-4 py-2 text-gray-500">tanaka@example.com</td>
+                    </tr>
+                    <tr>
+                        <td class="px-4 py-2 font-medium">password</td>
+                        <td class="px-4 py-2"><span class="text-red-600">新規時必須</span></td>
+                        <td class="px-4 py-2">パスワード（平文）</td>
+                        <td class="px-4 py-2 text-gray-500">Password123!</td>
+                    </tr>
+                    <tr>
+                        <td class="px-4 py-2 font-medium">first_name</td>
+                        <td class="px-4 py-2">任意</td>
+                        <td class="px-4 py-2">名</td>
+                        <td class="px-4 py-2 text-gray-500">太郎</td>
+                    </tr>
+                    <tr>
+                        <td class="px-4 py-2 font-medium">last_name</td>
+                        <td class="px-4 py-2">任意</td>
+                        <td class="px-4 py-2">姓</td>
+                        <td class="px-4 py-2 text-gray-500">田中</td>
+                    </tr>
+                    <tr>
+                        <td class="px-4 py-2 font-medium">role</td>
+                        <td class="px-4 py-2">任意</td>
+                        <td class="px-4 py-2">ロール（面接官/コンサルタント/人事担当者/管理者）</td>
+                        <td class="px-4 py-2 text-gray-500">人事担当者</td>
+                    </tr>
+                    <tr>
+                        <td class="px-4 py-2 font-medium">is_active</td>
+                        <td class="px-4 py-2">任意</td>
+                        <td class="px-4 py-2">有効/無効</td>
+                        <td class="px-4 py-2 text-gray-500">有効</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% endif %}
+
+    <!-- 戻るボタン -->
+    <div class="mt-6">
+        <a href="{% url 'accounts:user_list' %}" class="text-indigo-600 hover:text-indigo-800">
+            ← ユーザー一覧に戻る
+        </a>
+    </div>
+</div>
+{% endblock %}

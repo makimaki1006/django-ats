@@ -222,6 +222,15 @@ LOGGING = {
 DEFAULT_TENANT_ID = env('DEFAULT_TENANT_ID', default=None)
 
 # =============================================================================
+# Encryption Settings (for EncryptedTextField)
+# =============================================================================
+# 暗号化キー（Fernet形式、32バイトのbase64エンコード文字列）
+# 生成方法: from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())
+# 本番環境では必ず環境変数で設定すること
+# 開発用デフォルトキー（本番では必ず環境変数で別のキーを設定すること）
+ENCRYPTION_KEY = env('ENCRYPTION_KEY', default='uW___Jix7ioKHFWRaP0-YRZ826YsBIr59qOPPs9bEfk=')
+
+# =============================================================================
 # Google Sheets Integration Settings
 # =============================================================================
 

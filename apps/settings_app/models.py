@@ -12,6 +12,7 @@
 from django.db import models
 from django.utils import timezone
 
+from apps.core.fields import EncryptedTextField
 from apps.core.models import BaseModel, TenantBaseModel
 
 
@@ -301,10 +302,10 @@ class SpreadsheetConnection(TenantBaseModel):
         help_text='識別用の名前'
     )
 
-    credentials_json = models.TextField(
+    credentials_json = EncryptedTextField(
         blank=True,
         verbose_name='認証情報（JSON）',
-        help_text='Google Cloud サービスアカウントのJSONキー'
+        help_text='Google Cloud サービスアカウントのJSONキー（暗号化して保存）'
     )
 
     is_active = models.BooleanField(
