@@ -1,0 +1,33 @@
+<!-- ページネーションコンポーネント -->
+<nav class="flex items-center justify-between" aria-label="Pagination">
+    <div class="hidden sm:block">
+        <p class="text-sm text-gray-700">
+            <span class="font-medium">{{ page_obj.paginator.count }}</span> 件中
+            <span class="font-medium">{{ page_obj.start_index }}</span> -
+            <span class="font-medium">{{ page_obj.end_index }}</span> 件を表示
+        </p>
+    </div>
+    <div class="flex flex-1 justify-between sm:justify-end">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
+           class="relative inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0">
+            前へ
+        </a>
+        {% else %}
+        <span class="relative inline-flex items-center rounded-md bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-400 ring-1 ring-inset ring-gray-300 cursor-not-allowed">
+            前へ
+        </span>
+        {% endif %}
+
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
+           class="relative ml-3 inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0">
+            次へ
+        </a>
+        {% else %}
+        <span class="relative ml-3 inline-flex items-center rounded-md bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-400 ring-1 ring-inset ring-gray-300 cursor-not-allowed">
+            次へ
+        </span>
+        {% endif %}
+    </div>
+</nav>
