@@ -1,6 +1,7 @@
 # 技術的負債・設計課題分析レポート
 
 **作成日**: 2026-01-04
+**最終更新**: 2026-01-09
 **対象**: Django ATS v1.0
 **分析者**: Claude Code
 
@@ -12,40 +13,43 @@
 
 ### 評価サマリー
 
-| カテゴリ | 深刻度 | 項目数 |
-|---------|--------|--------|
-| 🔴 セキュリティ | Critical | 4 |
-| 🟠 アーキテクチャ | High | 5 |
-| 🟡 パフォーマンス | Medium | 4 |
-| 🟢 コード品質 | Low | 6 |
+| カテゴリ | 深刻度 | 項目数 | 解決済み |
+|---------|--------|--------|----------|
+| 🔴 セキュリティ | Critical | 4 | 1 (SEC-001) |
+| 🟠 アーキテクチャ | High | 5 | 0 |
+| 🟡 パフォーマンス | Medium | 4 | 0 |
+| 🟢 コード品質 | Low | 6 | 0 |
 
 ---
 
 ## 🔴 セキュリティ課題（Critical）
 
-### SEC-001: Google認証情報の平文保存
+### SEC-001: Google認証情報の平文保存 ✅ 解決済み
 
 **場所**: `apps/settings_app/models.py:SpreadsheetConnection.credentials_json`
 
-**現状**:
+**解決日**: 2026-01-09
+
+**対応内容**:
 ```python
-credentials_json = models.TextField(
+# apps/core/fields.py に EncryptedTextField を実装
+# Fernetを使用してデータを暗号化・復号化
+
+from apps.core.fields import EncryptedTextField
+
+credentials_json = EncryptedTextField(
     blank=True,
-    verbose_name='認証情報JSON',
-    help_text='Google Cloud サービスアカウントの認証情報（JSON形式）'
+    verbose_name='認証情報（JSON）',
+    help_text='Google Cloud サービスアカウントのJSONキー（暗号化して保存）'
 )
 ```
 
-**問題点**:
-- サービスアカウントの秘密鍵がデータベースに平文で保存されている
-- DBダンプやバックアップから認証情報が漏洩するリスク
+**設定**:
+- `ENCRYPTION_KEY` 環境変数でFernetキーを設定
+- 開発用デフォルトキーを `config/settings/base.py` に設定済み
+- 本番環境では必ず別のキーを設定すること
 
-**推奨対策**:
-1. Django-Fernet-Fields等で暗号化フィールドを使用
-2. AWS Secrets Manager/HashiCorp Vault等のシークレット管理サービスを利用
-3. 環境変数経由でファイルパスのみ保存
-
-**優先度**: 🔴 Critical（本番デプロイ前に必須）
+**ステータス**: ✅ 解決済み
 
 ---
 

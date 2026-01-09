@@ -50,6 +50,13 @@ Django ATSをRender.comにデプロイするためのガイドです。
 | `DATABASE_URL` | PostgreSQL接続文字列 | 自動設定（Blueprint使用時） |
 | `DJANGO_SETTINGS_MODULE` | 設定モジュール | `config.settings.production` |
 | `ALLOWED_HOSTS` | 許可ホスト | `.onrender.com` |
+| `ENCRYPTION_KEY` | 暗号化キー（Fernet形式） | 下記コマンドで生成 |
+
+#### ENCRYPTION_KEY生成方法
+
+```bash
+python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+```
 
 ### オプション
 

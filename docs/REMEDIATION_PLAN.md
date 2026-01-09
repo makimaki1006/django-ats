@@ -1,66 +1,90 @@
 # 技術的負債 対応方針書
 
 **作成日**: 2026-01-04
-**ステータス**: 承認待ち
+**最終更新**: 2026-01-09
+**ステータス**: 実施中（Phase 1進行中）
 
 ---
 
 ## 対応スケジュール概要
 
-| Phase | 対象 | 対応内容 | 影響範囲 |
-|-------|------|----------|----------|
-| **Phase 1** | セキュリティ | SEC-001〜004 | models, services, views |
-| **Phase 2** | アーキテクチャ | ARCH-001〜005 | services, models, managers |
-| **Phase 3** | パフォーマンス | PERF-001〜004 | services, views |
-| **Phase 4** | コード品質 | CODE-001〜006 | 全体 |
+| Phase | 対象 | 対応内容 | 影響範囲 | 進捗 |
+|-------|------|----------|----------|------|
+| **Phase 1** | セキュリティ | SEC-001〜004 | models, services, views | SEC-001 ✅ |
+| **Phase 2** | アーキテクチャ | ARCH-001〜005 | services, models, managers | 未着手 |
+| **Phase 3** | パフォーマンス | PERF-001〜004 | services, views | 未着手 |
+| **Phase 4** | コード品質 | CODE-001〜006 | 全体 | 未着手 |
 
 ---
 
 ## Phase 1: セキュリティ対応
 
-### SEC-001: 認証情報の暗号化
+### SEC-001: 認証情報の暗号化 ✅ 解決済み
 
-**方針**: django-cryptography を使用してフィールドレベル暗号化
+**解決日**: 2026-01-09
 
-**実装手順**:
+**実装方法**: cryptography.fernet を使用したカスタム EncryptedTextField
 
-1. パッケージインストール
-```bash
-pip install django-cryptography
+**実装内容**:
+
+1. カスタムフィールド作成
+```python
+# apps/core/fields.py
+from cryptography.fernet import Fernet
+from django.db import models
+from django.conf import settings
+
+class EncryptedTextField(models.TextField):
+    """Fernetを使用して暗号化するTextField"""
+
+    def get_prep_value(self, value):
+        if value:
+            f = Fernet(settings.ENCRYPTION_KEY.encode())
+            return f.encrypt(value.encode()).decode()
+        return value
+
+    def from_db_value(self, value, expression, connection):
+        if value:
+            f = Fernet(settings.ENCRYPTION_KEY.encode())
+            return f.decrypt(value.encode()).decode()
+        return value
 ```
 
 2. 設定追加
 ```python
 # config/settings/base.py
-CRYPTOGRAPHY_KEY = env('CRYPTOGRAPHY_KEY')  # 環境変数から取得
+ENCRYPTION_KEY = env('ENCRYPTION_KEY', default='...')  # 環境変数から取得
 ```
 
-3. モデル変更
+3. モデルで使用
 ```python
 # apps/settings_app/models.py
-from django_cryptography.fields import encrypt
+from apps.core.fields import EncryptedTextField
 
 class SpreadsheetConnection(TenantBaseModel):
-    # 変更前
-    # credentials_json = models.TextField(...)
-
-    # 変更後
-    credentials_json = encrypt(models.TextField(
+    credentials_json = EncryptedTextField(
         blank=True,
-        verbose_name='認証情報JSON',
-    ))
+        verbose_name='認証情報（JSON）',
+        help_text='Google Cloud サービスアカウントのJSONキー（暗号化して保存）'
+    )
 ```
 
-4. マイグレーション作成・適用
+**本番環境設定**:
 ```bash
-python manage.py makemigrations settings_app
-python manage.py migrate
+# ENCRYPTION_KEY生成
+python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+
+# Render.comで環境変数に設定
+ENCRYPTION_KEY=<生成されたキー>
 ```
 
-**影響ファイル**:
-- `apps/settings_app/models.py`
-- `config/settings/base.py`
-- `requirements.txt`
+**変更ファイル**:
+- `apps/core/fields.py` （新規作成）
+- `apps/settings_app/models.py` （更新）
+- `config/settings/base.py` （ENCRYPTION_KEY追加）
+- `requirements.txt` （cryptography追加）
+
+**ステータス**: ✅ 解決済み・本番デプロイ済み
 
 ---
 

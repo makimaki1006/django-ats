@@ -2,7 +2,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/Django-5.0-green.svg)](https://www.djangoproject.com/)
-[![Test Coverage](https://img.shields.io/badge/coverage-99%25-brightgreen.svg)](https://github.com/makimaki1006/django-ats)
+[![Test Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen.svg)](https://github.com/makimaki1006/django-ats)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 マルチテナント対応の採用管理システム（ATS: Applicant Tracking System）です。採用コンサルティング会社が顧客企業に提供するSaaS型ATSとして設計されています。
@@ -97,8 +97,13 @@ SECRET_KEY=your-secret-key
 DATABASE_URL=postgres://user:pass@localhost:5432/django_ats
 ALLOWED_HOSTS=localhost,127.0.0.1
 
+# 暗号化キー（EncryptedTextField用）
+# 生成: python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+ENCRYPTION_KEY=your-fernet-key-here
+
 # Google Sheets連携（オプション）
-GOOGLE_CREDENTIALS_PATH=path/to/credentials.json
+GOOGLE_SHEETS_ENABLED=False
+GOOGLE_CREDENTIALS_JSON=
 ```
 
 ## テスト
@@ -118,9 +123,8 @@ pytest tests/test_candidates.py -v
 
 | 項目 | 値 |
 |------|-----|
-| テスト数 | 1,068 |
-| カバレッジ | 99% |
-| 未カバー行 | 37 |
+| テスト数 | 1,143 |
+| カバレッジ | 95% |
 
 ## プロジェクト構成
 

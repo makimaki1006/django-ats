@@ -110,6 +110,7 @@ curl http://localhost:8000/health/
 | `SECRET_KEY` | Djangoシークレットキー | 50文字以上のランダム文字列 |
 | `POSTGRES_PASSWORD` | PostgreSQLパスワード | 強力なパスワード |
 | `ALLOWED_HOSTS` | 許可するホスト名 | `example.com,www.example.com` |
+| `ENCRYPTION_KEY` | 暗号化キー（Fernet形式） | 下記コマンドで生成 |
 
 ### オプション
 
@@ -119,10 +120,14 @@ curl http://localhost:8000/health/
 | `SENTRY_DSN` | Sentry DSN | なし |
 | `REDIS_URL` | Redis接続URL | `redis://redis:6379/0` |
 
-### シークレットキーの生成
+### キーの生成
 
-```python
+```bash
+# SECRET_KEY
 python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+
+# ENCRYPTION_KEY
+python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
 ```
 
 ---
