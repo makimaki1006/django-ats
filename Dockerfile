@@ -8,6 +8,12 @@ FROM python:3.11-slim as builder
 
 WORKDIR /app
 
+# eMudhra (emSign) 対策: python:3.11-slim の pip 24.0 は内蔵 certifi に失効対象のルートCAを持ち、
+# OS の証明書ストアとは別に PyPI との通信でそれを信頼してしまう。
+# PyPI から何かを入れる前に、ハッシュ固定で pip 26.2.2 へ上げる（URL直指定。
+# sha256 は PyPI のメタデータと python.org フォーラムの告知の双方で一致を確認済み）。
+RUN pip install --no-cache-dir "pip @ https://files.pythonhosted.org/packages/3f/06/3e4420302363fbb71be3c7f35ce042f54bfca330e3e66b3a2e3c4cca579f/pip-26.2.2-py3-none-any.whl#sha256=fd7f4dfa8190e014013b9f08f3e973f4e4c26ffd179a204895533a7254813a70"
+
 # Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
