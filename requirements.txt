@@ -1,6 +1,9 @@
 # Django ATS - Requirements
 # Version-pinned for reproducibility
 
+# Security: eMudhra (emSign) 失効対応。certifi 2026.10.19 以降で該当ルートが外れている
+certifi>=2026.10.19
+
 # Core Framework
 Django==5.0.9
 
